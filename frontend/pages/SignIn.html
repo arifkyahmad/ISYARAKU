@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Login</title>
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../css/pages/style.css">
 </head>
 <body>
 
@@ -42,7 +42,7 @@
       <div class="login-card">
 
         <label>Email</label>
-        <input type="email" placeholder="@nio@email.com">
+        <input id="email" type="email" placeholder="@nio@email.com">
 
         <label>Kata Sandi</label>
 
@@ -83,8 +83,8 @@
 
 </main>
 
-
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabaseClient.js"></script>
 </body>
 </html>
 
@@ -391,9 +391,9 @@ toggle.addEventListener("click", () => {
 
 });
 
-document.querySelector(".login-btn").addEventListener("click", () => {
+document.querySelector(".login-btn").addEventListener("click", async () => {
 
-    const email = document.querySelector("input[type=email]").value;
+    const email = document.getElementById("email").value
     const pass = password.value;
 
     if(email === "" || pass === ""){
@@ -401,7 +401,16 @@ document.querySelector(".login-btn").addEventListener("click", () => {
         return;
     }
 
-    alert("Login berhasil (dummy).");
+    const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password: pass
+    });
+
+    if (error) {
+    alert(error.message);
+    } else {
+    alert("Login berhasil!");
+    }
 
 });
 </script>

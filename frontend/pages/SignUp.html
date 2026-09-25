@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Daftar</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../css/pages/style.css">
 </head>
 <body>
 
@@ -39,10 +39,10 @@
       <div class="register-card">
 
         <label>Nama Lengkap</label>
-        <input type="text" placeholder="@nio@email.com">
+        <input id="nama" type="text" placeholder="Nama lengkap kamu">
 
         <label>Email</label>
-        <input type="email" placeholder="@nio@email.com">
+        <input id="email" type="email" placeholder="@nio@email.com">
 
         <label>Kata Sandi</label>
 
@@ -89,8 +89,8 @@
 
 </main>
 
-
-<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabaseClient.js"></script>
 </body>
 </html>
 
@@ -417,7 +417,7 @@ input:focus{
 
     });
 
-    toggleConfirm.addEventListener("click", () => {
+    toggleConfirmPassword.addEventListener("click", () => {
 
     if(confirmPassword.type === "password"){
         confirmPassword.type = "text";
@@ -455,10 +455,10 @@ input:focus{
     password.addEventListener("input", validatePassword);
     confirmPassword.addEventListener("input", validatePassword);
 
-    registerBtn.addEventListener("click", () => {
+    registerBtn.addEventListener("click", async () => { 
 
-        const name = document.querySelector('input[type="text"]').value;
-        const email = document.querySelector('input[type="email"]').value;
+        const name = document.getElementById("nama").value;
+        const email = document.getElementById("email").value;
 
         if(name === "" || email === "" || password.value === "" || confirmPassword.value === ""){
             alert("Semua field wajib diisi.");
@@ -470,7 +470,19 @@ input:focus{
             return;
         }
 
+        const { data, error } = await supabase.auth.signUp({
+        email,
+        password: password.value,
+        options: {
+            data: { nama: name }
+        }
+        });
+
+        if (error) {
+        alert(error.message);
+        } else {
         alert("Registrasi berhasil!");
+        }
 
     });
 
