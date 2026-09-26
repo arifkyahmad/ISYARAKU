@@ -42,7 +42,7 @@ body{
 
 .left-panel{
     width:52%;
-    background:linear-gradient(90deg, #A88FD2, #7A5FC3);
+    background:linear-gradient(90deg, #A88FD2, #7A5FC3);background:linear-gradient(90deg, #A88FD2, #7A5FC3);
     color:white;
     padding:45px;
     border-bottom-right-radius: 60px 140px;
@@ -247,40 +247,3 @@ input:focus{
 
 
 
-@media (max-width:960px){
-
-    body{
-        padding:20px;
-        overflow:auto;
-    }
-
-    .container{
-        width:100%;
-        height:auto;
-        flex-direction:column;
-    }
-
-    .left-panel{
-        width:100%;
-        border-radius:30px;
-        padding-bottom:240px;
-    }
-
-    .hero-text{
-        width:auto;
-        left:40px;
-        right:40px;
-        bottom:50px;
-    }
-
-    .hero-text h1{
-        font-size:42px;
-    }
-
-    .right-panel{
-        width:100%;
-        padding:45px 0;
-    }
-
-
-}

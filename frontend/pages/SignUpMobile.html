@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Isyaraku - Daftar</title>
+  <link rel="stylesheet" href="../assets/css/SignUpMobile.css">
+  <script src="../js/pages/SignUpMobile.js" defer></script>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<main class="mobile-container">
+
+  <section class="top-section">
+    <h2 class="logo">!syaraku</h2>
+    <div class="heading-text">
+      <h1>Daftar Akun Baru</h1>
+      <p>Mulailah petualangan belajarmu dengan IsyaraKu!</p>
+    </div>
+  </section>
+
+  <section class="register-card">
+
+    <label>Nama Lengkap</label>
+    <input type="text" placeholder="Leonio Putra">
+
+    <label>Email</label>
+    <input type="email" placeholder="@nio@email.com">
+
+    <label>Kata Sandi</label>
+    <div class="password-box">
+      <input id="password" type="password" placeholder="••••••••">
+      <button id="togglePassword" type="button">
+        <img id="eyeIcon" src="../assets/img/hide.png" alt="Show Password">
+      </button>
+    </div>
+
+    <p id="passwordMessage" class="message"></p>
+
+    <label for="confirmPassword">Konfirmasi Kata Sandi</label>
+    <div class="password-box">
+      <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
+      <button type="button" id="toggleConfirmPassword">
+        <img src="../assets/img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
+      </button>
+    </div>
+
+    <div class="terms-checkbox">
+      <input type="checkbox" id="agreeTerms">
+      <label for="agreeTerms">Saya menyetujui <a href="#">Ketentuan Layanan</a> &amp; <a href="#">Kebijakan Privasi</a></label>
+    </div>
+
+    <button class="register-btn" id="registerBtn">Daftar</button>
+
+    <div class="register">
+      Sudah punya akun? <a href="SignInMobile.html">Masuk Sekarang</a>
+      <br>
+      Atau masuk dengan
+    </div>
+
+    <div class="register-options">
+      <button class="options-btn">
+        <img src="../assets/img/search (1).png" alt="">
+      </button>
+    </div>
+
+  </section>
+
+</main>
+
+</body>
+</html>

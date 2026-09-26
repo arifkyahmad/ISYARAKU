@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg, #A88FD2, #7A5FC3);
+    position:relative;
+}
+
+/* efek grain, fixed supaya tetap nutupin layar walau halaman discroll */
+.noise{
+    position:fixed;
+    inset:0;
+    opacity:.18;
+    background-image:
+    radial-gradient(#fff 0.6px, transparent 0.6px);
+    background-size:8px 8px;
+    pointer-events:none;
+}
+
+.mobile-container{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+}
+
+/* ================= TOP: logo + heading, satu blok ungu solid ================= */
+
+.top-section{
+    color:white;
+    padding:28px 24px 46px;
+}
+
+.logo{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:24px;
+}
+
+.heading-text h1{
+    font-size:26px;
+    font-weight:700;
+    line-height:1.25;
+    margin-bottom:6px;
+}
+
+.heading-text p{
+    font-size:14px;
+    color:#ede8ff;
+    line-height:1.6;
+}
+
+/* ================= CARD: form ================= */
+
+.login-card{
+    position:relative;
+    background:#f7f7f7;
+    /* margin negatif kecil supaya kartu tetap sedikit "naik", ditambah
+       ::before di bawah buat bentuk ungu melengkung yang nyembul di
+       belakang kartu (elemen dekoratif dari desain, bukan gradient) */
+    margin:10px 20px 32px;
+    border-radius:26px;
+    padding:22px 20px;
+    box-shadow:0 12px 30px rgba(0,0,0,.15);
+    text-align:center;
+}
+
+.login-card::before{
+    content:"";
+    position:absolute;
+    top:-22px;
+    left:0px;
+    right:0px;
+    height:60px;
+    background:#7A5FC3;
+    border-radius:24px;
+    z-index:-1;
+}
+
+label{
+    display:block;
+    text-align:left;
+    font-size:13px;
+    margin-bottom:6px;
+    color:#555;
+}
+
+input{
+    width:100%;
+    padding:14px 15px;
+    border-radius:12px;
+    border:1px solid #d8d8d8;
+    margin-bottom:14px;
+    outline:none;
+    font-size:16px; /* jaga di 16px biar iOS Safari nggak auto-zoom saat fokus */
+    transition:.3s;
+}
+
+input:focus{
+    border-color:#7d58d5;
+}
+
+.password-box{
+    position:relative;
+}
+
+.password-box button{
+    position:absolute;
+    right:12px;
+    top:50%;
+    transform:translateY(-58%);
+    border:none;
+    background:none;
+    cursor:pointer;
+    color:#777;
+}
+
+.password-box img{
+    width:20px;
+    height:20px;
+    opacity:.7;
+}
+
+.forgot{
+    display:block;
+    text-align:left;
+    text-decoration:none;
+    color:#9078e8;
+    font-size:12px;
+    margin-bottom:16px;
+}
+
+.login-btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#6d4cc7;
+    color:white;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.login-btn:hover{
+    background:#5c3db7;
+}
+
+.register{
+    margin-top:16px;
+    font-size:13px;
+    color:#555;
+}
+
+.register a{
+    color:#7c58d4;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.login-options{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top:12px;
+}
+
+.options-btn{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    border: none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+
+.options-btn img{
+    width:22px;
+    aspect-ratio:1/1;
+}
