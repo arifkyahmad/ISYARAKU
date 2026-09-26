@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Login</title>
   <link rel="stylesheet" href="../assets/css/SignInDesktop.css">
-  <link rel="stylesheet" href="../js/pages/SignIn.js">
+  <script src="../js/pages/SignIn.js" defer></script>
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -96,38 +96,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
-
-
-<script>
-const password = document.getElementById("password");
-const toggle = document.getElementById("togglePassword");
-
-toggle.addEventListener("click", () => {
-
-    if(password.type === "password"){
-        password.type = "text";
-        eyeIcon.src = "../assets/img/view.png"
-        eyeIcon.alt = "Hide Password"
-    }else{
-        password.type = "password";
-        eyeIcon.src = "../assets/img/hide.png"
-        eyeIcon.alt = "Show Password"
-    }
-
-});
-
-document.querySelector(".login-btn").addEventListener("click", () => {
-
-    const email = document.querySelector("input[type=email]").value;
-    const pass = password.value;
-
-    if(email === "" || pass === ""){
-        alert("Mohon isi email dan kata sandi.");
-        return;
-    }
-
-    alert("Login berhasil (dummy).");
-
-});
-</script>
