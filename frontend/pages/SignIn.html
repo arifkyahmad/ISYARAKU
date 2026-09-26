@@ -401,7 +401,7 @@ document.querySelector(".login-btn").addEventListener("click", async () => {
         return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
     email,
     password: pass
     });
