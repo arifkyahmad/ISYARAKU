@@ -17,7 +17,7 @@
     <h2 class="logo">!syaraku</h2>
 
     <div class="hero-text">
-      <h1>Belajar BISINDO,<br>tumbuh bersama.</h1>
+      <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
 
       <p>
         Platform belajar inklusif dengan video, praktik kamera pintar,
@@ -49,7 +49,7 @@
         <div class="password-box">
           <input id="password" type="password" placeholder="••••••••">
           <button id="togglePassword" type="button">
-            <img id= "eyeIcon" src="img/hide.png" alt="ShowPassword ">
+            <img id= "eyeIcon" src="../assets/img/hide.png" alt="ShowPassword ">
           </button>
         </div>
 
@@ -60,19 +60,20 @@
         <div class="password-box">
             <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
             <button type="button" id="toggleConfirmPassword" >
-                <img src="img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
+                <img src="../assets/img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
             </button>
         </div>
 
-        <a href="#" class="forgot">Lupa Kata Sandi?</a>
-
         <button class="register-btn" id="registerBtn">Daftar</button>
 
-        
+        <div class="register">
+        <br>
+        Atau masuk dengan
+      </div>
 
       <div class="register-options">
         <button class="options-btn">
-        <img src="img/search (1).png" alt="">
+        <img src="../assets/img/search (1).png" alt="">
       </button>
       </div>
 
@@ -110,7 +111,6 @@ body{
     justify-content:center;
     align-items:center;
     overflow:hidden;
-    background: url(img/9dff1bedbea3a4ccf2cf5f75e10b1dc92ed49932.png);
     background-size: cover;
     position:relative;
 }
@@ -150,11 +150,12 @@ body{
 .logo{
     font-size:28px;
     font-weight:700;
+    margin-left: 60px;
 }
 
 .hero-text{
     position:absolute;
-    left:55px;
+    left:105px;
     bottom:120px;
     width:420px;
 }
@@ -307,6 +308,19 @@ input:focus{
     background:#5c3db7;
 }
 
+.register{
+    margin: 0px;
+    font-size:13px;
+    color:#555;
+}
+
+.register a{
+    color:#7c58d4;
+    text-decoration:none;
+    font-weight:500;
+}
+
+
 .message{
     font-size:12px;
     margin:-8px 0 16px;
@@ -319,7 +333,6 @@ input:focus{
 }
 
 .register{
-    margin-top:18px;
     font-size:13px;
     color:#555;
 }
@@ -335,7 +348,7 @@ input:focus{
     width:48px;
     height:48px;
     border-radius:50%;
-    border-color: none;
+    border: none;
     color:#6d4cc7;
     font-size:22px;
     cursor:pointer;
@@ -407,25 +420,25 @@ input:focus{
 
     if(password.type === "password"){
         password.type = "text";
-        eyeIcon.src = "img/view.png"
+        eyeIcon.src = "../assets/img/view.png"
         eyeIcon.alt = "Hide Password"
     }else{
         password.type = "password";
-        eyeIcon.src = "img/hide.png"
+        eyeIcon.src = "../assets/img/hide.png"
         eyeIcon.alt = "Show Password"
     }
 
     });
 
-    toggleConfirm.addEventListener("click", () => {
+    toggleConfirmPassword.addEventListener("click", () => {
 
     if(confirmPassword.type === "password"){
         confirmPassword.type = "text";
-        confirmEyeIcon.src = "img/view.png";
+        confirmEyeIcon.src = "../assets/img/view.png";
         confirmEyeIcon.alt = "Hide Password";
     }else{
         confirmPassword.type = "password";
-        confirmEyeIcon.src = "img/hide.png";
+        confirmEyeIcon.src = "../assets/img/hide.png";
         confirmEyeIcon.alt = "Show Password";
     }
 
@@ -441,11 +454,11 @@ input:focus{
         }
 
         if(password.value === confirmPassword.value){
-            message.textContent = "✓ Kata sandi cocok";
+            message.textContent = " Kata sandi cocok";
             message.classList.add("success");
             return true;
         }else{
-            message.textContent = "✗ Kata sandi tidak sama";
+            message.textContent = " Kata sandi tidak sama";
             message.classList.remove("success");
             return false;
         }
