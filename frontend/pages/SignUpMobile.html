@@ -6,6 +6,14 @@
   <title>Isyaraku - Daftar</title>
   <link rel="stylesheet" href="../assets/css/SignUpMobile.css">
   <script src="../js/pages/SignUpMobile.js" defer></script>
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "ISI_SUPABASE_URL_KAMU",
+      "ISI_SUPABASE_ANON_KEY_KAMU"
+    );
+</script>
 </head>
 <body>
 
@@ -24,10 +32,10 @@
   <section class="register-card">
 
     <label>Nama Lengkap</label>
-    <input type="text" placeholder="Leonio Putra">
+    <input id="fullName" type="text" placeholder="Leonio Putra">
 
     <label>Email</label>
-    <input type="email" placeholder="@nio@email.com">
+    <input id="email" type="email" placeholder="@nio@email.com">
 
     <label>Kata Sandi</label>
     <div class="password-box">
@@ -61,8 +69,8 @@
     </div>
 
     <div class="register-options">
-      <button class="options-btn">
-        <img src="../assets/img/search (1).png" alt="">
+      <button id="googleBtn" class="options-btn">
+        <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
       </button>
     </div>
 

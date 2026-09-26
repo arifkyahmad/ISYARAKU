@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Daftar</title>
   <link rel="stylesheet" href="../assets/css/SignUpDesktop.css">
-  <link rel="stylesheet" href="../js/pages/SigUp.js">
+  <link rel="stylesheet" href="../js/pages/SignUp.js">
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "ISI_SUPABASE_URL_KAMU",
+      "ISI_SUPABASE_ANON_KEY_KAMU"
+    );
+  </script>
 </head>
 <body>
 
@@ -40,10 +48,10 @@
       <div class="register-card">
 
         <label>Nama Lengkap</label>
-        <input type="text" placeholder="@nio@email.com">
+        <input id="fullName" type="text" placeholder="@nio@email.com">
 
         <label>Email</label>
-        <input type="email" placeholder="@nio@email.com">
+        <input id="email" type="email" placeholder="@nio@email.com">
 
         <label>Kata Sandi</label>
 
@@ -78,7 +86,7 @@
       </div>
 
       <div class="register-options">
-        <button class="options-btn">
+        <button id="googleBtn" class="options-btn">
         <img src="../assets/img/search (1).png" alt="">
       </button>
       </div>

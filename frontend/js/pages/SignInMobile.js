@@ -1,24 +1,38 @@
 const password = document.getElementById("password");
 const toggle = document.getElementById("togglePassword");
 const eyeIcon = document.getElementById("eyeIcon");
+const googleBtn = document.getElementById("googleBtn");
 
 toggle.addEventListener("click", () => {
 
     if(password.type === "password"){
         password.type = "text";
-        eyeIcon.src = "../assets/img/view.png"
-        eyeIcon.alt = "Hide Password"
+        eyeIcon.src = "../assets/img/view.png";
+        eyeIcon.alt = "Hide Password";
     }else{
         password.type = "password";
-        eyeIcon.src = "../assets/img/hide.png"
-        eyeIcon.alt = "Show Password"
+        eyeIcon.src = "../assets/img/hide.png";
+        eyeIcon.alt = "Show Password";
     }
 
 });
 
-document.querySelector(".login-btn").addEventListener("click", () => {
+googleBtn.addEventListener("click", async () => {
 
-    const email = document.querySelector("input[type=email]").value;
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: window.location.origin + "/frontend/pages/../index.html"
+        }
+    });
+
+    if(error) alert(error.message);
+
+});
+
+document.querySelector(".login-btn").addEventListener("click", async () => {
+
+    const email = document.getElementById("email").value;
     const pass = password.value;
 
     if(email === "" || pass === ""){
@@ -26,6 +40,15 @@ document.querySelector(".login-btn").addEventListener("click", () => {
         return;
     }
 
-    alert("Login berhasil (dummy).");
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password: pass
+    });
+
+    if(error){
+        alert(error.message);
+    }else{
+        alert("Login berhasil!");
+    }
 
 });
