@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    background:linear-gradient(160deg, #A88FD2, #6b4fc0);
+    position:relative;
+    overflow-x:hidden;
+}
+
+/* efek grain, fixed supaya tetap nutupin layar walau halaman discroll */
+.noise{
+    position:fixed;
+    inset:0;
+    opacity:.18;
+    background-image:
+    radial-gradient(#fff 0.6px, transparent 0.6px);
+    background-size:8px 8px;
+    pointer-events:none;
+}
+
+.landing-container{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    padding:24px 24px 40px;
+    color:white;
+}
+
+.logo{
+    font-size:20px;
+    font-weight:700;
+    position:relative;
+    z-index:2;
+}
+
+/* Ilustrasi tangan dari file SVG yang dikirim, dibiarkan proporsional
+   ngikutin aspect ratio aslinya (402x528) */
+.hand-illustration{
+    width:calc(100% + 24px);
+    max-width:none;
+    margin:8px 0 0 -24px;
+    display:block;
+    pointer-events:none;
+}
+
+/* didorong ke bawah layar pakai margin-top:auto di dalam flex column */
+.landing-content{
+    margin-top:auto;
+}
+
+.landing-content h1{
+    font-size:32px;
+    font-weight:700;
+    line-height:1.25;
+    margin-bottom:24px;
+    text-align:right;
+}
+
+.login-btn{
+    display:block;
+    width:100%;
+    padding:15px;
+    border-radius:16px;
+    background:linear-gradient(90deg, #a88fd2, #8267ca);
+    border:1px solid rgba(255,255,255,.3);
+    box-shadow:0 4px 30px rgba(0,0,0,.1);
+    backdrop-filter:blur(15.5px);
+    -webkit-backdrop-filter:blur(15.5px);
+    color:white;
+    font-size:15px;
+    font-weight:600;
+    text-align:center;
+    text-decoration:none;
+    margin-bottom:14px;
+    transition:.25s;
+}
+
+.login-btn:hover{
+    background:linear-gradient(90deg, #ab8ce1, #7c62cb);
+    transform:scale(1.02);
+}
+
+.register-link{
+    text-align:center;
+    font-size:13px;
+    color:#e7defc;
+}
+
+.register-link a{
+    color:#f3ecff;
+    text-decoration:none;
+    font-weight:600;
+}

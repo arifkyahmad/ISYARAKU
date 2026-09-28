@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* [BARU] Skala dasar untuk seluruh halaman.
+   1rem = 16px saat layar ≥ 1440px lebar (ukuran desain asli). Di viewport yang lebih kecil
+   (misal browser di-zoom 125% / 150%), 1rem ikut mengecil sebanding lebar & tinggi layar,
+   jadi komposisi tetap utuh, tidak terpotong, dan tidak ada horizontal scroll.
+   Dibatasi 9px–16px: tidak lebih besar dari desain asli, tidak terlalu kecil. */
+html{
+    font-size:clamp(9px, min(1.1111vw, 2.3188vh), 16px);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow-x:hidden;      /* [UBAH] sebelumnya overflow:hidden (memotong konten). Sekarang cuma horizontal yang dikunci */
+    background-size: cover;
+    position:relative;
+}
+
+/* efek grain (tidak diubah) */
+.noise{
+    position:absolute;
+    inset:0;
+    opacity:.18;
+    background-image:
+    radial-gradient(#fff 0.6px, transparent 0.6px);
+    background-size:8px 8px;
+    pointer-events:none;
+}
+
+.container{
+    width:100%;
+    height:43.125rem;       /* [UBAH] 690px → rem, ikut skala (typo "; ;" juga dibersihkan) */
+    background:linear-gradient(to bottom, #7A5FC3 50%, #d9c8e8 50%);
+    overflow:hidden;
+    display:flex;
+    position:relative;
+    box-shadow:0 1.5625rem 3.75rem rgba(0,0,0,.25);   /* [UBAH] px → rem */
+}
+
+/* ================= LEFT ================= */
+
+.left-panel{
+    width:52%;
+    background:linear-gradient(90deg, #A88FD2, #7A5FC3);
+    color:white;
+    padding:2.8125rem;                                      /* [UBAH] 45px → rem */
+    border-bottom-right-radius:3.75rem 8.75rem;             /* [UBAH] 60px 140px → rem */
+    position:relative;      /* tetap: jadi acuan posisi hero-text, tombol, dan link di bawah */
+    justify-content: center;
+    align-items: center;
+}
+
+.logo{
+    font-size:1.75rem;          /* [UBAH] 28px → rem */
+    font-weight:700;
+    margin-left:3.75rem;        /* [UBAH] 60px → rem */
+}
+
+/* [UBAH] Hero, tombol, dan link tetap position:absolute (HTML tidak punya pembungkus),
+   tapi semua jarak dipindah ke rem supaya ikut skala. */
+.hero-text{
+    position:absolute;
+    left:6.5625rem;                          /* 105px */
+    bottom:12.5rem;                          /* 200px */
+    width:26.25rem;                          /* 420px */
+    max-width:calc(100% - 6.5625rem);        /* [BARU] jangan pernah melebihi panel */
+}
+
+.hero-text h1{
+    font-size:3.5rem;           /* [UBAH] 56px → rem */
+    line-height:1.08;
+    margin-bottom:1.125rem;     /* [UBAH] 18px → rem */
+    font-weight:700;
+}
+
+.hero-text p{
+    font-size:1.125rem;         /* [UBAH] 18px → rem */
+    color:#ede8ff;
+    line-height:1.7;
+}
+
+.Login-btn {
+    position:absolute;
+    /* [UBAH] sebelumnya width:50% + right:315px (campuran % dan px, jadi posisi kirinya
+       bergeser tiap ukuran layar / zoom berubah). Sekarang dikunci sejajar dengan .hero-text:
+       left & lebar sama (105px / 420px), yang memang cocok dengan posisi lama di layar ±1600px. */
+    left:6.5625rem;
+    width:26.25rem;
+    max-width:calc(100% - 6.5625rem);
+    padding:.875rem;                    /* [UBAH] 14px → rem */
+    color:white;
+    font-weight:600;
+    font-size:.8333rem;                 /* [BARU] 13.33px = default button, dikunci ke rem agar ikut skala */
+    cursor:pointer;
+    transition:.25s;
+    z-index: 1;
+    bottom:8.125rem;                    /* [UBAH] 130px → rem */
+    /* From https://css.glass */
+    /* [UBAH] background/border/radius lama (#6d4cc7, border hitam, 12px) dihapus karena
+       selalu tertimpa deklarasi glass di bawah; tampilan akhir tidak berubah. */
+    background: linear-gradient(90deg, #a88fd2, #8267ca);
+    border-radius:1rem;                                 /* 16px */
+    box-shadow:0 .25rem 1.875rem rgba(0, 0, 0, 0.1);    /* 0 4px 30px */
+    backdrop-filter:blur(.96875rem);                    /* 15.5px */
+    -webkit-backdrop-filter:blur(.96875rem);
+    border:1px solid rgba(109, 76, 199, 0.3);
+}
+
+.Login-btn:hover{
+    background: linear-gradient(90deg, #ab8ce1, #7c62cb);
+    border-radius:1rem;
+    box-shadow:0 .25rem 1.875rem rgba(0, 0, 0, 0.1);
+    backdrop-filter:blur(.96875rem);
+    -webkit-backdrop-filter:blur(.96875rem);
+    border:1px solid rgba(109, 76, 199, 0.3);
+    transform: scale(1.04);
+}
+
+.register-link{
+    /* [UBAH] posisi & lebar disamakan dengan .Login-btn (lihat alasan di atas) */
+    position:absolute;
+    bottom:5.5rem;                      /* 88px */
+    left:6.5625rem;
+    width:26.25rem;
+    max-width:calc(100% - 6.5625rem);
+    text-align:center;
+    font-size:.875rem;                  /* [UBAH] 14px → rem */
+    color:#2b2140;
+    z-index:1;
+}
+
+/* [UBAH] Di file lama ada baris nyasar ".register-link p" tepat sebelum rule ini (tanpa kurung
+   kurawal), sehingga selector jadi ".register-link p .register-link a" dan gaya link tidak
+   pernah kepakai. Baris itu dihapus supaya rule di bawah aktif. */
+.register-link a{
+    color:#f3ecff;
+    text-decoration:none;
+    font-weight:600;
+}
+
+/* ================= RIGHT ================= */
+
+.right-panel{
+    width:48%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    border-top-left-radius:3.75rem 8.75rem;   /* [UBAH] px → rem */
+    background:#d9c8e8;
+}
+
+/* [BARU] Ilustrasi tangan. Di HTML gambar ini punya inline style (position:fixed, width:654.02px,
+   margin 30px/70px) yang tidak bisa diubah dari CSS biasa, jadi ditimpa pakai !important.
+   - position:fixed → absolute: gambar tetap terpotong rapi di batas container (bukan keluar
+     ke luar container saat layar lebih tinggi dari 690px).
+   - width & margin dari px → rem: ikut skala. rotate(-14.26deg) dan aspect-ratio di inline
+     style tidak berubah, jadi tidak perlu ditimpa. */
+.right-panel > img{
+    position:absolute !important;
+    width:40.8763rem !important;        /* 654.02px */
+    margin-left:1.875rem !important;    /* 30px */
+    margin-top:4.375rem !important;     /* 70px */
+}
+
+/* ---- Bagian di bawah ini tidak dipakai di IndexDesktop.html (sisa dari halaman login),
+   tetap dipertahankan dan dikonversi ke rem supaya konsisten kalau nanti dipakai lagi ---- */
+
+.login-wrapper{
+    margin: auto;
+    width:23.75rem;             /* [UBAH] 380px → rem */
+    max-width:90%;
+    position:relative;
+    text-align:center;
+}
+
+.purple-top{
+    height:7.5rem;              /* [UBAH] 120px → rem */
+    background: #6d4cc7;
+    border-radius:1.875rem 1.875rem 0 0;
+    color: white;
+    display: block;
+    padding-top:1.125rem;
+    justify-items: left;
+    padding-left:1rem;
+}
+
+.purple-top p{
+    font-size:.9375rem;
+    color:#ede8ff;
+    line-height:1.7;
+}
+
+.purple-top h2{
+    font-size:1.5rem;
+    font-weight:700;
+}
+
+.login-card{
+    background:#f7f7f7;
+    margin-top:-1.875rem;
+    border-radius:1.75rem;
+    padding:1.25rem;
+    box-shadow:0 .75rem 1.875rem rgba(0,0,0,.15);
+}
+
+.login-card h3{
+    margin-bottom:1.25rem;
+    color:#5b45aa;
+}
+
+.login-options{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    margin-top:.875rem;
+}
+
+label{
+    display:block;
+    text-align:left;
+    font-size:.8125rem;
+    margin-bottom:.375rem;
+    color:#555;
+}
+
+input{
+    width:100%;
+    padding:.8125rem .9375rem;
+    border-radius:.75rem;
+    border:1px solid #d8d8d8;
+    margin-bottom:1rem;
+    outline:none;
+    transition:.3s;
+    font-size:.8333rem;
+}
+
+input:focus{
+    border-color:#7d58d5;
+}
+
+.password-box{
+    position:relative;
+}
+
+.password-box button{
+    position:absolute;
+    right:.75rem;
+    top:50%;
+    transform:translateY(-58%);
+    border:none;
+    background:none;
+    cursor:pointer;
+    color:#777;
+}
+
+.password-box img{
+    width:1.25rem;
+    height:1.25rem;
+    opacity:.7;
+}
+
+.password-box button:hover img{
+    opacity:1;
+}
+
+.forgot{
+    display:block;
+    text-align:left;
+    text-decoration:none;
+    color:#9078e8;
+    font-size:.75rem;
+    margin-bottom:1.125rem;
+}
+
+.register{
+    margin-top:1.125rem;
+    font-size:.8125rem;
+    color:#555;
+}
+
+.register a{
+    color:#7c58d4;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.options-btn{
+    padding-top:.4375rem;
+    width:3rem;
+    height:3rem;
+    border-radius:50%;
+    border: none;
+    color:#6d4cc7;
+    font-size:1.375rem;
+    cursor:pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.options-btn img{
+    aspect-ratio: 1/1;
+    width:1.875rem;
+}
