@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,41 +10,42 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseClient = supabase.createClient(
-      "https://ogozgbkfgdlzlfxbmrff.supabase.co",
-      "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
+      "ISI_SUPABASE_URL_KAMU",
+      "ISI_SUPABASE_ANON_KEY_KAMU"
     );
   </script>
 </head>
-
 <body>
 
-    <div class="noise"></div>
+<div class="noise"></div>
 
-    <main class="container">
+<main class="container">
 
-        <!-- KIRI -->
-        <section class="left-panel">
-            <h2 class="logo">!syaraku</h2>
+  <!-- KIRI -->
+  <section class="left-panel">
+    <h2 class="logo">!syaraku</h2>
 
     <div class="hero-text">
       <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
 
-                <p>
-                    Platform belajar inklusif dengan video, praktik kamera pintar,
-                    dan petualangan yang menyenangkan.
-                </p>
-            </div>
-        </section>
+      <p>
+        Platform belajar inklusif dengan video, praktik kamera pintar,
+        dan petualangan yang menyenangkan.
+      </p>
+    </div>
+  </section>
 
-        <!-- KANAN -->
-        <section class="right-panel">
+  <!-- KANAN -->
+  <section class="right-panel">
+    
+    <div class="register-wrapper">
 
-            <div class="register-wrapper">
+      <div class="purple-top">
+        <h2>Daftar Akun Baru</h2>
+        <p>Mulailah Petualangan belajarmu dengan !syaraku</p>
+      </div>
 
-                <div class="purple-top">
-                    <h2>Daftar Akun Baru</h2>
-                    <p>Mulailah Petualangan belajarmu dengan !syaraku</p>
-                </div>
+      <div class="register-card">
 
         <label>Nama Lengkap</label>
         <input id="fullName" type="text" placeholder="Rusdi Budiono Siregar">
@@ -53,8 +53,7 @@
         <label>Email</label>
         <input id="email" type="email" placeholder="@nio@email.com">
 
-                    <label>Email</label>
-                    <input id="email" type="email" placeholder="@nio@email.com">
+        <label>Kata Sandi</label>
 
         <div class="password-box">
           <input id="password" type="password" placeholder="••••••••">
@@ -63,12 +62,7 @@
           </button>
         </div>
 
-                    <div class="password-box">
-                        <input id="password" type="password" placeholder="••••••••">
-                        <button id="togglePassword" type="button">
-                            <img id="eyeIcon" src="img/hide.png" alt="ShowPassword ">
-                        </button>
-                    </div>
+        <p id="passwordMessage" class="message"></p>
 
         <label for="confirmPassword">Konfirmasi Kata Sandi</label>
         
@@ -84,12 +78,7 @@
             <label for="agreeTerms">Saya menyetujui <a href="#">Ketentuan Layanan</a> &amp; <a href="#">Kebijakan Privasi</a></label>
         </div>
 
-                    <div class="password-box">
-                        <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
-                        <button type="button" id="toggleConfirmPassword">
-                            <img src="img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
-                        </button>
-                    </div>
+        <button class="register-btn" id="registerBtn">Daftar</button>
 
         <div class="register">
         <br>
@@ -112,5 +101,11 @@
     </div>
 
   </section>
+
+</main>
+
+
+<script src="script.js"></script>
+</body>
 </html>
 
