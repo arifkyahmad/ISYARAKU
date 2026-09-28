@@ -5,112 +5,96 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Daftar</title>
-  <link rel="stylesheet" href="../assets/css/SignUpDesktop.css">
-  <script src="../js/pages/SignUp.js" defer></script>
-  <!-- Supabase client -->
+  <link rel="stylesheet" href="../css/SignUpDesktop.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const supabaseClient = supabase.createClient(
-      "https://ogozgbkfgdlzlfxbmrff.supabase.co",
-      "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
-    );
-  </script>
+  <script src="../js/supabaseClient.js"></script>
+  <script src="../js/pages/SignUp.js" defer></script>
 </head>
 
 <body>
 
-    <div class="noise"></div>
+  <div class="noise"></div>
 
-    <main class="container">
+  <main class="container">
 
-        <!-- KIRI -->
-        <section class="left-panel">
-            <h2 class="logo">!syaraku</h2>
+    <!-- KIRI -->
+    <section class="left-panel">
+      <h2 class="logo">!syaraku</h2>
 
-    <div class="hero-text">
-      <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
+      <div class="hero-text">
+        <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
 
-                <p>
-                    Platform belajar inklusif dengan video, praktik kamera pintar,
-                    dan petualangan yang menyenangkan.
-                </p>
-            </div>
-        </section>
+        <p>
+          Platform belajar inklusif dengan video, praktik kamera pintar,
+          dan petualangan yang menyenangkan.
+        </p>
+      </div>
+    </section>
 
-        <!-- KANAN -->
-        <section class="right-panel">
+    <!-- KANAN -->
+    <section class="right-panel">
 
-            <div class="register-wrapper">
+      <div class="register-wrapper">
 
-                <div class="purple-top">
-                    <h2>Daftar Akun Baru</h2>
-                    <p>Mulailah Petualangan belajarmu dengan !syaraku</p>
-                </div>
-
-        <label>Nama Lengkap</label>
-        <input id="fullName" type="text" placeholder="Rusdi Budiono Siregar">
-
-        <label>Email</label>
-        <input id="email" type="email" placeholder="@nio@email.com">
-
-                    <label>Email</label>
-                    <input id="email" type="email" placeholder="@nio@email.com">
-
-        <div class="password-box">
-          <input id="password" type="password" placeholder="••••••••">
-          <button id="togglePassword" type="button">
-            <img id= "eyeIcon" src="../assets/img/hide.png" alt="ShowPassword ">
-          </button>
+        <div class="purple-top">
+          <h2>Daftar Akun Baru</h2>
+          <p>Mulailah Petualangan belajarmu dengan !syaraku</p>
         </div>
 
-                    <div class="password-box">
-                        <input id="password" type="password" placeholder="••••••••">
-                        <button id="togglePassword" type="button">
-                            <img id="eyeIcon" src="img/hide.png" alt="ShowPassword ">
-                        </button>
-                    </div>
+        <div class="register-card">
 
-        <label for="confirmPassword">Konfirmasi Kata Sandi</label>
-        
-        <div class="password-box">
-            <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
-            <button type="button" id="toggleConfirmPassword" >
-                <img src="../assets/img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
+          <label for="fullName">Nama Lengkap</label>
+          <input id="fullName" type="text" placeholder="Rusdi Budiono Siregar">
+
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="@nio@email.com">
+
+          <label for="password">Kata Sandi</label>
+          <div class="password-box">
+            <input id="password" type="password" placeholder="••••••••">
+            <button id="togglePassword" type="button">
+              <img id="eyeIcon" src="../assets/img/hide.png" alt="Show Password">
             </button>
-        </div>
+          </div>
 
-        <div class="terms-checkbox">
+          <label for="confirmPassword">Konfirmasi Kata Sandi</label>
+          <div class="password-box">
+            <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
+            <button id="toggleConfirmPassword" type="button">
+              <img id="confirmEyeIcon" class="eye-icon" src="../assets/img/hide.png" alt="Show Password">
+            </button>
+          </div>
+
+          <p id="passwordMessage" class="message"></p>
+
+          <div class="terms-checkbox">
             <input type="checkbox" id="agreeTerms">
             <label for="agreeTerms">Saya menyetujui <a href="#">Ketentuan Layanan</a> &amp; <a href="#">Kebijakan Privasi</a></label>
+          </div>
+
+          <button class="register-btn" id="registerBtn">Daftar</button>
+
+          <div class="register">
+            Sudah punya akun? <a href="SignIn.html">Masuk Sekarang</a>
+            <br>
+            Atau daftar dengan
+          </div>
+
+          <div class="register-options">
+            <button id="googleBtn" class="options-btn" type="button">
+              <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
+            </button>
+          </div>
+
         </div>
 
-                    <div class="password-box">
-                        <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
-                        <button type="button" id="toggleConfirmPassword">
-                            <img src="img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
-                        </button>
-                    </div>
-
-        <div class="register">
-        <br>
-        Atau masuk dengan
       </div>
 
-      <div class="register-options">
-        <button id="googleBtn" class="options-btn">
-        <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
-      </button>
-      </div>
+    </section>
 
-      </div>
+  </main>
 
-      
+</body>
 
-      
-      
-
-    </div>
-
-  </section>
 </html>
 
