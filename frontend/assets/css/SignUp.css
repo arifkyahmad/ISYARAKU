@@ -304,3 +304,273 @@ input:focus{
     text-decoration:none;
     font-weight:500;
 }
+
+/* Sembunyikan elemen mobile secara default di desktop */
+.mobile-only {
+    display: none;
+}
+
+/* ================= MEDIA QUERY MOBILE (Layar HP <= 768px) ================= */
+@media (max-width: 768px) {
+  /* 1. Kembalikan ukuran root font agar tidak mengecil drastis */
+  html {
+    font-size: 16px !important;
+  }
+
+  /* 2. Body mobile: layout mengalir normal dari atas, bukan terpusat di tengah layar */
+  body {
+    display: block !important;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #A88FD2, #7A5FC3) !important;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    opacity: .18;
+    background-image: radial-gradient(#fff 0.6px, transparent 0.6px);
+    background-size: 8px 8px;
+    pointer-events: none;
+  }
+
+  /* 3. Container utama: 1 kolom penuh */
+  .container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  /* Sembunyikan elemen khusus desktop, tampilkan khusus mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  /* 4. Bagian atas (logo + heading text) */
+  .left-panel {
+    width: 100% !important;
+    background: transparent !important;
+    padding: 28px 24px 46px !important;
+    border-radius: 0 !important;
+    display: block !important;
+    position: relative !important;
+  }
+
+  .logo {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    margin: 0 0 24px 0 !important;
+    text-align: left !important;
+  }
+
+  .heading-text {
+    text-align: left !important;
+  }
+
+  .heading-text h1 {
+    font-size: 26px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    margin-bottom: 6px !important;
+    color: #ffffff !important;
+  }
+
+  .heading-text p {
+    font-size: 14px !important;
+    color: #ede8ff !important;
+    line-height: 1.6 !important;
+  }
+
+  /* 5. Bagian form register (kanan di desktop, bawah di mobile) */
+  .right-panel {
+    width: 100% !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    display: block !important;
+    position: relative !important;
+  }
+
+  .register-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+  }
+
+  /* 6. Kartu register sesuai SignUpMobile.css */
+  .register-card {
+    position: relative !important;
+    background: #f7f7f7 !important;
+    margin: 10px 20px 32px !important;
+    border-radius: 26px !important;
+    padding: 22px 20px !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.15) !important;
+    text-align: center !important;
+    width: auto !important;
+  }
+
+  .register-card::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -22px !important;
+    left: 0px !important;
+    right: 0px !important;
+    height: 60px !important;
+    background: #7A5FC3 !important;
+    border-radius: 24px !important;
+    z-index: -1 !important;
+  }
+
+  /* 7. Elemen form */
+  label {
+    display: block !important;
+    text-align: left !important;
+    font-size: 13px !important;
+    margin-bottom: 6px !important;
+    color: #555 !important;
+  }
+
+  input {
+    width: 100% !important;
+    padding: 14px 15px !important;
+    border-radius: 12px !important;
+    border: 1px solid #d8d8d8 !important;
+    margin-bottom: 14px !important;
+    outline: none !important;
+    font-size: 16px !important;
+    transition: .3s !important;
+  }
+
+  input:focus {
+    border-color: #7d58d5 !important;
+  }
+
+  .password-box {
+    position: relative !important;
+  }
+
+  .password-box button {
+    position: absolute !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-58%) !important;
+    border: none !important;
+    background: none !important;
+    cursor: pointer !important;
+    color: #777 !important;
+  }
+
+  .password-box img {
+    width: 20px !important;
+    height: 20px !important;
+    opacity: .7 !important;
+  }
+
+  .message {
+    font-size: 12px !important;
+    margin: -8px 0 14px !important;
+    text-align: left !important;
+    color: #E53935 !important;
+  }
+
+  .message.success {
+    color: #2E7D32 !important;
+  }
+
+  .terms-checkbox {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    margin: -2px 0 16px !important;
+    text-align: left !important;
+  }
+
+  .terms-checkbox input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    margin-top: 2px !important;
+    accent-color: #6d4cc7 !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+  }
+
+  .terms-checkbox label {
+    font-size: 12px !important;
+    color: #555 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0 !important;
+    cursor: pointer !important;
+  }
+
+  .terms-checkbox label a {
+    color: #7c58d4 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+  }
+
+  .register-btn {
+    width: 100% !important;
+    padding: 15px !important;
+    border: none !important;
+    border-radius: 12px !important;
+    background: #6d4cc7 !important;
+    color: white !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: .25s !important;
+  }
+
+  .register-btn:hover {
+    background: #5c3db7 !important;
+  }
+
+  .register {
+    margin-top: 16px !important;
+    font-size: 13px !important;
+    color: #555 !important;
+  }
+
+  .register a {
+    color: #7c58d4 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+  }
+
+  .register-options {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-top: 12px !important;
+  }
+
+  .options-btn {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    border: none !important;
+    background: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+  }
+
+  .options-btn img {
+    width: 22px !important;
+    aspect-ratio: 1/1 !important;
+  }
+}

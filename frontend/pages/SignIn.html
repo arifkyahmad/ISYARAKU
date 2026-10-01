@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Login</title>
   <link rel="stylesheet" href="../assets/css/SignInDesktop.css">
-  <script src="../js/pages/SignIn.js" defer></script>
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -15,85 +13,70 @@
       "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
     );
   </script>
+  <script src="../js/pages/SignIn.js" defer></script>
 </head>
-
 <body>
+  <div class="noise"></div>
 
-    <div class="noise"></div>
+  <main class="container">
+    <!-- PANEL KIRI (Desktop) / BAGIAN ATAS (Mobile) -->
+    <section class="left-panel">
+      <h2 class="logo">!syaraku</h2>
 
-    <main class="container">
-
-        <!-- KIRI -->
-        <section class="left-panel">
-            <h2 class="logo">!syaraku</h2>
-
-    <div class="hero-text">
-      <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
-
-      <p>
-        Platform belajar inklusif dengan video, praktik kamera pintar,
-        dan petualangan yang menyenangkan.
-      </p>
-
-      
-    </div>
-
-  </section>
-
-  <!-- KANAN -->
-  <section class="right-panel">
-    
-    <div class="login-wrapper">
-
-      <div class="purple-top">
-        <h2>Masuk ke !syaraku</h2>
-        <p>Lanjutkan petualangan SIBI-mu!</p>
+      <!-- Teks Hero: Hanya tampil di Desktop -->
+      <div class="hero-text desktop-only">
+        <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
+        <p>Platform belajar inklusif dengan video, praktik kamera pintar, dan petualangan yang menyenangkan.</p>
       </div>
 
-      <div class="login-card">
+      <!-- Teks Heading: Hanya tampil di Mobile -->
+      <div class="heading-text mobile-only">
+        <h1>Masuk Ke IsyaraKu</h1>
+        <p>Lanjutkan petualangan belajar SIBI-mu</p>
+      </div>
+    </section>
 
-        <label>Email</label>
-        <input id="email" type="email" placeholder="@nio@email.com">
+    <!-- PANEL KANAN (Desktop) / KARTU LOGIN (Mobile) -->
+    <section class="right-panel">
+      <div class="login-wrapper">
 
-        <label>Kata Sandi</label>
-
-        <div class="password-box">
-          <input id="password" type="password" placeholder="••••••••">
-          <button id="togglePassword" type="button">
-            <img id= "eyeIcon" src="../assets/img/hide.png" alt="ShowPassword ">
-          </button>
+        <!-- Topi ungu: Hanya tampil di Desktop -->
+        <div class="purple-top desktop-only">
+          <h2>Masuk Ke IsyaraKu</h2>
+          <p>Lanjutkan petualangan belajar SIBI-mu</p>
         </div>
 
-        <a href="#" class="forgot">Lupa Kata Sandi?</a>
+        <!-- Kartu Form Login (Digunakan bersama oleh Desktop & Mobile) -->
+        <div class="login-card">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="@nio@email.com">
 
-        <button class="login-btn">Masuk</button>
+          <label>Kata Sandi</label>
+          <div class="password-box">
+            <input id="password" type="password" placeholder="••••••••">
+            <button id="togglePassword" type="button">
+              <img id="eyeIcon" src="../assets/img/hide.png" alt="Toggle Password">
+            </button>
+          </div>
 
-        <div class="register">
-        Belum punya akun?
-        <a href="SignUp.html">Daftar Sekarang</a>
-        <br>
-        Atau masuk dengan
+          <a href="#" class="forgot">Lupa Kata Sandi?</a>
+          <button class="login-btn">Masuk</button>
+
+          <div class="register">
+            Belum punya akun? <a href="SignUp.html">Daftar Sekarang</a>
+            <br>
+            Atau masuk dengan
+          </div>
+
+          <div class="login-options">
+            <button id="googleBtn" class="options-btn">
+              <img src="../assets/img/search (1).png" alt="Google">
+            </button>
+          </div>
+        </div>
+
       </div>
-
-      <div class="login-options">
-        <button id="googleBtn"  class="options-btn">
-        <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
-      </button>
-      </div>
-
-      </div>
-
-      
-
-      
-      
-
-    </div>
-
-  </section>
-
+    </section>
+  </main>
 </body>
-
-</main>
-
 </html>

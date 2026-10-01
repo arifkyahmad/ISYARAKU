@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Isyaraku - Belajar SIBI</title>
+  <link rel="stylesheet" href="assets/css/IndexDesktop.css">
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <main class="container">
+
+    <!-- PANEL KIRI (Desktop) / KONTEN UTAMA (Mobile) -->
+    <section class="left-panel">
+      <h2 class="logo">!syaraku</h2>
+
+      <!-- Ilustrasi tangan khusus Mobile -->
+      <img class="hand-illustration mobile-only" src="assets/img/Ilustrasi tangan kiri ke kanan.svg" alt="Ilustrasi tangan">
+
+      <!-- Teks Hero: Hanya tampil di Desktop -->
+      <div class="hero-text desktop-only">
+        <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
+        <p>
+          Platform belajar inklusif dengan video, praktik kamera pintar,
+          dan petualangan yang menyenangkan.
+        </p>
+      </div>
+
+      <!-- Heading teks khusus Mobile (teks rata kanan) -->
+      <div class="mobile-heading mobile-only">
+        <h1>Belajar SIBI,<br>tumbuh<br>bersama.</h1>
+      </div>
+
+      <!-- Tombol Masuk & Link Daftar (Bersama) -->
+      <button class="Login-btn" id="loginButton" type="button" onclick="window.location.href='SignIn.html'">
+        Masuk
+      </button>
+
+      <p class="register-link">
+        Belum punya akun? <a href="SignUp.html">Daftar Sekarang</a>
+      </p>
+
+    </section>
+
+    <!-- PANEL KANAN (Desktop saja) -->
+    <section class="right-panel desktop-only">
+      <img src="assets/img/Ilustrasi tangan.svg" alt="Ilustrasi tangan" style="position: fixed; aspect-ratio: 654.02/947.75; width: 654.02px; margin-left: 30px; margin-top: 70px; transform: rotate(-14.26deg);">
+    </section>
+
+  </main>
+
+</body>
+</html>

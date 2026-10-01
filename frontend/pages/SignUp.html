@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Isyaraku - Daftar</title>
   <link rel="stylesheet" href="../assets/css/SignUpDesktop.css">
-  <script src="../js/pages/SignUp.js" defer></script>
   <!-- Supabase client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -14,6 +13,7 @@
       "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
     );
   </script>
+  <script src="../js/pages/SignUp.js" defer></script>
 </head>
 <body>
 
@@ -21,82 +21,84 @@
 
 <main class="container">
 
-  <!-- KIRI -->
+  <!-- PANEL KIRI (Desktop) / BAGIAN ATAS (Mobile) -->
   <section class="left-panel">
     <h2 class="logo">!syaraku</h2>
 
-    <div class="hero-text">
+    <!-- Teks Hero: Hanya tampil di Desktop -->
+    <div class="hero-text desktop-only">
       <h1>Belajar SIBI,<br>tumbuh bersama.</h1>
-
       <p>
         Platform belajar inklusif dengan video, praktik kamera pintar,
         dan petualangan yang menyenangkan.
       </p>
     </div>
+
+    <!-- Teks Heading: Hanya tampil di Mobile -->
+    <div class="heading-text mobile-only">
+      <h1>Daftar Akun Baru</h1>
+      <p>Mulailah petualangan belajarmu dengan IsyaraKu!</p>
+    </div>
   </section>
 
-  <!-- KANAN -->
+  <!-- PANEL KANAN (Desktop) / KARTU REGISTER (Mobile) -->
   <section class="right-panel">
     
     <div class="register-wrapper">
 
-      <div class="purple-top">
+      <!-- Topi ungu: Hanya tampil di Desktop -->
+      <div class="purple-top desktop-only">
         <h2>Daftar Akun Baru</h2>
-        <p>Mulailah Petualangan belajarmu dengan !syaraku</p>
+        <p>Mulailah petualangan belajarmu dengan IsyaraKu!</p>
       </div>
 
+      <!-- Kartu Form Register (Digunakan bersama oleh Desktop & Mobile) -->
       <div class="register-card">
 
-        <label>Nama Lengkap</label>
-        <input id="fullName" type="text" placeholder="Rusdi Budiono Siregar">
+        <label for="fullName">Nama Lengkap</label>
+        <input id="fullName" type="text" placeholder="Leonio Putra">
 
-        <label>Email</label>
-        <input id="email" type="email" placeholder="@nio@email.com">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="nio@gmail.com">
 
-        <label>Kata Sandi</label>
-
+        <label for="password">Kata Sandi</label>
         <div class="password-box">
           <input id="password" type="password" placeholder="••••••••">
           <button id="togglePassword" type="button">
-            <img id= "eyeIcon" src="../assets/img/hide.png" alt="ShowPassword ">
+            <img id="eyeIcon" src="../assets/img/hide.png" alt="Show Password">
           </button>
         </div>
 
         <p id="passwordMessage" class="message"></p>
 
         <label for="confirmPassword">Konfirmasi Kata Sandi</label>
-        
         <div class="password-box">
-            <input id="confirmPassword" type="password" placeholder="Ulangi kata sandi">
-            <button type="button" id="toggleConfirmPassword" >
-                <img src="../assets/img/hide.png" class="eye-icon" alt="toggle" id="confirmEyeIcon">
-            </button>
+          <input id="confirmPassword" type="password" placeholder="••••••••">
+          <button type="button" id="toggleConfirmPassword">
+            <img src="../assets/img/hide.png" class="eye-icon" alt="Toggle Password" id="confirmEyeIcon">
+          </button>
         </div>
 
         <div class="terms-checkbox">
-            <input type="checkbox" id="agreeTerms">
-            <label for="agreeTerms">Saya menyetujui <a href="#">Ketentuan Layanan</a> &amp; <a href="#">Kebijakan Privasi</a></label>
+          <input type="checkbox" id="agreeTerms">
+          <label for="agreeTerms">Saya menyetujui <a href="#">Ketentuan Layanan</a> &amp; <a href="#">Kebijakan Privasi</a></label>
         </div>
 
         <button class="register-btn" id="registerBtn">Daftar</button>
 
         <div class="register">
-        <br>
-        Atau masuk dengan
+          Sudah punya akun? <a href="SignIn.html">Masuk Sekarang</a>
+          <br>
+          Atau masuk dengan
+        </div>
+
+        <div class="register-options">
+          <button id="googleBtn" class="options-btn">
+            <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
+          </button>
+        </div>
+
       </div>
-
-      <div class="register-options">
-        <button id="googleBtn" class="options-btn">
-        <img src="../assets/img/search (1).png" alt="Daftar dengan Google">
-      </button>
-      </div>
-
-      </div>
-
-      
-
-      
-      
 
     </div>
 
@@ -105,4 +107,3 @@
 </main>
 </body>
 </html>
-

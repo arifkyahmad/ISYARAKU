@@ -173,142 +173,152 @@ body{
     margin-top:4.375rem !important;     /* 70px */
 }
 
-/* ---- Bagian di bawah ini tidak dipakai di IndexDesktop.html (sisa dari halaman login),
-   tetap dipertahankan dan dikonversi ke rem supaya konsisten kalau nanti dipakai lagi ---- */
-
-.login-wrapper{
-    margin: auto;
-    width:23.75rem;             /* [UBAH] 380px → rem */
-    max-width:90%;
-    position:relative;
-    text-align:center;
+/* Sembunyikan elemen mobile secara default di desktop */
+.mobile-only {
+    display: none;
 }
 
-.purple-top{
-    height:7.5rem;              /* [UBAH] 120px → rem */
-    background: #6d4cc7;
-    border-radius:1.875rem 1.875rem 0 0;
-    color: white;
-    display: block;
-    padding-top:1.125rem;
-    justify-items: left;
-    padding-left:1rem;
-}
+/* ================= MEDIA QUERY MOBILE (Layar HP <= 768px) ================= */
+@media (max-width: 768px) {
+  /* 1. Kembalikan ukuran root font agar tidak mengecil drastis */
+  html {
+    font-size: 16px !important;
+  }
 
-.purple-top p{
-    font-size:.9375rem;
-    color:#ede8ff;
-    line-height:1.7;
-}
+  /* 2. Body mobile: layout mengalir normal dari atas */
+  body {
+    display: block !important;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #A88FD2, #6b4fc0) !important;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+  }
 
-.purple-top h2{
-    font-size:1.5rem;
-    font-weight:700;
-}
+  .noise {
+    position: fixed !important;
+    inset: 0 !important;
+    opacity: .18;
+    background-image: radial-gradient(#fff 0.6px, transparent 0.6px);
+    background-size: 8px 8px;
+    pointer-events: none;
+  }
 
-.login-card{
-    background:#f7f7f7;
-    margin-top:-1.875rem;
-    border-radius:1.75rem;
-    padding:1.25rem;
-    box-shadow:0 .75rem 1.875rem rgba(0,0,0,.15);
-}
+  /* 3. Container utama */
+  .container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
 
-.login-card h3{
-    margin-bottom:1.25rem;
-    color:#5b45aa;
-}
+  /* Sembunyikan elemen khusus desktop, tampilkan khusus mobile */
+  .desktop-only {
+    display: none !important;
+  }
 
-.login-options{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    margin-top:.875rem;
-}
+  .mobile-only {
+    display: block !important;
+  }
 
-label{
-    display:block;
-    text-align:left;
-    font-size:.8125rem;
-    margin-bottom:.375rem;
-    color:#555;
-}
+  /* 4. Panel utama mobile */
+  .left-panel {
+    width: 100% !important;
+    min-height: 100vh !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    padding: 24px 24px 40px !important;
+    color: white !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
 
-input{
-    width:100%;
-    padding:.8125rem .9375rem;
-    border-radius:.75rem;
-    border:1px solid #d8d8d8;
-    margin-bottom:1rem;
-    outline:none;
-    transition:.3s;
-    font-size:.8333rem;
-}
+  .logo {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    text-align: left !important;
+    position: relative !important;
+    z-index: 2 !important;
+  }
 
-input:focus{
-    border-color:#7d58d5;
-}
+  /* 5. Ilustrasi tangan mobile */
+  .hand-illustration {
+    width: calc(100% + 24px) !important;
+    max-width: none !important;
+    margin: 8px 0 0 -24px !important;
+    display: block !important;
+    pointer-events: none !important;
+  }
 
-.password-box{
-    position:relative;
-}
+  /* 6. Heading mobile (dorong ke bawah layar dengan margin-top: auto) */
+  .mobile-heading {
+    margin-top: auto !important;
+    text-align: right !important;
+  }
 
-.password-box button{
-    position:absolute;
-    right:.75rem;
-    top:50%;
-    transform:translateY(-58%);
-    border:none;
-    background:none;
-    cursor:pointer;
-    color:#777;
-}
+  .mobile-heading h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    margin-bottom: 24px !important;
+    text-align: right !important;
+    color: white !important;
+  }
 
-.password-box img{
-    width:1.25rem;
-    height:1.25rem;
-    opacity:.7;
-}
+  /* 7. Tombol Masuk & Link Daftar */
+  .Login-btn {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    left: auto !important;
+    bottom: auto !important;
+    padding: 15px !important;
+    border-radius: 16px !important;
+    background: linear-gradient(90deg, #a88fd2, #8267ca) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(15.5px) !important;
+    -webkit-backdrop-filter: blur(15.5px) !important;
+    color: white !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    margin-bottom: 14px !important;
+    transition: .25s !important;
+    z-index: 1 !important;
+  }
 
-.password-box button:hover img{
-    opacity:1;
-}
+  .Login-btn:hover {
+    background: linear-gradient(90deg, #ab8ce1, #7c62cb) !important;
+    transform: scale(1.02) !important;
+  }
 
-.forgot{
-    display:block;
-    text-align:left;
-    text-decoration:none;
-    color:#9078e8;
-    font-size:.75rem;
-    margin-bottom:1.125rem;
-}
+  .register-link {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    left: auto !important;
+    bottom: auto !important;
+    text-align: center !important;
+    font-size: 13px !important;
+    color: #e7defc !important;
+    margin: 0 !important;
+    z-index: 1 !important;
+  }
 
-.register{
-    margin-top:1.125rem;
-    font-size:.8125rem;
-    color:#555;
-}
-
-.register a{
-    color:#7c58d4;
-    text-decoration:none;
-    font-weight:500;
-}
-
-.options-btn{
-    padding-top:.4375rem;
-    width:3rem;
-    height:3rem;
-    border-radius:50%;
-    border: none;
-    color:#6d4cc7;
-    font-size:1.375rem;
-    cursor:pointer;
-    align-items: center;
-    justify-content: center;
-}
-
-.options-btn img{
-    aspect-ratio: 1/1;
-    width:1.875rem;
+  .register-link a {
+    color: #f3ecff !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+  }
 }
