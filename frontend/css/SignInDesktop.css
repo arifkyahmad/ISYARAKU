@@ -7,6 +7,10 @@
    Dibatasi 9px–16px: tidak lebih besar dari desain asli, tidak terlalu kecil. */
 html{
     font-size:clamp(9px, min(1.1111vw, 2.3188vh), 16px);
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    background:linear-gradient(90deg, #A88FD2 0%, #7A5FC3 52%, #d9c8e8 52%, #d9c8e8 100%);
 }
 
 *{
@@ -17,12 +21,14 @@ html{
 }
 
 body{
+    margin:0;
     min-height:100vh;
+    min-height:100dvh;
     display:flex;
     justify-content:center;
     align-items:center;
     overflow-x:hidden;      /* [UBAH] sebelumnya overflow:hidden (memotong konten). Sekarang cuma horizontal yang dikunci */
-    background-size: cover;
+    background:linear-gradient(90deg, #A88FD2 0%, #7A5FC3 52%, #d9c8e8 52%, #d9c8e8 100%);
     position:relative;
 }
 
@@ -39,7 +45,8 @@ body{
 
 .container{
     width:100%;
-    height:43.125rem;       /* [UBAH] 690px → rem, ikut skala (typo "; ;" juga dibersihkan) */
+    min-height:100vh;
+    min-height:100dvh;
     background:linear-gradient(to bottom, #7A5FC3 50%, #d9c8e8 50%);
     overflow:hidden;
     display:flex;
@@ -51,6 +58,7 @@ body{
 
 .left-panel{
     width:52%;
+    min-height:100%;
     background:linear-gradient(90deg, #A88FD2, #7A5FC3);   /* [UBAH] deklarasi background yang dobel dihapus */
     color:white;
     padding:2.8125rem;                                      /* [UBAH] 45px → rem */
@@ -96,6 +104,7 @@ body{
 
 .right-panel{
     width:48%;
+    min-height:100%;
     display:flex;
     justify-content:center;
     align-items:center;
