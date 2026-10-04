@@ -5,313 +5,371 @@
    (misal browser di-zoom 125% / 150%), 1rem ikut mengecil sebanding lebar & tinggi layar,
    jadi komposisi tetap utuh, tidak terpotong, dan tidak ada horizontal scroll.
    Dibatasi 9px–16px: tidak lebih besar dari desain asli, tidak terlalu kecil. */
-html{
-    font-size:clamp(9px, min(1.1111vw, 2.3188vh), 16px);
+html {
+  font-size: clamp(9px, min(1.1111vw, 2.3188vh), 16px);
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(90deg, #A88FD2 0%, #7A5FC3 52%, #d9c8e8 52%, #d9c8e8 100%);
 }
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
 }
 
-body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    overflow-x:hidden;      /* [UBAH] sebelumnya overflow:hidden (memotong konten). Sekarang cuma horizontal yang dikunci */
-    background-size: cover;
-    position:relative;
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+  /* [UBAH] sebelumnya overflow:hidden (memotong konten). Sekarang cuma horizontal yang dikunci */
+  background: linear-gradient(90deg, #A88FD2 0%, #7A5FC3 52%, #d9c8e8 52%, #d9c8e8 100%);
+  position: relative;
 }
 
 /* efek grain (tidak diubah) */
-.noise{
-    position:absolute;
-    inset:0;
-    opacity:.18;
-    background-image:
+.noise {
+  position: absolute;
+  inset: 0;
+  opacity: .18;
+  background-image:
     radial-gradient(#fff 0.6px, transparent 0.6px);
-    background-size:8px 8px;
-    pointer-events:none;
+  background-size: 8px 8px;
+  pointer-events: none;
 }
 
-.container{
-    width:100%;
-    /* [UBAH] sebelumnya height:690px (kaku). Form daftar ini tinggi kartunya hampir sama dengan
-       690px, jadi dipakai min-height: tampilan sama seperti desain, tapi kalau kontennya sedikit
-       lebih tinggi container ikut melebar, bukan memotong kartu. */
-    min-height:43.125rem;
-    background:linear-gradient(to bottom, #7A5FC3 50%, #d9c8e8 50%);
-    overflow:hidden;
-    display:flex;
-    position:relative;
-    box-shadow:0 1.5625rem 3.75rem rgba(0,0,0,.25);   /* [UBAH] px → rem */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(to bottom, #7A5FC3 50%, #d9c8e8 50%);
+  overflow: hidden;
+  display: flex;
+  position: relative;
+  box-shadow: 0 1.5625rem 3.75rem rgba(0, 0, 0, .25);
+  /* [UBAH] px → rem */
 }
 
 /* ================= LEFT ================= */
 
-.left-panel{
-    width:52%;
-    background:linear-gradient(90deg, #A88FD2, #7A5FC3);
-    color:white;
-    padding:2.8125rem;                                      /* [UBAH] 45px → rem */
-    border-bottom-right-radius:3.75rem 8.75rem;             /* [UBAH] 60px 140px → rem */
-    position:relative;
-    /* [BARU] flex column: logo di atas, hero-text di bawah. Menggantikan position:absolute
+.left-panel {
+  width: 52%;
+  min-height: 100%;
+  background: linear-gradient(90deg, #A88FD2, #7A5FC3);
+  color: white;
+  padding: 2.8125rem;
+  /* [UBAH] 45px → rem */
+  border-bottom-right-radius: 3.75rem 8.75rem;
+  /* [UBAH] 60px 140px → rem */
+  position: relative;
+  /* [BARU] flex column: logo di atas, hero-text di bawah. Menggantikan position:absolute
        pada .hero-text supaya posisinya nggak "lepas" dari panel saat skala berubah. */
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.logo{
-    font-size:1.75rem;          /* [UBAH] 28px → rem */
-    font-weight:700;
-    margin-left:3.75rem;        /* [UBAH] 60px → rem */
+.logo {
+  font-size: 1.75rem;
+  /* [UBAH] 28px → rem */
+  font-weight: 700;
+  margin-left: 3.75rem;
+  /* [UBAH] 60px → rem */
 }
 
-.hero-text{
-    /* [UBAH] sebelumnya position:absolute; left:105px; bottom:120px; width:420px
+.hero-text {
+  /* [UBAH] sebelumnya position:absolute; left:105px; bottom:120px; width:420px
        Posisi visual sama persis: 105px kiri = padding 45 + margin 60,
        120px dari bawah = padding 45 + margin 75 */
-    width:26.25rem;                          /* 420px */
-    max-width:calc(100% - 3.75rem);          /* [BARU] jangan pernah melebihi panel */
-    margin:0 0 4.6875rem 3.75rem;
+  width: 26.25rem;
+  /* 420px */
+  max-width: calc(100% - 3.75rem);
+  /* [BARU] jangan pernah melebihi panel */
+  margin: 0 0 4.6875rem 3.75rem;
 }
 
-.hero-text h1{
-    font-size:3.5rem;           /* [UBAH] 56px → rem */
-    line-height:1.08;
-    margin-bottom:1.125rem;     /* [UBAH] 18px → rem */
-    font-weight:700;
+.hero-text h1 {
+  font-size: 3.5rem;
+  /* [UBAH] 56px → rem */
+  line-height: 1.08;
+  margin-bottom: 1.125rem;
+  /* [UBAH] 18px → rem */
+  font-weight: 700;
 }
 
-.hero-text p{
-    font-size:1.125rem;         /* [UBAH] 18px → rem */
-    color:#ede8ff;
-    line-height:1.7;
+.hero-text p {
+  font-size: 1.125rem;
+  /* [UBAH] 18px → rem */
+  color: #ede8ff;
+  line-height: 1.7;
 }
 
 /* ================= RIGHT ================= */
 
-.right-panel{
-    width:48%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-    border-top-left-radius:3.75rem 8.75rem;   /* [UBAH] px → rem */
-    background:#d9c8e8;
+.right-panel {
+  width: 48%;
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  border-top-left-radius: 3.75rem 8.75rem;
+  /* [UBAH] px → rem */
+  background: #d9c8e8;
 }
 
-.register-wrapper{
-    margin-top: 2% ;
-    margin-bottom: 2%;
-    width:23.75rem;             /* [UBAH] 380px → rem */
-    max-width:90%;              /* [BARU] jaga-jaga kalau panel lebih sempit dari kartu */
-    position:relative;
-    text-align:center;
+.register-wrapper {
+  margin-top: 2%;
+  margin-bottom: 2%;
+  width: 23.75rem;
+  /* [UBAH] 380px → rem */
+  max-width: 90%;
+  /* [BARU] jaga-jaga kalau panel lebih sempit dari kartu */
+  position: relative;
+  text-align: center;
 }
 
-.purple-top{
-    height:7.5rem;              /* [UBAH] 120px → rem */
-    background: #6d4cc7;
-    border-radius:1.875rem 1.875rem 0 0;   /* [UBAH] 30px → rem */
-    color: white;
-    display: block;
-    padding-top:1.125rem;       /* [UBAH] 18px → rem */
-    justify-items: left;
-    padding-left:1rem;          /* [UBAH] 16px → rem */
+.purple-top {
+  height: 7.5rem;
+  /* [UBAH] 120px → rem */
+  background: #6d4cc7;
+  border-radius: 1.875rem 1.875rem 0 0;
+  /* [UBAH] 30px → rem */
+  color: white;
+  display: block;
+  padding-top: 1.125rem;
+  /* [UBAH] 18px → rem */
+  justify-items: left;
+  padding-left: 1rem;
+  /* [UBAH] 16px → rem */
 }
 
-.purple-top p{
-    font-size:.8125rem;         /* [UBAH] 13px → rem */
-    color:#ede8ff;
-    line-height:1.7;
+.purple-top p {
+  font-size: .8125rem;
+  /* [UBAH] 13px → rem */
+  color: #ede8ff;
+  line-height: 1.7;
 }
 
-.purple-top h2{
-    font-size:1.5rem;           /* [UBAH] 24px → rem */
-    font-weight:700;
+.purple-top h2 {
+  font-size: 1.5rem;
+  /* [UBAH] 24px → rem */
+  font-weight: 700;
 }
 
-.register-card{
-    background:#f7f7f7;
-    margin-top:-1.875rem;       /* [UBAH] -30px → rem */
-    border-radius:1.75rem;      /* [UBAH] 28px → rem */
-    padding:1.25rem;            /* [UBAH] 20px → rem */
-    box-shadow:0 .75rem 1.875rem rgba(0,0,0,.15);   /* [UBAH] px → rem */
+.register-card {
+  background: #f7f7f7;
+  margin-top: -1.875rem;
+  /* [UBAH] -30px → rem */
+  border-radius: 1.75rem;
+  /* [UBAH] 28px → rem */
+  padding: 1.25rem;
+  /* [UBAH] 20px → rem */
+  box-shadow: 0 .75rem 1.875rem rgba(0, 0, 0, .15);
+  /* [UBAH] px → rem */
 }
 
-.register-card h3{
-    margin-bottom:1.25rem;      /* [UBAH] 20px → rem */
-    color:#5b45aa;
+.register-card h3 {
+  margin-bottom: 1.25rem;
+  /* [UBAH] 20px → rem */
+  color: #5b45aa;
 }
 
-.register-options{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    margin-top:.875rem;         /* [UBAH] 14px → rem */
+.register-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: .875rem;
+  /* [UBAH] 14px → rem */
 }
 
-label{
-    display:block;
-    text-align:left;
-    font-size:.8125rem;         /* [UBAH] 13px → rem */
-    margin-bottom:.375rem;      /* [UBAH] 6px → rem */
-    color:#555;
+label {
+  display: block;
+  text-align: left;
+  font-size: .8125rem;
+  /* [UBAH] 13px → rem */
+  margin-bottom: .375rem;
+  /* [UBAH] 6px → rem */
+  color: #555;
 }
 
-input{
-    width:100%;
-    padding:.8125rem .9375rem;  /* [UBAH] 13px 15px → rem */
-    border-radius:.75rem;       /* [UBAH] 12px → rem */
-    border:1px solid #d8d8d8;
-    margin-bottom:1rem;         /* [UBAH] 16px → rem */
-    outline:none;
-    transition:.3s;
-    font-size:.8333rem;         /* [BARU] 13.33px = ukuran default input, dikunci ke rem supaya ikut skala */
+input {
+  width: 100%;
+  padding: .8125rem .9375rem;
+  /* [UBAH] 13px 15px → rem */
+  border-radius: .75rem;
+  /* [UBAH] 12px → rem */
+  border: 1px solid #d8d8d8;
+  margin-bottom: 1rem;
+  /* [UBAH] 16px → rem */
+  outline: none;
+  transition: .3s;
+  font-size: .8333rem;
+  /* [BARU] 13.33px = ukuran default input, dikunci ke rem supaya ikut skala */
 }
 
-input:focus{
-    border-color:#7d58d5;
+input:focus {
+  border-color: #7d58d5;
 }
 
-.password-box{
-    position:relative;
+.password-box {
+  position: relative;
 }
 
-.password-box button{
-    position:absolute;
-    right:.75rem;               /* [UBAH] 12px → rem */
-    top:50%;
-    transform:translateY(-58%);
-    border:none;
-    background:none;
-    cursor:pointer;
-    color:#777;
+.password-box button {
+  position: absolute;
+  right: .75rem;
+  /* [UBAH] 12px → rem */
+  top: 50%;
+  transform: translateY(-58%);
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #777;
 }
 
-.password-box img{
-    width:1.25rem;              /* [UBAH] 20px → rem */
-    height:1.25rem;
-    opacity:.7;
+.password-box img {
+  width: 1.25rem;
+  /* [UBAH] 20px → rem */
+  height: 1.25rem;
+  opacity: .7;
 }
 
-.password-box button:hover img{
-    opacity:1;
+.password-box button:hover img {
+  opacity: 1;
 }
 
-.forgot{
-    display:block;
-    text-align:left;
-    text-decoration:none;
-    color:#9078e8;
-    font-size:.75rem;           /* [UBAH] 12px → rem */
-    margin-bottom:1.125rem;     /* [UBAH] 18px → rem */
+.forgot {
+  display: block;
+  text-align: left;
+  text-decoration: none;
+  color: #9078e8;
+  font-size: .75rem;
+  /* [UBAH] 12px → rem */
+  margin-bottom: 1.125rem;
+  /* [UBAH] 18px → rem */
 }
 
-.register-btn{
-    width:100%;
-    padding:.875rem;            /* [UBAH] 14px → rem */
-    border:none;
-    border-radius:.75rem;       /* [UBAH] 12px → rem */
-    background:#6d4cc7;
-    color:white;
-    font-weight:600;
-    font-size:.8333rem;         /* [BARU] sama alasannya dengan input: default button 13.33px */
-    cursor:pointer;
-    transition:.25s;
+.register-btn {
+  width: 100%;
+  padding: .875rem;
+  /* [UBAH] 14px → rem */
+  border: none;
+  border-radius: .75rem;
+  /* [UBAH] 12px → rem */
+  background: #6d4cc7;
+  color: white;
+  font-weight: 600;
+  font-size: .8333rem;
+  /* [BARU] sama alasannya dengan input: default button 13.33px */
+  cursor: pointer;
+  transition: .25s;
 }
 
-.register-btn:hover{
-    background:#5c3db7;
+.register-btn:hover {
+  background: #5c3db7;
 }
 
 /* [UBAH] .register dan .register a sebelumnya ditulis 2x (isi sama), digabung jadi satu.
    margin:0 tetap dipertahankan seperti hasil akhir yang lama. */
-.register{
-    margin:0;
-    font-size:.8125rem;         /* 13px → rem */
-    color:#555;
+.register {
+  margin: 0;
+  font-size: .8125rem;
+  /* 13px → rem */
+  color: #555;
 }
 
-.register a{
-    color:#7c58d4;
-    text-decoration:none;
-    font-weight:500;
+.register a {
+  color: #7c58d4;
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.message{
-    font-size:.75rem;           /* [UBAH] 12px → rem */
-    margin:-.5rem 0 1rem;       /* [UBAH] -8px 0 16px → rem */
-    text-align:left;
-    color:#E53935;
+.message {
+  font-size: .75rem;
+  /* [UBAH] 12px → rem */
+  margin: -.5rem 0 1rem;
+  /* [UBAH] -8px 0 16px → rem */
+  text-align: left;
+  color: #E53935;
 }
 
-.message.success{
-    color:#2E7D32;
+.message.success {
+  color: #2E7D32;
 }
 
-.options-btn{
-    padding-top:.4375rem;       /* [UBAH] 7px → rem */
-    width:3rem;                 /* [UBAH] 48px → rem */
-    height:3rem;
-    border-radius:50%;
-    border: none;
-    color:#6d4cc7;
-    font-size:1.375rem;         /* [UBAH] 22px → rem */
-    cursor:pointer;
-    align-items: center;
-    justify-content: center;
+.options-btn {
+  padding-top: .4375rem;
+  /* [UBAH] 7px → rem */
+  width: 3rem;
+  /* [UBAH] 48px → rem */
+  height: 3rem;
+  border-radius: 50%;
+  border: none;
+  color: #6d4cc7;
+  font-size: 1.375rem;
+  /* [UBAH] 22px → rem */
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
 }
 
-.options-btn img{
-    aspect-ratio: 1/1;
-    width:1.875rem;             /* [UBAH] 30px → rem */
+.options-btn img {
+  aspect-ratio: 1/1;
+  width: 1.875rem;
+  /* [UBAH] 30px → rem */
 }
 
-.terms-checkbox{
-    display:flex;
-    align-items:flex-start;
-    gap:.5rem;                  /* [UBAH] 8px → rem */
-    margin:-.375rem 0 1rem;     /* [UBAH] -6px 0 16px → rem */
-    text-align:left;
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  /* [UBAH] 8px → rem */
+  margin: -.375rem 0 1rem;
+  /* [UBAH] -6px 0 16px → rem */
+  text-align: left;
 }
 
-.terms-checkbox input[type="checkbox"]{
-    width:1rem;                 /* [UBAH] 16px → rem */
-    height:1rem;
-    margin-top:.125rem;         /* [UBAH] 2px → rem */
-    accent-color:#6d4cc7;
-    cursor:pointer;
-    flex-shrink:0;
+.terms-checkbox input[type="checkbox"] {
+  width: 1rem;
+  /* [UBAH] 16px → rem */
+  height: 1rem;
+  margin-top: .125rem;
+  /* [UBAH] 2px → rem */
+  accent-color: #6d4cc7;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.terms-checkbox label{
-    font-size:.75rem;           /* [UBAH] 12px → rem */
-    color:#555;
-    line-height:1.5;
-    margin-bottom:0;
-    cursor:pointer;
+.terms-checkbox label {
+  font-size: .75rem;
+  /* [UBAH] 12px → rem */
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 0;
+  cursor: pointer;
 }
 
-.terms-checkbox label a{
-    color:#7c58d4;
-    text-decoration:none;
-    font-weight:500;
+.terms-checkbox label a {
+  color: #7c58d4;
+  text-decoration: none;
+  font-weight: 500;
 }
 
 /* Sembunyikan elemen mobile secara default di desktop */
 .mobile-only {
-    display: none;
+  display: none;
 }
 
 /* ================= MEDIA QUERY MOBILE (Layar HP <= 768px) ================= */
 @media (max-width: 768px) {
+
   /* 1. Kembalikan ukuran root font agar tidak mengecil drastis */
   html {
     font-size: 16px !important;
@@ -416,7 +474,7 @@ input:focus{
     margin: 10px 20px 32px !important;
     border-radius: 26px !important;
     padding: 22px 20px !important;
-    box-shadow: 0 12px 30px rgba(0,0,0,.15) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .15) !important;
     text-align: center !important;
     width: auto !important;
   }
