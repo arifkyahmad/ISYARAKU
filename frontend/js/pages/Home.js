@@ -105,11 +105,11 @@ document.getElementById('btnLogout')?.addEventListener('click', async () => {
       return;
     }
     // Redirect ke halaman login setelah logout
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   } catch (err) {
     console.error('Logout error:', err);
     // Fallback jika supabase tidak tersedia (misal mode dev offline)
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   }
 });
 
@@ -134,7 +134,7 @@ document.getElementById('btnDeleteAccount')?.addEventListener('click', async () 
     // Sementara ini, logout dulu
     await supabaseClient.auth.signOut();
     alert('Akun berhasil dihapus.');
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   } catch (err) {
     console.error('Delete account error:', err);
     alert('Gagal menghapus akun. Silakan hubungi support.');
