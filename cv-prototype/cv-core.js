@@ -1,0 +1,118 @@
+// Semua jarak dihitung dari 21 titik landmark (x, y). x dikali rasio layar supaya satuannya sama dengan y.
+function toPts(lm, aspect) { return lm.map(p => [p.x * aspect, p.y]); }
+// Normalisasi: pergelangan (titik 0) jadi titik asal, ukuran = jarak pergelangan ke pangkal jari tengah (titik 9).
+function normalizePts(pts) {
+    const w = pts[0];
+    const s = Math.hypot(pts[9][0] - w[0], pts[9][1] - w[1]) || 1;
+    return pts.map(p => [(p[0] - w[0]) / s, (p[1] - w[1]) / s]);
+}
+function meanDist(a, b) {
+    let t = 0;
+    for (let i = 0; i < a.length; i++) t += Math.hypot(a[i][0] - b[i][0], a[i][1] - b[i][1]);
+    return t / a.length;
+}
+function distance(lmA, lmB, mode, aspect) {
+    let a = toPts(lmA, aspect), b = toPts(lmB, aspect);
+    if (mode === 'norm') { a = normalizePts(a); b = normalizePts(b); }
+    return meanDist(a, b);
+}
+// Celah antara jarak benar terbesar dan jarak salah terkecil.
+function gapInfo(benarMax, salahMin) {
+    const gap = salahMin - benarMax;
+    if (gap > 0) return { gap, mid: (benarMax + salahMin) / 2, tepat: benarMax + gap / 3, hampir: benarMax + 2 * gap / 3 };
+    return { gap, mid: null, tepat: null, hampir: null };
+}
+
+// Mode 'world': normalisasi 3D dari multiHandWorldLandmarks (titik 0 jadi titik asal, skala = jarak 3D titik 0 ke 9).
+function normalizeWorldPts(pts) {
+    const w = pts[0];
+    const wx = w.x !== undefined ? w.x : w[0];
+    const wy = w.y !== undefined ? w.y : w[1];
+    const wz = w.z !== undefined ? w.z : (w[2] || 0);
+    const p9 = pts[9];
+    const p9x = p9.x !== undefined ? p9.x : p9[0];
+    const p9y = p9.y !== undefined ? p9.y : p9[1];
+    const p9z = p9.z !== undefined ? p9.z : (p9[2] || 0);
+    const s = Math.hypot(p9x - wx, p9y - wy, p9z - wz) || 1;
+    return pts.map(p => {
+        const px = p.x !== undefined ? p.x : p[0];
+        const py = p.y !== undefined ? p.y : p[1];
+        const pz = p.z !== undefined ? p.z : (p[2] || 0);
+        return [(px - wx) / s, (py - wy) / s, (pz - wz) / s];
+    });
+}
+function meanDist3D(a, b) {
+    let t = 0;
+    for (let i = 0; i < a.length; i++) {
+        t += Math.hypot(a[i][0] - b[i][0], a[i][1] - b[i][1], a[i][2] - b[i][2]);
+    }
+    return t / a.length;
+}
+function distanceWorld(lmA, lmB) {
+    const a = normalizeWorldPts(lmA), b = normalizeWorldPts(lmB);
+    return meanDist3D(a, b);
+}
+
+// Menilai tingkat kemiripan: 'tepat' jika jarak < ambang.tepat, 'hampir' jika < ambang.hampir, selain itu 'belum'.
+// Ambang dibaca dari CV_CONFIG (atau objek ambang opsional jika diberikan).
+function nilaiTingkat(jarak, ambang) {
+    const th = ambang || (typeof CV_CONFIG !== 'undefined' ? CV_CONFIG.ambang : null);
+    if (!th || jarak == null || !isFinite(jarak)) return 'belum';
+    if (jarak < th.tepat) return 'tepat';
+    if (jarak < th.hampir) return 'hampir';
+    return 'belum';
+}
+
+// Bayangan cermin titik (sumbu X dibalik: x * -1, y tetap).
+function mirrorPts(pts) {
+    return pts.map(p => {
+        if (Array.isArray(p)) {
+            const cp = [...p];
+            cp[0] = -cp[0];
+            return cp;
+        }
+        return { ...p, x: -p.x };
+    });
+}
+
+// Putar semua titik terhadap (0,0) sehingga vektor dari titik 0 ke titik 9 mengarah lurus ke atas (x=0, y negatif).
+// Jika panjang vektornya hampir 0, kembalikan pts apa adanya.
+function rotateUpright(pts) {
+    if (!pts || pts.length < 10) return pts;
+    const v9x = pts[9][0] - pts[0][0];
+    const v9y = pts[9][1] - pts[0][1];
+    const len = Math.hypot(v9x, v9y);
+    if (len < 1e-6) return pts;
+
+    const cosTheta = -v9y / len;
+    const sinTheta = v9x / len;
+
+    return pts.map(p => {
+        const x = p[0];
+        const y = p[1];
+        return [
+            x * cosTheta + y * sinTheta,
+            -x * sinTheta + y * cosTheta
+        ];
+    });
+}
+
+// Hitung jarak ke titikTemplate DAN ke mirrorPts(titikTemplate).
+// Mengembalikan { jarak: nilai terkecil, cermin: true jika bayangan cermin yang lebih dekat }.
+function distanceToTemplateInfo(lm, titikTemplate, aspect) {
+    const live = rotateUpright(normalizePts(toPts(lm, aspect)));
+    const tpl = rotateUpright(titikTemplate);
+    const distAsli = meanDist(live, tpl);
+    const distCermin = meanDist(live, mirrorPts(tpl));
+    const cermin = distCermin < distAsli;
+    return {
+        jarak: cermin ? distCermin : distAsli,
+        cermin
+    };
+}
+
+// Hitung jarak dari landmark live (lm) ke titik template (titikTemplate) yang sudah ternormalisasi.
+function distanceToTemplate(lm, titikTemplate, aspect) {
+    return distanceToTemplateInfo(lm, titikTemplate, aspect).jarak;
+}
+
