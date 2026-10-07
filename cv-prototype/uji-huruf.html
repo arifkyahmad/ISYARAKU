@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Penguji Pose Huruf Isyarat (Internal)</title>
+    <style>
+        :root {
+            --bg: #eef1f4;
+            --panel: #ffffff;
+            --ink: #18222d;
+            --mute: #5d6b7a;
+            --line: #d5dce3;
+            --accent: #0b62c4;
+            --accent-soft: #e3eefb;
+            --ok: #177a43;
+            --ok-soft: #dff3e7;
+            --warn: #a86a00;
+            --warn-soft: #fcefd2;
+            --bad: #b3261e;
+            --bad-soft: #fbe2df;
+            --mute-soft: #e7ebef;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+        }
+
+        header {
+            padding: 18px 24px 6px;
+        }
+
+        .tag-internal {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            background: #e2e8f0;
+            color: #475569;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 4px;
+            letter-spacing: -.01em;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--mute);
+            max-width: 820px;
+        }
+
+        .notice {
+            margin: 10px 24px 0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .notice.bad {
+            background: var(--bad-soft);
+            color: var(--bad);
+            border: 1px solid #f5c2be;
+        }
+
+        .notice.ok {
+            background: var(--ok-soft);
+            color: var(--ok);
+            border: 1px solid #c2e9d2;
+        }
+
+        .notice.info {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border: 1px solid #bfdbfe;
+        }
+
+        .notice[hidden] {
+            display: none !important;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(320px, 540px) minmax(340px, 1fr);
+            gap: 18px;
+            padding: 16px 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .card h2 {
+            font-size: 15px;
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            flex: none;
+        }
+
+        .hint {
+            color: var(--mute);
+            font-size: 13px;
+            margin: 6px 0 0;
+        }
+
+        .stage {
+            position: relative;
+            background: #0c1116;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .mirror {
+            position: absolute;
+            inset: 0;
+            transform: scaleX(-1);
+        }
+
+        .mirror video,
+        .mirror canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .chip {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .chip.ok {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .chip.bad {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        .chip.mute {
+            background: var(--mute-soft);
+            color: var(--mute);
+        }
+
+        .err {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            text-align: center;
+            background: rgba(12, 17, 22, .9);
+            color: #fff;
+            font-size: 15px;
+            z-index: 3;
+        }
+
+        .err[hidden] {
+            display: none !important;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all .15s ease;
+        }
+
+        button:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        button.primary:hover:not(:disabled) {
+            background: #0950a0;
+            color: #fff;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        select {
+            font: inherit;
+            padding: 7px 12px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            min-width: 0;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .live-box {
+            margin: 10px 0;
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .light {
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 140px;
+            flex: none;
+            transition: all .2s ease;
+        }
+
+        .light.ok {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .light.warn {
+            background: var(--warn-soft);
+            color: var(--warn);
+        }
+
+        .light.bad {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        .light.mute {
+            background: var(--mute-soft);
+            color: var(--mute);
+        }
+
+        .live-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .live-dist-val {
+            font-size: 26px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        .live-sub {
+            font-size: 13px;
+            color: var(--mute);
+        }
+
+        /* Grid kartu perbandingan semua huruf */
+        .letters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .letter-card {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            transition: all .15s ease;
+        }
+
+        .letter-card.is-target {
+            border-color: var(--accent);
+            background: #f0f7ff;
+        }
+
+        .letter-card.is-min {
+            border: 2px solid var(--ok);
+            background: #edfbf2;
+            box-shadow: 0 2px 8px rgba(23, 122, 67, .12);
+        }
+
+        .letter-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+
+        .letter-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .target-tag {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .min-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--ok);
+            color: #fff;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+
+        .min-badge-placeholder {
+            height: 19px;
+            margin-bottom: 6px;
+        }
+
+        .letter-dist {
+            font-size: 20px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--ink);
+            margin: 2px 0 6px;
+        }
+
+        .cermin-tag {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mute);
+            vertical-align: middle;
+        }
+
+        .live-dist-val .cermin-tag {
+            font-size: 13px;
+        }
+
+        .level-chip {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .level-chip.tepat {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .level-chip.hampir {
+            background: var(--warn-soft);
+            color: var(--warn);
+        }
+
+        .level-chip.belum {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        .level-chip.mute {
+            background: var(--mute-soft);
+            color: var(--mute);
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--mute);
+            padding: 4px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .meta-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Uji Matriks */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .matrix-table th,
+        .matrix-table td {
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            text-align: left;
+        }
+
+        .matrix-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .matrix-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .badge-verdict {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-verdict.lolos {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .badge-verdict.gagal {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #18222d;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 90vw;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+            z-index: 99;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <span class="tag-internal">Halaman Internal</span>
+        <h1>Penguji Pose Huruf Isyarat</h1>
+        <p>Menguji pose tangan secara live terhadap seluruh template pose huruf yang tersimpan di Supabase
+            (<code>template_pose</code>). Menilai status huruf target (Tepat/Hampir/Belum) dan membandingkan jarak ke
+            semua huruf sekaligus.</p>
+    </header>
+
+    <div class="notice bad" id="dbErrorNotice" hidden>
+        <span id="dbErrorMsg">Gagal memuat template dari database.</span>
+        <button id="retryDbBtn" type="button">Coba Lagi</button>
+    </div>
+
+    <main>
+        <!-- Kolom Kiri: Kamera & Deteksi Hand -->
+        <section class="col">
+            <div class="stage" id="stage">
+                <div class="mirror">
+                    <video id="video" playsinline muted></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                <div class="chip mute" id="chip">Kamera belum menyala</div>
+                <div class="err" id="err" hidden></div>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">1</span>Kamera & Pengenalan Tangan</h2>
+                <div class="row">
+                    <button class="primary" id="camBtn" type="button">Nyalakan kamera</button>
+                </div>
+                <p class="hint">Arahkan satu tangan menghadap webcam. Posisikan tangan di tengah area kamera agar
+                    landmark terdeteksi stabil.</p>
+            </div>
+        </section>
+
+        <!-- Kolom Kanan: Evaluasi Target & Perbandingan Semua Huruf -->
+        <section class="col">
+            <!-- Target Huruf -->
+            <div class="card">
+                <h2><span class="num">2</span>Target Huruf & Status Live</h2>
+                <div class="row" style="margin-bottom:8px">
+                    <label for="targetSel" style="font-weight:600">Pilih Huruf Target:</label>
+                    <select id="targetSel" disabled>
+                        <option value="">Memuat template…</option>
+                    </select>
+                </div>
+
+                <div class="live-box">
+                    <div class="light mute" id="light">Kamera belum menyala</div>
+                    <div class="live-meta">
+                        <div class="live-dist-val" id="targetDist">-</div>
+                        <div class="live-sub" id="targetSub">Arahkan tangan ke kamera</div>
+                    </div>
+                </div>
+
+                <p class="hint">Status diperhalus selama <span id="smoothFrameDisp">5</span> frame konsisten. Ambang:
+                    Tepat &lt; <span id="thrTepatDisp">0.15</span>, Hampir &lt; <span id="thrHampirDisp">0.30</span>.
+                </p>
+            </div>
+
+            <!-- Perbandingan Semua Huruf -->
+            <div class="card">
+                <h2><span class="num">3</span>Perbandingan Jarak ke Semua Huruf</h2>
+                <p class="hint" style="margin-top:0">Jarak Euclidean ternormalisasi ke setiap template pose yang ada.
+                    Huruf dengan jarak terkecil ditandai secara otomatis.</p>
+                <div class="letters-grid" id="lettersGrid">
+                    <div class="hint" style="grid-column: 1/-1;">Menunggu data template dari database…</div>
+                </div>
+            </div>
+
+            <!-- Info Database -->
+            <div class="card">
+                <h2><span class="num">4</span>Status Template Supabase</h2>
+                <div class="meta-row">
+                    <span>Sumber Data:</span>
+                    <span style="font-weight:600">template_pose (Supabase)</span>
+                </div>
+                <div class="meta-row">
+                    <span>Jumlah Template Termuat:</span>
+                    <span id="tplCountDisp" style="font-weight:600">0</span>
+                </div>
+                <div class="meta-row">
+                    <span>Status Koneksi:</span>
+                    <span id="dbStatusDisp" style="font-weight:600;color:var(--mute)">Menghubungkan…</span>
+                </div>
+                <div class="row" style="margin-top:10px">
+                    <button id="reloadTplBtn" type="button">Muat Ulang Template</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bagian 5: Uji Matriks -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2><span class="num">5</span>Uji Matriks Pose Huruf</h2>
+            <p class="hint" style="margin-top:0">
+                Pengujian terstruktur untuk mengevaluasi ketahanan pose huruf terhadap berbagai kondisi (normal, geser,
+                jauh, dekat).
+                Hitung mundur 5 detik untuk bersiap, lalu 10 sampel diambil dengan jeda 300 ms.
+            </p>
+
+            <div class="row" style="margin-top: 12px; gap: 12px; align-items: flex-end;">
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <label for="matrixLetterSel" style="font-size:13px; font-weight:600;">Peragakan huruf:</label>
+                    <select id="matrixLetterSel" disabled>
+                        <option value="">Memuat template…</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <label for="matrixConditionSel" style="font-size:13px; font-weight:600;">Kondisi:</label>
+                    <select id="matrixConditionSel">
+                        <option value="normal">normal</option>
+                        <option value="geser">geser</option>
+                        <option value="jauh">jauh</option>
+                        <option value="dekat">dekat</option>
+                        <option value="santai">santai</option>
+                        <option value="miring">miring</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:4px; flex: 1; min-width: 220px;">
+                    <label for="matrixNotes" style="font-size:13px; font-weight:600;">Catatan (misal tangan &amp;
+                        perangkat):</label>
+                    <input type="text" id="matrixNotes" placeholder="Contoh: tangan kanan, webcam laptop 720p"
+                        style="padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit;">
+                </div>
+
+                <button class="primary" id="startMatrixBtn" type="button">Mulai uji</button>
+                <button id="copyMatrixBtn" type="button" disabled>Salin ringkasan</button>
+            </div>
+
+            <div id="matrixStatusBox"
+                style="margin-top: 12px; min-height: 24px; display: flex; align-items: center; gap: 8px;">
+                <span id="matrixStatusText" class="hint" style="font-weight: 600; margin: 0;">Pilih huruf dan kondisi,
+                    lalu klik "Mulai uji".</span>
+            </div>
+
+            <div style="overflow-x: auto; margin-top: 10px;">
+                <table class="matrix-table" id="matrixTable">
+                    <thead>
+                        <tr>
+                            <th>Huruf</th>
+                            <th>Kondisi</th>
+                            <th>Terdeteksi</th>
+                            <th>Jarak benar (min / rata / maks)</th>
+                            <th>Tepat</th>
+                            <th>Hampir</th>
+                            <th>Belum</th>
+                            <th>Huruf lain terdekat</th>
+                            <th>Huruf Lain Tepat</th>
+                            <th>Putusan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; color: var(--mute);">Belum ada data uji matriks.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Script Dependensi: Supabase CDN, Config, MediaPipe, CV Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../frontend/config.js"></script>
+    <script src="cv-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"
+        crossorigin="anonymous"></script>
+    <script src="cv-core.js"></script>
+
+    <script>
+        // ================= PENGATURAN & KONFIGURASI =================
+        const MAKS_TANGAN = 1;
+        const HANDS_VERSION = '0.4.1675469240';
+        const SMOOTH_FRAME = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.frameKonsisten) ? CV_CONFIG.frameKonsisten : 5;
+        const AMBANG = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.ambang) ? CV_CONFIG.ambang : { tepat: 0.15, hampir: 0.30 };
+        const DAFTAR_TARGET = ['A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5'];
+
+        const HAND_LINES = [
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [5, 9], [9, 10], [10, 11], [11, 12],
+            [9, 13], [13, 14], [14, 15], [15, 16],
+            [13, 17], [17, 18], [18, 19], [19, 20],
+            [0, 17]
+        ];
+
+        const $ = id => document.getElementById(id);
+        const f3 = x => (x == null || !isFinite(x)) ? '-' : x.toFixed(3);
+
+        const state = {
+            aspect: 4 / 3,
+            cameraOn: false,
+            gotFirst: false,
+            cur: null,
+            fpsTimes: [],
+            templates: [],     // [{ kamus_id, kata, titik, label, versi }]
+            history: [],       // buffer smoothing: array of 'ok'|'warn'|'bad'
+            shown: null,       // status smoothing aktif saat ini
+            targetIndex: 0
+        };
+
+        let hands = null;
+        let supabaseClient = null;
+        const video = $('video'), canvas = $('overlay'), ctx = canvas.getContext('2d');
+
+        // ================= TOAST & ERROR HANDLING =================
+        let toastTimer;
+        function toast(msg) {
+            const t = $('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function showError(msg) {
+            const e = $('err');
+            e.textContent = msg;
+            e.hidden = false;
+        }
+        function hideError() { $('err').hidden = true; }
+
+        function showDbError(msg) {
+            $('dbErrorNotice').hidden = false;
+            $('dbErrorMsg').textContent = msg;
+            $('dbStatusDisp').textContent = 'Gagal';
+            $('dbStatusDisp').style.color = 'var(--bad)';
+        }
+        function hideDbError() {
+            $('dbErrorNotice').hidden = true;
+        }
+
+        // ================= SUPABASE TEMPLATE LOADING =================
+        async function initSupabase() {
+            try {
+                if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_PUBLISHABLE_KEY === 'undefined') {
+                    throw new Error('Variabel SUPABASE_URL atau SUPABASE_PUBLISHABLE_KEY tidak ditemukan. Pastikan config.js termuat.');
+                }
+                if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                    throw new Error('Library Supabase gagal dimuat dari CDN. Periksa koneksi internet.');
+                }
+
+                // Inisialisasi klien dengan nama supabaseClient (bukan supabase)
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+                await loadTemplatesFromSupabase();
+            } catch (err) {
+                console.error('Inisialisasi Supabase gagal:', err);
+                showDbError(err.message || String(err));
+            }
+        }
+
+        async function loadTemplatesFromSupabase() {
+            hideDbError();
+            $('dbStatusDisp').textContent = 'Memuat template…';
+            $('dbStatusDisp').style.color = 'var(--accent)';
+            $('reloadTplBtn').disabled = true;
+
+            try {
+                // Ambil semua template dari tabel template_pose beserta relasi kamus(kata)
+                const { data, error } = await supabaseClient
+                    .from('template_pose')
+                    .select('kamus_id, landmark_data, kamus(kata)');
+
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    throw new Error('Tabel template_pose kosong atau tidak ada data template yang tersimpan.');
+                }
+
+                const parsedList = [];
+                for (const row of data) {
+                    let lm = row.landmark_data;
+                    if (typeof lm === 'string') {
+                        try { lm = JSON.parse(lm); } catch (e) { }
+                    }
+                    if (!lm || !Array.isArray(lm.titik) || lm.titik.length !== 21) {
+                        console.warn('Format landmark_data tidak valid untuk kamus_id:', row.kamus_id, lm);
+                        continue;
+                    }
+
+                    // Ambil kata dari relasi kamus
+                    let kata = 'Tanpa Nama';
+                    if (row.kamus) {
+                        if (Array.isArray(row.kamus) && row.kamus[0] && row.kamus[0].kata) {
+                            kata = row.kamus[0].kata;
+                        } else if (typeof row.kamus.kata === 'string') {
+                            kata = row.kamus.kata;
+                        }
+                    }
+                    kata = String(kata).trim().toUpperCase();
+
+                    // Hanya sertakan target yang terdaftar (A, B, C, D, E, F, 1, 2, 3, 4, 5; hapus L dan V)
+                    if (!DAFTAR_TARGET.includes(kata)) {
+                        continue;
+                    }
+
+                    parsedList.push({
+                        kamus_id: row.kamus_id,
+                        kata: kata,
+                        titik: lm.titik,
+                        label: lm.label || 'Right',
+                        versi: lm.versi || 1
+                    });
+                }
+
+                if (parsedList.length === 0) {
+                    throw new Error('Data template_pose ditemukan tetapi tidak ada yang cocok dengan daftar target valid.');
+                }
+
+                // Ambil satu template per target dan urutkan persis sesuai DAFTAR_TARGET: A, B, C, D, E, F, 1, 2, 3, 4, 5
+                const uniqueMap = new Map();
+                for (const item of parsedList) {
+                    if (!uniqueMap.has(item.kata)) {
+                        uniqueMap.set(item.kata, item);
+                    }
+                }
+
+                const sortedList = DAFTAR_TARGET
+                    .filter(k => uniqueMap.has(k))
+                    .map(k => uniqueMap.get(k));
+
+                state.templates = sortedList;
+                $('tplCountDisp').textContent = sortedList.length;
+                $('dbStatusDisp').textContent = `Tersambung (${sortedList.length} template)`;
+                $('dbStatusDisp').style.color = 'var(--ok)';
+
+                populateDropdown();
+                renderAllLettersGrid();
+                toast(`Berhasil memuat ${sortedList.length} template pose dari Supabase.`);
+                updateLive();
+            } catch (err) {
+                console.error('Gagal memuat template pose:', err);
+                showDbError('Gagal memuat template dari Supabase: ' + (err.message || String(err)));
+            } finally {
+                $('reloadTplBtn').disabled = false;
+            }
+        }
+
+        function populateDropdown() {
+            const sel = $('targetSel');
+            sel.innerHTML = state.templates.map((t, idx) => `<option value="${idx}">Huruf ${t.kata}</option>`).join('');
+            sel.disabled = false;
+            state.targetIndex = 0;
+            sel.value = '0';
+
+            const matSel = $('matrixLetterSel');
+            if (matSel) {
+                matSel.innerHTML = state.templates.map(t => `<option value="${t.kata}">Huruf ${t.kata}</option>`).join('');
+                matSel.disabled = false;
+            }
+        }
+
+        function renderAllLettersGrid() {
+            const grid = $('lettersGrid');
+            if (!state.templates || state.templates.length === 0) {
+                grid.innerHTML = '<div class="hint" style="grid-column:1/-1;">Belum ada template yang dimuat.</div>';
+                return;
+            }
+
+            grid.innerHTML = state.templates.map((t, idx) => `
+                <div class="letter-card" id="card-${idx}">
+                    <div class="letter-header">
+                        <span class="letter-name">${t.kata}</span>
+                        <span class="target-tag" id="target-tag-${idx}" ${idx === state.targetIndex ? '' : 'hidden'}>Target</span>
+                    </div>
+                    <div id="min-badge-container-${idx}" class="min-badge-placeholder"></div>
+                    <div class="letter-dist" id="dist-val-${idx}">-</div>
+                    <span class="level-chip mute" id="chip-val-${idx}">-</span>
+                </div>
+            `).join('');
+        }
+
+        // ================= KAMERA & MEDIAPIPE =================
+        function updateChip() {
+            const chip = $('chip');
+            if (!state.cameraOn) { chip.className = 'chip mute'; chip.textContent = 'Kamera belum menyala'; return; }
+            if (!state.gotFirst) { chip.className = 'chip mute'; chip.textContent = 'Memuat model MediaPipe…'; return; }
+            const t = state.fpsTimes; let fps = 0;
+            if (t.length > 1) fps = Math.round((t.length - 1) / ((t[t.length - 1] - t[0]) / 1000));
+            chip.className = 'chip ' + (state.cur ? 'ok' : 'bad');
+            chip.textContent = (state.cur ? 'Tangan terdeteksi' : 'Tangan TIDAK terdeteksi') + ' · ' + fps + ' fps';
+        }
+
+        function drawHand(lm) {
+            const w = canvas.width, h = canvas.height;
+            ctx.lineWidth = 3; ctx.strokeStyle = '#4fd1a5';
+            HAND_LINES.forEach(([a, b]) => {
+                ctx.beginPath();
+                ctx.moveTo(lm[a].x * w, lm[a].y * h);
+                ctx.lineTo(lm[b].x * w, lm[b].y * h);
+                ctx.stroke();
+            });
+            ctx.fillStyle = '#ffffff';
+            lm.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x * w, p.y * h, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function onResults(res) {
+            state.gotFirst = true;
+            const now = performance.now();
+            state.fpsTimes.push(now);
+            while (state.fpsTimes.length > 30) state.fpsTimes.shift();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
+            if (lm) {
+                const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : 'Right';
+                state.cur = { lm, label, t: now };
+                drawHand(lm);
+            } else {
+                state.cur = null;
+            }
+            updateChip();
+            updateLive();
+        }
+
+        async function startCamera() {
+            if (state.cameraOn) return;
+            hideError();
+            try {
+                if (typeof Hands === 'undefined') throw new Error('LIB');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('NOAPI');
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                await video.play();
+                if (video.readyState < 2) {
+                    await new Promise(r => video.addEventListener('loadeddata', r, { once: true }));
+                }
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                state.aspect = video.videoWidth / video.videoHeight;
+                $('stage').style.aspectRatio = video.videoWidth + '/' + video.videoHeight;
+
+                hands = new Hands({
+                    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${HANDS_VERSION}/${file}`
+                });
+                hands.setOptions({
+                    maxNumHands: MAKS_TANGAN,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.5,
+                    selfieMode: false
+                });
+                hands.onResults(onResults);
+
+                state.cameraOn = true;
+                $('camBtn').disabled = true;
+                $('camBtn').textContent = 'Kamera Menyala';
+                updateChip();
+                loop();
+            } catch (e) {
+                let msg = 'Kamera gagal dinyalakan: ' + (e && e.message ? e.message : e);
+                if (e && e.message === 'LIB') msg = 'Library MediaPipe gagal dimuat. Cek koneksi internet lalu muat ulang halaman.';
+                else if (e && e.message === 'NOAPI') msg = 'Browser tidak menyediakan akses kamera di sini. Buka lewat server localhost.';
+                else if (e && e.name === 'NotAllowedError') msg = 'Izin kamera ditolak. Klik ikon kamera di address bar, izinkan, lalu muat ulang.';
+                else if (e && e.name === 'NotFoundError') msg = 'Kamera tidak ditemukan. Pastikan webcam terpasang.';
+                else if (e && e.name === 'NotReadableError') msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu lalu coba lagi.';
+                showError(msg);
+            }
+        }
+
+        let sending = false;
+        async function loop() {
+            if (video.readyState >= 2 && !sending) {
+                sending = true;
+                try {
+                    await hands.send({ image: video });
+                } catch (e) {
+                    showError('Pemrosesan MediaPipe gagal: ' + (e && e.message ? e.message : e));
+                    sending = false;
+                    return;
+                }
+                sending = false;
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // ================= STATUS LIVE & PERHITUNGAN JARAK =================
+        function setLight(cls, text) {
+            const l = $('light');
+            l.className = 'light ' + cls;
+            l.textContent = text;
+        }
+
+        function updateLive() {
+            const targetIdx = parseInt($('targetSel').value, 10) || 0;
+            state.targetIndex = targetIdx;
+
+            // Update penanda tag target pada kartu
+            state.templates.forEach((_, idx) => {
+                const tag = $('target-tag-' + idx);
+                const card = $('card-' + idx);
+                if (tag) tag.hidden = (idx !== targetIdx);
+                if (card) {
+                    if (idx === targetIdx) card.classList.add('is-target');
+                    else card.classList.remove('is-target');
+                }
+            });
+
+            // 1. Kondisi jika template belum tersedia
+            if (!state.templates || state.templates.length === 0) {
+                setLight('mute', 'Memuat template…');
+                $('targetDist').textContent = '-';
+                $('targetSub').textContent = 'Menunggu data dari Supabase';
+                return;
+            }
+
+            // 2. Kondisi jika kamera belum menyala
+            if (!state.cameraOn) {
+                setLight('mute', 'Kamera belum menyala');
+                $('targetDist').textContent = '-';
+                $('targetSub').textContent = 'Klik tombol "Nyalakan kamera"';
+                resetAllCardsDisplay();
+                return;
+            }
+
+            // 3. Kondisi jika tangan tidak terdeteksi (Kondisi Gagal: "Tangan belum terlihat")
+            if (!state.cur || !state.cur.lm) {
+                state.history = [];
+                state.shown = null;
+                setLight('mute', 'Tangan belum terlihat');
+                $('targetDist').textContent = '-';
+                $('targetSub').textContent = 'Arahkan satu tangan menghadap kamera';
+                resetAllCardsDisplay();
+                return;
+            }
+
+            // 4. Tangan terdeteksi: Hitung jarak ke SEMUA template huruf
+            const evaluated = [];
+            let minDist = Infinity;
+            let minIndex = -1;
+
+            for (let i = 0; i < state.templates.length; i++) {
+                const tpl = state.templates[i];
+                // Hitung jarak dan info cermin dengan distanceToTemplateInfo dari cv-core.js
+                const info = distanceToTemplateInfo(state.cur.lm, tpl.titik, state.aspect);
+                const d = info.jarak;
+                const tingkat = nilaiTingkat(d, AMBANG);
+
+                evaluated.push({ index: i, kata: tpl.kata, dist: d, cermin: info.cermin, tingkat: tingkat });
+
+                if (d < minDist) {
+                    minDist = d;
+                    minIndex = i;
+                }
+            }
+
+            // 5. Evaluasi Target Terpilih dengan Smoothing
+            const targetEval = evaluated[targetIdx] || evaluated[0];
+            const dTarget = targetEval.dist;
+            const cerminTarget = targetEval.cermin;
+            const tingkatTarget = targetEval.tingkat; // 'tepat', 'hampir', 'belum'
+            const rawStatus = { tepat: 'ok', hampir: 'warn', belum: 'bad' }[tingkatTarget] || 'bad';
+
+            state.history.push(rawStatus);
+            if (state.history.length > SMOOTH_FRAME) {
+                state.history.shift();
+            }
+            if (state.history.length === SMOOTH_FRAME && state.history.every(x => x === state.history[0])) {
+                state.shown = state.history[0];
+            }
+            const showStatus = state.shown || rawStatus;
+            const labelText = { ok: 'Tepat', warn: 'Hampir', bad: 'Belum' }[showStatus];
+
+            setLight(showStatus, labelText);
+            const cerminBadgeTarget = cerminTarget ? ' <span class="cermin-tag">(cermin)</span>' : '';
+            $('targetDist').innerHTML = f3(dTarget) + cerminBadgeTarget;
+            $('targetSub').textContent = `Jarak real-time: ${f3(dTarget)}${cerminTarget ? ' (cermin)' : ''} (Tingkat: ${tingkatTarget.toUpperCase()})`;
+
+            // 6. Update Semua Kartu Huruf & Tandai Jarak Terkecil
+            for (let i = 0; i < evaluated.length; i++) {
+                const item = evaluated[i];
+                const card = $('card-' + i);
+                const distEl = $('dist-val-' + i);
+                const chipEl = $('chip-val-' + i);
+                const badgeBox = $('min-badge-container-' + i);
+
+                if (distEl) {
+                    const cerminBadge = item.cermin ? ' <span class="cermin-tag">(cermin)</span>' : '';
+                    distEl.innerHTML = f3(item.dist) + cerminBadge;
+                }
+
+                if (chipEl) {
+                    chipEl.className = 'level-chip ' + item.tingkat;
+                    chipEl.textContent = { tepat: 'Tepat', hampir: 'Hampir', belum: 'Belum' }[item.tingkat] || item.tingkat;
+                }
+
+                if (badgeBox && card) {
+                    if (i === minIndex) {
+                        card.classList.add('is-min');
+                        badgeBox.className = '';
+                        badgeBox.innerHTML = '<span class="min-badge">★ Terkecil</span>';
+                    } else {
+                        card.classList.remove('is-min');
+                        badgeBox.className = 'min-badge-placeholder';
+                        badgeBox.innerHTML = '';
+                    }
+                }
+            }
+        }
+
+        function resetAllCardsDisplay() {
+            if (!state.templates) return;
+            for (let i = 0; i < state.templates.length; i++) {
+                const card = $('card-' + i);
+                const distEl = $('dist-val-' + i);
+                const chipEl = $('chip-val-' + i);
+                const badgeBox = $('min-badge-container-' + i);
+
+                if (distEl) distEl.textContent = '-';
+                if (chipEl) {
+                    chipEl.className = 'level-chip mute';
+                    chipEl.textContent = '-';
+                }
+                if (card) card.classList.remove('is-min');
+                if (badgeBox) {
+                    badgeBox.className = 'min-badge-placeholder';
+                    badgeBox.innerHTML = '';
+                }
+            }
+        }
+
+        // ================= EVENT LISTENERS =================
+        $('camBtn').addEventListener('click', startCamera);
+
+        $('targetSel').addEventListener('change', () => {
+            state.history = [];
+            state.shown = null;
+            updateLive();
+        });
+
+        $('reloadTplBtn').addEventListener('click', loadTemplatesFromSupabase);
+        $('retryDbBtn').addEventListener('click', loadTemplatesFromSupabase);
+
+        // ================= UJI MATRIKS POSE HURUF =================
+        let isMatrixTesting = false;
+        const matrixStore = {};
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function startMatrixTest() {
+            if (isMatrixTesting) return;
+
+            if (!state.cameraOn) {
+                toast('Nyalakan kamera terlebih dahulu sebelum mulai uji!');
+                return;
+            }
+            if (!state.templates || state.templates.length === 0) {
+                toast('Data template belum dimuat dari database!');
+                return;
+            }
+
+            const letterSel = $('matrixLetterSel');
+            const condSel = $('matrixConditionSel');
+            const startBtn = $('startMatrixBtn');
+            const copyBtn = $('copyMatrixBtn');
+            const statusText = $('matrixStatusText');
+
+            const chosenLetter = letterSel.value;
+            const chosenCondition = condSel.value;
+
+            if (!chosenLetter) {
+                toast('Pilih huruf yang akan diuji!');
+                return;
+            }
+
+            isMatrixTesting = true;
+            startBtn.disabled = true;
+            letterSel.disabled = true;
+            condSel.disabled = true;
+            copyBtn.disabled = true;
+
+            try {
+                // 1. Hitung mundur 5 detik
+                for (let c = 5; c > 0; c--) {
+                    statusText.innerHTML = `Bersiap memperagakan huruf <strong>${chosenLetter}</strong> (${chosenCondition})... Mulai dalam <strong style="color:var(--accent); font-size:16px;">${c}</strong> detik`;
+                    await sleep(1000);
+                }
+
+                // 2. Ambil 10 sampel (jeda 300 ms, hanya frame bertangan terdeteksi, catat jumlah terdeteksi dari 10)
+                // Tiap sampel dinilai terhadap SEMUA template
+                const samples = [];
+                for (let s = 1; s <= 10; s++) {
+                    statusText.innerHTML = `Mengambil sampel <strong style="color:var(--accent); font-size:15px;">${s}/10</strong>... Pertahankan pose!`;
+                    await sleep(300);
+
+                    const lm = (state.cur && state.cur.lm) ? state.cur.lm : null;
+                    if (lm) {
+                        const evals = state.templates.map(tpl => {
+                            const d = distanceToTemplate(lm, tpl.titik, state.aspect);
+                            const tingkat = nilaiTingkat(d, AMBANG);
+                            return { kata: tpl.kata, dist: d, tingkat: tingkat };
+                        });
+                        samples.push({ detected: true, evals });
+                    } else {
+                        samples.push({ detected: false, evals: null });
+                    }
+                }
+
+                // 3. Evaluasi hasil sampel
+                let terdeteksi = 0;
+                let tepatCount = 0;
+                let hampirCount = 0;
+                let belumCount = 0;
+                const hurufLainTepatSet = new Set();
+                const distBenarList = [];
+                let minOtherDist = Infinity;
+                let nearestOtherLetter = '-';
+
+                samples.forEach(sample => {
+                    if (sample.detected && sample.evals) {
+                        terdeteksi++;
+                        sample.evals.forEach(ev => {
+                            if (ev.kata === chosenLetter) {
+                                distBenarList.push(ev.dist);
+                                if (ev.tingkat === 'tepat') tepatCount++;
+                                else if (ev.tingkat === 'hampir') hampirCount++;
+                                else if (ev.tingkat === 'belum') belumCount++;
+                            } else {
+                                if (ev.tingkat === 'tepat') {
+                                    hurufLainTepatSet.add(ev.kata);
+                                }
+                                if (ev.dist < minOtherDist) {
+                                    minOtherDist = ev.dist;
+                                    nearestOtherLetter = ev.kata;
+                                }
+                            }
+                        });
+                    }
+                });
+
+                const orderTarget = x => {
+                    const idx = DAFTAR_TARGET.indexOf(x);
+                    return idx === -1 ? 999 : idx;
+                };
+                const hurufLainTepatList = Array.from(hurufLainTepatSet).sort((a, b) => orderTarget(a) - orderTarget(b));
+
+                // Hitung statistik jarak benar: min / rata / maks
+                let jarakBenarStr = '-';
+                if (distBenarList.length > 0) {
+                    const minD = Math.min(...distBenarList);
+                    const maxD = Math.max(...distBenarList);
+                    const avgD = distBenarList.reduce((acc, v) => acc + v, 0) / distBenarList.length;
+                    jarakBenarStr = `${f3(minD)} / ${f3(avgD)} / ${f3(maxD)}`;
+                }
+
+                // Format huruf lain terdekat
+                let hurufLainTerdekatStr = '-';
+                if (nearestOtherLetter !== '-' && isFinite(minOtherDist)) {
+                    hurufLainTerdekatStr = `${nearestOtherLetter} (${f3(minOtherDist)})`;
+                }
+
+                // 4. Kolom putusan per baris:
+                // kondisi normal: Tepat >= 8 dari sampel terdeteksi
+                // kondisi lain (geser, jauh, dekat, santai, miring): jumlah Belum = 0 (Tepat tidak diwajibkan)
+                // DAN tidak ada huruf lain yang pernah Tepat.
+                let lolos = false;
+                if (terdeteksi > 0 && hurufLainTepatList.length === 0) {
+                    if (chosenCondition === 'normal') {
+                        lolos = (tepatCount >= 8);
+                    } else {
+                        lolos = (belumCount === 0);
+                    }
+                }
+                const putusan = lolos ? 'Lolos' : 'Gagal';
+
+                // 5. Simpan di memori (menimpa kombinasi huruf & kondisi yang sama)
+                const key = `${chosenLetter}_${chosenCondition}`;
+                matrixStore[key] = {
+                    huruf: chosenLetter,
+                    kondisi: chosenCondition,
+                    terdeteksi,
+                    total: 10,
+                    jarakBenar: jarakBenarStr,
+                    tepat: tepatCount,
+                    hampir: hampirCount,
+                    belum: belumCount,
+                    hurufLainTerdekat: hurufLainTerdekatStr,
+                    hurufLainTepat: hurufLainTepatList,
+                    lolos,
+                    putusan
+                };
+
+                statusText.innerHTML = `Selesai uji <strong>${chosenLetter}</strong> (${chosenCondition}): <strong>${lolos ? '<span style="color:var(--ok)">LOLOS</span>' : '<span style="color:var(--bad)">GAGAL</span>'}</strong> (Terdeteksi ${terdeteksi}/10).`;
+                renderMatrixTable();
+                toast(`Uji ${chosenLetter} (${chosenCondition}) selesai: ${putusan}`);
+            } catch (err) {
+                console.error('Error saat uji matriks:', err);
+                statusText.textContent = 'Terjadi kesalahan saat uji matriks: ' + err.message;
+            } finally {
+                isMatrixTesting = false;
+                startBtn.disabled = false;
+                letterSel.disabled = false;
+                condSel.disabled = false;
+                if (Object.keys(matrixStore).length > 0) {
+                    copyBtn.disabled = false;
+                }
+            }
+        }
+
+        function renderMatrixTable() {
+            const tbody = $('matrixTableBody');
+            const items = Object.values(matrixStore);
+            if (items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--mute);">Belum ada data uji matriks.</td></tr>`;
+                $('copyMatrixBtn').disabled = true;
+                return;
+            }
+
+            const orderTarget = x => {
+                const idx = DAFTAR_TARGET.indexOf(x);
+                return idx === -1 ? 999 : idx;
+            };
+            const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };
+            items.sort((a, b) => {
+                const cmp = orderTarget(a.huruf) - orderTarget(b.huruf);
+                if (cmp !== 0) return cmp;
+                return (orderKondisi[a.kondisi] ?? 99) - (orderKondisi[b.kondisi] ?? 99);
+            });
+
+            tbody.innerHTML = items.map(it => `
+                <tr>
+                    <td style="font-weight:700;">${it.huruf}</td>
+                    <td>${it.kondisi}</td>
+                    <td>${it.terdeteksi}/${it.total}</td>
+                    <td style="font-variant-numeric: tabular-nums;">${it.jarakBenar}</td>
+                    <td style="color:var(--ok); font-weight:600;">${it.tepat}</td>
+                    <td style="color:var(--warn); font-weight:600;">${it.hampir}</td>
+                    <td style="color:var(--bad); font-weight:600;">${it.belum}</td>
+                    <td style="font-variant-numeric: tabular-nums;">${it.hurufLainTerdekat}</td>
+                    <td>${it.hurufLainTepat.length > 0 ? it.hurufLainTepat.join(', ') : '-'}</td>
+                    <td><span class="badge-verdict ${it.lolos ? 'lolos' : 'gagal'}">${it.putusan}</span></td>
+                </tr>
+            `).join('');
+
+            $('copyMatrixBtn').disabled = false;
+        }
+
+        function getMatrixSummaryText() {
+            const items = Object.values(matrixStore);
+            if (items.length === 0) return '';
+
+            const notes = ($('matrixNotes').value || '').trim();
+            const orderTarget = x => {
+                const idx = DAFTAR_TARGET.indexOf(x);
+                return idx === -1 ? 999 : idx;
+            };
+            const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };
+            items.sort((a, b) => {
+                const cmp = orderTarget(a.huruf) - orderTarget(b.huruf);
+                if (cmp !== 0) return cmp;
+                return (orderKondisi[a.kondisi] ?? 99) - (orderKondisi[b.kondisi] ?? 99);
+            });
+
+            let lines = [];
+            lines.push('=== RINGKASAN UJI MATRIKS POSE HURUF ===');
+            lines.push(`Catatan: ${notes ? notes : '-'}`);
+            lines.push(`Waktu Uji: ${new Date().toLocaleString('id-ID')}`);
+            lines.push('');
+            lines.push('| Huruf | Kondisi | Terdeteksi | Jarak Benar (min / rata / maks) | Tepat | Hampir | Belum | Huruf Lain Terdekat | Huruf Lain Tepat | Putusan |');
+            lines.push('|-------|---------|------------|---------------------------------|-------|--------|-------|---------------------|------------------|---------|');
+
+            items.forEach(it => {
+                const lain = it.hurufLainTepat.length > 0 ? it.hurufLainTepat.join(', ') : '-';
+                lines.push(`| ${it.huruf.padEnd(5)} | ${it.kondisi.padEnd(7)} | ${(it.terdeteksi + '/' + it.total).padEnd(10)} | ${it.jarakBenar.padEnd(31)} | ${String(it.tepat).padEnd(5)} | ${String(it.hampir).padEnd(6)} | ${String(it.belum).padEnd(5)} | ${it.hurufLainTerdekat.padEnd(19)} | ${lain.padEnd(16)} | ${it.putusan.padEnd(7)} |`);
+            });
+
+            return lines.join('\n');
+        }
+
+        async function copyMatrixSummary() {
+            const text = getMatrixSummaryText();
+            if (!text) {
+                toast('Belum ada data uji untuk disalin.');
+                return;
+            }
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    const ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                toast('Ringkasan tabel dan catatan berhasil disalin ke clipboard.');
+            } catch (e) {
+                console.error('Gagal menyalin:', e);
+                toast('Gagal menyalin otomatis ke clipboard.');
+            }
+        }
+
+        $('startMatrixBtn').addEventListener('click', startMatrixTest);
+        $('copyMatrixBtn').addEventListener('click', copyMatrixSummary);
+
+        // Pasang display ambang dan smooth frame dari konfigurasi
+        $('smoothFrameDisp').textContent = SMOOTH_FRAME;
+        $('thrTepatDisp').textContent = AMBANG.tepat;
+        $('thrHampirDisp').textContent = AMBANG.hampir;
+
+        // Inisialisasi awal saat halaman dibuka
+        window.addEventListener('DOMContentLoaded', () => {
+            initSupabase();
+        });
+    </script>
+</body>
+
+</html>
