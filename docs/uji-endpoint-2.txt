@@ -6,7 +6,7 @@
     // 1. Ambil 1 level_id acak/pertama dari view status level
     const { data: levelList, error: errLevel } = await supabaseClient
       .from('v_status_level')
-      .select('level_id, level_nama')
+      .select('level_id, nama_level')
       .limit(1);
 
     if (errLevel || !levelList || levelList.length === 0) {
@@ -15,7 +15,7 @@
     }
 
     const sampleLevel = levelList[0];
-    console.log(`Menguji Endpoint 2 untuk level: "${sampleLevel.level_nama}" (ID: ${sampleLevel.level_id})`);
+    console.log(`Menguji Endpoint 2 untuk level: "${sampleLevel.nama_level}" (ID: ${sampleLevel.level_id})`);
 
     // 2. Jalankan query Endpoint 2
     const { data, error } = await supabaseClient
