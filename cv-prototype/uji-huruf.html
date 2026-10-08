@@ -582,6 +582,18 @@
                         <option value="">Memuat template…</option>
                     </select>
                 </div>
+                <div class="row" style="margin-bottom:12px; gap:8px; align-items:center;">
+                    <input type="checkbox" id="useWidthNorm">
+                    <label for="useWidthNorm" style="font-size:13px; font-weight:600; cursor:pointer;">
+                        Normalisasi lebar telapak
+                    </label>
+                </div>
+                <div class="row" style="margin-bottom:12px; gap:8px; align-items:center;">
+                    <input type="checkbox" id="useAngleMode">
+                    <label for="useAngleMode" style="font-size:13px; font-weight:600; cursor:pointer;">
+                        Mode sudut jari 3D (butuh field <code>sudut</code> di template)
+                    </label>
+                </div>
 
                 <div class="live-box">
                     <div class="light mute" id="light">Kamera belum menyala</div>
@@ -716,7 +728,6 @@
         const HANDS_VERSION = '0.4.1675469240';
         const SMOOTH_FRAME = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.frameKonsisten) ? CV_CONFIG.frameKonsisten : 5;
         const AMBANG = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.ambang) ? CV_CONFIG.ambang : { tepat: 0.15, hampir: 0.30 };
-        const DAFTAR_TARGET = ['A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5'];
 
         const HAND_LINES = [
             [0, 1], [1, 2], [2, 3], [3, 4],
@@ -736,7 +747,7 @@
             gotFirst: false,
             cur: null,
             fpsTimes: [],
-            templates: [],     // [{ kamus_id, kata, titik, label, versi }]
+            templates: [],     // [{ kamus_id, kata, jenis, titik, label, versi }]
             history: [],       // buffer smoothing: array of 'ok'|'warn'|'bad'
             shown: null,       // status smoothing aktif saat ini
             targetIndex: 0
@@ -799,10 +810,10 @@
             $('reloadTplBtn').disabled = true;
 
             try {
-                // Ambil semua template dari tabel template_pose beserta relasi kamus(kata)
+                // Ambil semua template dari tabel template_pose beserta relasi kamus(kata, jenis)
                 const { data, error } = await supabaseClient
                     .from('template_pose')
-                    .select('kamus_id, landmark_data, kamus(kata)');
+                    .select('kamus_id, landmark_data, kamus(kata, jenis)');
 
                 if (error) throw error;
                 if (!data || data.length === 0) {
@@ -820,25 +831,24 @@
                         continue;
                     }
 
-                    // Ambil kata dari relasi kamus
+                    // Ambil kata dan jenis dari relasi kamus
                     let kata = 'Tanpa Nama';
+                    let jenis = '';
                     if (row.kamus) {
-                        if (Array.isArray(row.kamus) && row.kamus[0] && row.kamus[0].kata) {
-                            kata = row.kamus[0].kata;
-                        } else if (typeof row.kamus.kata === 'string') {
-                            kata = row.kamus.kata;
+                        if (Array.isArray(row.kamus) && row.kamus[0]) {
+                            kata = row.kamus[0].kata || kata;
+                            jenis = row.kamus[0].jenis || '';
+                        } else if (typeof row.kamus === 'object') {
+                            kata = row.kamus.kata || kata;
+                            jenis = row.kamus.jenis || '';
                         }
                     }
-                    kata = String(kata).trim().toUpperCase();
-
-                    // Hanya sertakan target yang terdaftar (A, B, C, D, E, F, 1, 2, 3, 4, 5; hapus L dan V)
-                    if (!DAFTAR_TARGET.includes(kata)) {
-                        continue;
-                    }
+                    kata = String(kata).trim();
 
                     parsedList.push({
                         kamus_id: row.kamus_id,
                         kata: kata,
+                        jenis: jenis,
                         titik: lm.titik,
                         label: lm.label || 'Right',
                         versi: lm.versi || 1
@@ -846,20 +856,24 @@
                 }
 
                 if (parsedList.length === 0) {
-                    throw new Error('Data template_pose ditemukan tetapi tidak ada yang cocok dengan daftar target valid.');
+                    throw new Error('Data template_pose ditemukan tetapi tidak ada format landmark_data yang valid.');
                 }
 
-                // Ambil satu template per target dan urutkan persis sesuai DAFTAR_TARGET: A, B, C, D, E, F, 1, 2, 3, 4, 5
+                // Ambil satu template per kata dan urutkan berdasarkan jenis lalu kata
                 const uniqueMap = new Map();
                 for (const item of parsedList) {
-                    if (!uniqueMap.has(item.kata)) {
-                        uniqueMap.set(item.kata, item);
+                    const key = `${item.kata}_${item.jenis}`;
+                    if (!uniqueMap.has(key)) {
+                        uniqueMap.set(key, item);
                     }
                 }
 
-                const sortedList = DAFTAR_TARGET
-                    .filter(k => uniqueMap.has(k))
-                    .map(k => uniqueMap.get(k));
+                const sortedList = Array.from(uniqueMap.values()).sort((a, b) => {
+                    const jenisA = (a.jenis || '').toLowerCase();
+                    const jenisB = (b.jenis || '').toLowerCase();
+                    if (jenisA !== jenisB) return jenisA.localeCompare(jenisB);
+                    return a.kata.localeCompare(b.kata, undefined, { numeric: true, sensitivity: 'base' });
+                });
 
                 state.templates = sortedList;
                 $('tplCountDisp').textContent = sortedList.length;
@@ -880,14 +894,20 @@
 
         function populateDropdown() {
             const sel = $('targetSel');
-            sel.innerHTML = state.templates.map((t, idx) => `<option value="${idx}">Huruf ${t.kata}</option>`).join('');
+            sel.innerHTML = state.templates.map((t, idx) => {
+                const label = t.jenis ? `${t.kata} (${t.jenis})` : t.kata;
+                return `<option value="${idx}">${label}</option>`;
+            }).join('');
             sel.disabled = false;
             state.targetIndex = 0;
             sel.value = '0';
 
             const matSel = $('matrixLetterSel');
             if (matSel) {
-                matSel.innerHTML = state.templates.map(t => `<option value="${t.kata}">Huruf ${t.kata}</option>`).join('');
+                matSel.innerHTML = state.templates.map(t => {
+                    const label = t.jenis ? `${t.kata} (${t.jenis})` : t.kata;
+                    return `<option value="${t.kata}">${label}</option>`;
+                }).join('');
                 matSel.disabled = false;
             }
         }
@@ -902,7 +922,7 @@
             grid.innerHTML = state.templates.map((t, idx) => `
                 <div class="letter-card" id="card-${idx}">
                     <div class="letter-header">
-                        <span class="letter-name">${t.kata}</span>
+                        <span class="letter-name">${t.kata} <small style="font-size:11px; font-weight:normal; color:var(--mute);">(${t.jenis || 'sign'})</small></span>
                         <span class="target-tag" id="target-tag-${idx}" ${idx === state.targetIndex ? '' : 'hidden'}>Target</span>
                     </div>
                     <div id="min-badge-container-${idx}" class="min-badge-placeholder"></div>
@@ -940,6 +960,9 @@
             });
         }
 
+        // DIAG-SEMENTARA
+        let diagFrameCounter = 0;
+
         function onResults(res) {
             state.gotFirst = true;
             const now = performance.now();
@@ -949,8 +972,25 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
             if (lm) {
+                // DIAG-SEMENTARA: logging landmark mentah tiap 10 frame
+                diagFrameCounter++;
+                if (diagFrameCounter % 10 === 0) {
+                    const sel = $('targetSel');
+                    const targetLabel = (sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex])
+                        ? sel.options[sel.selectedIndex].textContent
+                        : (state.templates[state.targetIndex] ? state.templates[state.targetIndex].kata : '-');
+                    const dx0_9 = lm[0].x - lm[9].x;
+                    const dy0_9 = lm[0].y - lm[9].y;
+                    const d0_9 = Math.hypot(dx0_9, dy0_9).toFixed(3);
+                    const dx5_17 = lm[5].x - lm[17].x;
+                    const dy5_17 = lm[5].y - lm[17].y;
+                    const w5_17 = Math.hypot(dx5_17, dy5_17).toFixed(3);
+                    console.log(`[DIAG] target=${targetLabel} d0_9=${d0_9} w5_17=${w5_17}`);
+                }
+
                 const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : 'Right';
-                state.cur = { lm, label, t: now };
+                const worldLm = res.multiHandWorldLandmarks && res.multiHandWorldLandmarks[0];
+                state.cur = { lm, label, worldLm: worldLm || null, t: now };
                 drawHand(lm);
             } else {
                 state.cur = null;
@@ -1080,15 +1120,29 @@
             const evaluated = [];
             let minDist = Infinity;
             let minIndex = -1;
+            const useWidth = $('useWidthNorm') && $('useWidthNorm').checked;
+            const useAngle = $('useAngleMode') && $('useAngleMode').checked;
+            const liveSudut = useAngle ? sudutJari(state.cur.worldLm) : null;
 
             for (let i = 0; i < state.templates.length; i++) {
                 const tpl = state.templates[i];
-                // Hitung jarak dan info cermin dengan distanceToTemplateInfo dari cv-core.js
-                const info = distanceToTemplateInfo(state.cur.lm, tpl.titik, state.aspect);
-                const d = info.jarak;
+                let d, cermin;
+                if (useAngle && liveSudut && tpl.sudut && tpl.sudut.length === 8) {
+                    // Mode sudut jari 3D: pakai jarakSudut
+                    d = jarakSudut(liveSudut, tpl.sudut);
+                    cermin = false;
+                } else if (useWidth) {
+                    // Mode normalisasi lebar telapak
+                    const info = distanceToTemplateInfoByWidth(state.cur.lm, tpl.titik, state.aspect);
+                    d = info.jarak; cermin = info.cermin;
+                } else {
+                    // Mode standar
+                    const info = distanceToTemplateInfo(state.cur.lm, tpl.titik, state.aspect);
+                    d = info.jarak; cermin = info.cermin;
+                }
                 const tingkat = nilaiTingkat(d, AMBANG);
 
-                evaluated.push({ index: i, kata: tpl.kata, dist: d, cermin: info.cermin, tingkat: tingkat });
+                evaluated.push({ index: i, kata: tpl.kata, dist: d, cermin: cermin, tingkat: tingkat });
 
                 if (d < minDist) {
                     minDist = d;
@@ -1180,6 +1234,22 @@
             updateLive();
         });
 
+        if ($('useWidthNorm')) {
+            $('useWidthNorm').addEventListener('change', () => {
+                state.history = [];
+                state.shown = null;
+                updateLive();
+            });
+        }
+
+        if ($('useAngleMode')) {
+            $('useAngleMode').addEventListener('change', () => {
+                state.history = [];
+                state.shown = null;
+                updateLive();
+            });
+        }
+
         $('reloadTplBtn').addEventListener('click', loadTemplatesFromSupabase);
         $('retryDbBtn').addEventListener('click', loadTemplatesFromSupabase);
 
@@ -1230,14 +1300,25 @@
                 // 2. Ambil 10 sampel (jeda 300 ms, hanya frame bertangan terdeteksi, catat jumlah terdeteksi dari 10)
                 // Tiap sampel dinilai terhadap SEMUA template
                 const samples = [];
+                const useWidth = $('useWidthNorm') && $('useWidthNorm').checked;
+                const useAngle = $('useAngleMode') && $('useAngleMode').checked;
+
                 for (let s = 1; s <= 10; s++) {
                     statusText.innerHTML = `Mengambil sampel <strong style="color:var(--accent); font-size:15px;">${s}/10</strong>... Pertahankan pose!`;
                     await sleep(300);
 
                     const lm = (state.cur && state.cur.lm) ? state.cur.lm : null;
                     if (lm) {
+                        const liveSudut = useAngle ? sudutJari(state.cur.worldLm) : null;
                         const evals = state.templates.map(tpl => {
-                            const d = distanceToTemplate(lm, tpl.titik, state.aspect);
+                            let d;
+                            if (useAngle && liveSudut && tpl.sudut && tpl.sudut.length === 8) {
+                                d = jarakSudut(liveSudut, tpl.sudut);
+                            } else if (useWidth) {
+                                d = distanceToTemplateInfoByWidth(lm, tpl.titik, state.aspect).jarak;
+                            } else {
+                                d = distanceToTemplate(lm, tpl.titik, state.aspect);
+                            }
                             const tingkat = nilaiTingkat(d, AMBANG);
                             return { kata: tpl.kata, dist: d, tingkat: tingkat };
                         });
@@ -1280,7 +1361,7 @@
                 });
 
                 const orderTarget = x => {
-                    const idx = DAFTAR_TARGET.indexOf(x);
+                    const idx = state.templates.findIndex(t => t.kata === x);
                     return idx === -1 ? 999 : idx;
                 };
                 const hurufLainTepatList = Array.from(hurufLainTepatSet).sort((a, b) => orderTarget(a) - orderTarget(b));
@@ -1358,7 +1439,7 @@
             }
 
             const orderTarget = x => {
-                const idx = DAFTAR_TARGET.indexOf(x);
+                const idx = state.templates.findIndex(t => t.kata === x);
                 return idx === -1 ? 999 : idx;
             };
             const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };
@@ -1392,7 +1473,7 @@
 
             const notes = ($('matrixNotes').value || '').trim();
             const orderTarget = x => {
-                const idx = DAFTAR_TARGET.indexOf(x);
+                const idx = state.templates.findIndex(t => t.kata === x);
                 return idx === -1 ? 999 : idx;
             };
             const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };
