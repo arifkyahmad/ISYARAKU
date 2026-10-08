@@ -593,7 +593,8 @@
             const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
             if (lm) {
                 const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : 'Right';
-                state.cur = { lm, label, t: now };
+                const worldLm = res.multiHandWorldLandmarks && res.multiHandWorldLandmarks[0];
+                state.cur = { lm, label, worldLm: worldLm || null, t: now };
                 drawHand(lm);
             } else {
                 state.cur = null;
@@ -702,13 +703,14 @@
             }
 
             showBanner(`Merekam “${itemLabel}”… tahan posisi`, '');
-            const rawFrames = [], labels = [], t0 = performance.now();
+            const rawFrames = [], labels = [], worldFrames = [], t0 = performance.now();
 
             while (rawFrames.length < FRAME_REKAM && (performance.now() - t0 < 3500)) {
                 await sleep(80);
                 if (state.cur && state.cur.lm) {
                     rawFrames.push(state.cur.lm);
                     labels.push(state.cur.label || 'Right');
+                    if (state.cur.worldLm) worldFrames.push(state.cur.worldLm);
                 }
             }
             hideBanner();
@@ -738,12 +740,26 @@
             labels.forEach(l => { cnt[l] = (cnt[l] || 0) + 1; });
             const dominantLabel = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'Right';
 
+            // Rata-ratakan sudut jari dari worldLm jika tersedia (field tambahan, tidak wajib)
+            let sudutRataRata = null;
+            if (worldFrames.length >= MIN_FRAME_VALID) {
+                const sudutPerFrame = worldFrames.map(wlm => sudutJari(wlm)).filter(s => s !== null);
+                if (sudutPerFrame.length > 0) {
+                    sudutRataRata = [];
+                    for (let k = 0; k < 8; k++) {
+                        const avg = sudutPerFrame.reduce((sum, s) => sum + s[k], 0) / sudutPerFrame.length;
+                        sudutRataRata.push(+avg.toFixed(1));
+                    }
+                }
+            }
+
             // Bentuk objek JSON template
             const landmarkData = {
                 versi: 1,
                 tangan: 1,
                 label: dominantLabel,
-                titik: titik
+                titik: titik,
+                ...(sudutRataRata ? { sudut: sudutRataRata } : {})
             };
             const jsonStr = JSON.stringify(landmarkData);
 

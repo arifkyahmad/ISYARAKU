@@ -582,6 +582,18 @@
                         <option value="">Memuat template…</option>
                     </select>
                 </div>
+                <div class="row" style="margin-bottom:12px; gap:8px; align-items:center;">
+                    <input type="checkbox" id="useWidthNorm">
+                    <label for="useWidthNorm" style="font-size:13px; font-weight:600; cursor:pointer;">
+                        Normalisasi lebar telapak
+                    </label>
+                </div>
+                <div class="row" style="margin-bottom:12px; gap:8px; align-items:center;">
+                    <input type="checkbox" id="useAngleMode">
+                    <label for="useAngleMode" style="font-size:13px; font-weight:600; cursor:pointer;">
+                        Mode sudut jari 3D (butuh field <code>sudut</code> di template)
+                    </label>
+                </div>
 
                 <div class="live-box">
                     <div class="light mute" id="light">Kamera belum menyala</div>
@@ -948,6 +960,9 @@
             });
         }
 
+        // DIAG-SEMENTARA
+        let diagFrameCounter = 0;
+
         function onResults(res) {
             state.gotFirst = true;
             const now = performance.now();
@@ -957,8 +972,25 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
             if (lm) {
+                // DIAG-SEMENTARA: logging landmark mentah tiap 10 frame
+                diagFrameCounter++;
+                if (diagFrameCounter % 10 === 0) {
+                    const sel = $('targetSel');
+                    const targetLabel = (sel && sel.selectedIndex >= 0 && sel.options[sel.selectedIndex])
+                        ? sel.options[sel.selectedIndex].textContent
+                        : (state.templates[state.targetIndex] ? state.templates[state.targetIndex].kata : '-');
+                    const dx0_9 = lm[0].x - lm[9].x;
+                    const dy0_9 = lm[0].y - lm[9].y;
+                    const d0_9 = Math.hypot(dx0_9, dy0_9).toFixed(3);
+                    const dx5_17 = lm[5].x - lm[17].x;
+                    const dy5_17 = lm[5].y - lm[17].y;
+                    const w5_17 = Math.hypot(dx5_17, dy5_17).toFixed(3);
+                    console.log(`[DIAG] target=${targetLabel} d0_9=${d0_9} w5_17=${w5_17}`);
+                }
+
                 const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : 'Right';
-                state.cur = { lm, label, t: now };
+                const worldLm = res.multiHandWorldLandmarks && res.multiHandWorldLandmarks[0];
+                state.cur = { lm, label, worldLm: worldLm || null, t: now };
                 drawHand(lm);
             } else {
                 state.cur = null;
@@ -1088,15 +1120,29 @@
             const evaluated = [];
             let minDist = Infinity;
             let minIndex = -1;
+            const useWidth = $('useWidthNorm') && $('useWidthNorm').checked;
+            const useAngle = $('useAngleMode') && $('useAngleMode').checked;
+            const liveSudut = useAngle ? sudutJari(state.cur.worldLm) : null;
 
             for (let i = 0; i < state.templates.length; i++) {
                 const tpl = state.templates[i];
-                // Hitung jarak dan info cermin dengan distanceToTemplateInfo dari cv-core.js
-                const info = distanceToTemplateInfo(state.cur.lm, tpl.titik, state.aspect);
-                const d = info.jarak;
+                let d, cermin;
+                if (useAngle && liveSudut && tpl.sudut && tpl.sudut.length === 8) {
+                    // Mode sudut jari 3D: pakai jarakSudut
+                    d = jarakSudut(liveSudut, tpl.sudut);
+                    cermin = false;
+                } else if (useWidth) {
+                    // Mode normalisasi lebar telapak
+                    const info = distanceToTemplateInfoByWidth(state.cur.lm, tpl.titik, state.aspect);
+                    d = info.jarak; cermin = info.cermin;
+                } else {
+                    // Mode standar
+                    const info = distanceToTemplateInfo(state.cur.lm, tpl.titik, state.aspect);
+                    d = info.jarak; cermin = info.cermin;
+                }
                 const tingkat = nilaiTingkat(d, AMBANG);
 
-                evaluated.push({ index: i, kata: tpl.kata, dist: d, cermin: info.cermin, tingkat: tingkat });
+                evaluated.push({ index: i, kata: tpl.kata, dist: d, cermin: cermin, tingkat: tingkat });
 
                 if (d < minDist) {
                     minDist = d;
@@ -1188,6 +1234,22 @@
             updateLive();
         });
 
+        if ($('useWidthNorm')) {
+            $('useWidthNorm').addEventListener('change', () => {
+                state.history = [];
+                state.shown = null;
+                updateLive();
+            });
+        }
+
+        if ($('useAngleMode')) {
+            $('useAngleMode').addEventListener('change', () => {
+                state.history = [];
+                state.shown = null;
+                updateLive();
+            });
+        }
+
         $('reloadTplBtn').addEventListener('click', loadTemplatesFromSupabase);
         $('retryDbBtn').addEventListener('click', loadTemplatesFromSupabase);
 
@@ -1238,14 +1300,25 @@
                 // 2. Ambil 10 sampel (jeda 300 ms, hanya frame bertangan terdeteksi, catat jumlah terdeteksi dari 10)
                 // Tiap sampel dinilai terhadap SEMUA template
                 const samples = [];
+                const useWidth = $('useWidthNorm') && $('useWidthNorm').checked;
+                const useAngle = $('useAngleMode') && $('useAngleMode').checked;
+
                 for (let s = 1; s <= 10; s++) {
                     statusText.innerHTML = `Mengambil sampel <strong style="color:var(--accent); font-size:15px;">${s}/10</strong>... Pertahankan pose!`;
                     await sleep(300);
 
                     const lm = (state.cur && state.cur.lm) ? state.cur.lm : null;
                     if (lm) {
+                        const liveSudut = useAngle ? sudutJari(state.cur.worldLm) : null;
                         const evals = state.templates.map(tpl => {
-                            const d = distanceToTemplate(lm, tpl.titik, state.aspect);
+                            let d;
+                            if (useAngle && liveSudut && tpl.sudut && tpl.sudut.length === 8) {
+                                d = jarakSudut(liveSudut, tpl.sudut);
+                            } else if (useWidth) {
+                                d = distanceToTemplateInfoByWidth(lm, tpl.titik, state.aspect).jarak;
+                            } else {
+                                d = distanceToTemplate(lm, tpl.titik, state.aspect);
+                            }
                             const tingkat = nilaiTingkat(d, AMBANG);
                             return { kata: tpl.kata, dist: d, tingkat: tingkat };
                         });

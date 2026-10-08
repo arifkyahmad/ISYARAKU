@@ -2,7 +2,9 @@ const assert = require('assert');
 const {
     distanceToTemplate2,
     rotateUpright,
-    mirrorPts
+    mirrorPts,
+    sudutJari,
+    jarakSudut
 } = require('./cv-core.js');
 
 // Helper untuk membuat 21 titik dummy yang valid (panjang vektor 0->9 > 0)
@@ -78,6 +80,35 @@ console.log('Menjalankan pengujian cv-core.test.js...\n');
     const resNull = distanceToTemplate2(null, templateA, templateB, aspect);
     assert.deepStrictEqual(resNull, { status: 'tangan_kurang' }, 'Harus { status: "tangan_kurang" } jika null');
     console.log('✓ (d) 1 tangan live untuk template 2 tangan = { status: "tangan_kurang" }');
+}
+
+// (e) sudutJari: dua array identik → jarakSudut = 0
+{
+    // Buat worldLm dummy: 21 titik dengan x, y, z
+    const wlm = [];
+    for (let i = 0; i < 21; i++) {
+        wlm.push({ x: i * 0.01, y: i * 0.02, z: i * 0.005 });
+    }
+    // Pastikan titik 5-8, 9-12, 13-16, 17-20 tidak collinear dengan menyimpangkan posisi
+    wlm[6]  = { x: 0.05 + 0.02, y: 0.12 - 0.03, z: 0.01 };
+    wlm[10] = { x: 0.09 + 0.02, y: 0.20 - 0.03, z: 0.02 };
+    wlm[14] = { x: 0.13 + 0.02, y: 0.28 - 0.03, z: 0.03 };
+    wlm[18] = { x: 0.17 + 0.02, y: 0.36 - 0.03, z: 0.04 };
+
+    const s1 = sudutJari(wlm);
+    assert(Array.isArray(s1) && s1.length === 8, 'sudutJari harus menghasilkan array 8 elemen');
+    const d = jarakSudut(s1, s1);
+    assert(Math.abs(d) < 1e-9, `jarakSudut ke dirinya sendiri harus 0, didapat: ${d}`);
+    console.log('✓ (e) jarakSudut ke dirinya sendiri = 0');
+}
+
+// (f) sudutJari: selisih konstan 10 derajat → jarakSudut = 10
+{
+    const base = [10, 20, 30, 40, 50, 60, 70, 80];
+    const shifted = base.map(v => v + 10);
+    const d = jarakSudut(base, shifted);
+    assert(Math.abs(d - 10) < 1e-9, `jarakSudut selisih konstan 10 harus 10, didapat: ${d}`);
+    console.log('✓ (f) jarakSudut selisih konstan 10 derajat = 10');
 }
 
 console.log('\nSemua pengujian lolos!');
