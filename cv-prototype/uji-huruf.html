@@ -716,7 +716,6 @@
         const HANDS_VERSION = '0.4.1675469240';
         const SMOOTH_FRAME = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.frameKonsisten) ? CV_CONFIG.frameKonsisten : 5;
         const AMBANG = (typeof CV_CONFIG !== 'undefined' && CV_CONFIG.ambang) ? CV_CONFIG.ambang : { tepat: 0.15, hampir: 0.30 };
-        const DAFTAR_TARGET = ['A', 'B', 'C', 'D', 'E', 'F', '1', '2', '3', '4', '5'];
 
         const HAND_LINES = [
             [0, 1], [1, 2], [2, 3], [3, 4],
@@ -736,7 +735,7 @@
             gotFirst: false,
             cur: null,
             fpsTimes: [],
-            templates: [],     // [{ kamus_id, kata, titik, label, versi }]
+            templates: [],     // [{ kamus_id, kata, jenis, titik, label, versi }]
             history: [],       // buffer smoothing: array of 'ok'|'warn'|'bad'
             shown: null,       // status smoothing aktif saat ini
             targetIndex: 0
@@ -799,10 +798,10 @@
             $('reloadTplBtn').disabled = true;
 
             try {
-                // Ambil semua template dari tabel template_pose beserta relasi kamus(kata)
+                // Ambil semua template dari tabel template_pose beserta relasi kamus(kata, jenis)
                 const { data, error } = await supabaseClient
                     .from('template_pose')
-                    .select('kamus_id, landmark_data, kamus(kata)');
+                    .select('kamus_id, landmark_data, kamus(kata, jenis)');
 
                 if (error) throw error;
                 if (!data || data.length === 0) {
@@ -820,25 +819,24 @@
                         continue;
                     }
 
-                    // Ambil kata dari relasi kamus
+                    // Ambil kata dan jenis dari relasi kamus
                     let kata = 'Tanpa Nama';
+                    let jenis = '';
                     if (row.kamus) {
-                        if (Array.isArray(row.kamus) && row.kamus[0] && row.kamus[0].kata) {
-                            kata = row.kamus[0].kata;
-                        } else if (typeof row.kamus.kata === 'string') {
-                            kata = row.kamus.kata;
+                        if (Array.isArray(row.kamus) && row.kamus[0]) {
+                            kata = row.kamus[0].kata || kata;
+                            jenis = row.kamus[0].jenis || '';
+                        } else if (typeof row.kamus === 'object') {
+                            kata = row.kamus.kata || kata;
+                            jenis = row.kamus.jenis || '';
                         }
                     }
-                    kata = String(kata).trim().toUpperCase();
-
-                    // Hanya sertakan target yang terdaftar (A, B, C, D, E, F, 1, 2, 3, 4, 5; hapus L dan V)
-                    if (!DAFTAR_TARGET.includes(kata)) {
-                        continue;
-                    }
+                    kata = String(kata).trim();
 
                     parsedList.push({
                         kamus_id: row.kamus_id,
                         kata: kata,
+                        jenis: jenis,
                         titik: lm.titik,
                         label: lm.label || 'Right',
                         versi: lm.versi || 1
@@ -846,20 +844,24 @@
                 }
 
                 if (parsedList.length === 0) {
-                    throw new Error('Data template_pose ditemukan tetapi tidak ada yang cocok dengan daftar target valid.');
+                    throw new Error('Data template_pose ditemukan tetapi tidak ada format landmark_data yang valid.');
                 }
 
-                // Ambil satu template per target dan urutkan persis sesuai DAFTAR_TARGET: A, B, C, D, E, F, 1, 2, 3, 4, 5
+                // Ambil satu template per kata dan urutkan berdasarkan jenis lalu kata
                 const uniqueMap = new Map();
                 for (const item of parsedList) {
-                    if (!uniqueMap.has(item.kata)) {
-                        uniqueMap.set(item.kata, item);
+                    const key = `${item.kata}_${item.jenis}`;
+                    if (!uniqueMap.has(key)) {
+                        uniqueMap.set(key, item);
                     }
                 }
 
-                const sortedList = DAFTAR_TARGET
-                    .filter(k => uniqueMap.has(k))
-                    .map(k => uniqueMap.get(k));
+                const sortedList = Array.from(uniqueMap.values()).sort((a, b) => {
+                    const jenisA = (a.jenis || '').toLowerCase();
+                    const jenisB = (b.jenis || '').toLowerCase();
+                    if (jenisA !== jenisB) return jenisA.localeCompare(jenisB);
+                    return a.kata.localeCompare(b.kata, undefined, { numeric: true, sensitivity: 'base' });
+                });
 
                 state.templates = sortedList;
                 $('tplCountDisp').textContent = sortedList.length;
@@ -880,14 +882,20 @@
 
         function populateDropdown() {
             const sel = $('targetSel');
-            sel.innerHTML = state.templates.map((t, idx) => `<option value="${idx}">Huruf ${t.kata}</option>`).join('');
+            sel.innerHTML = state.templates.map((t, idx) => {
+                const label = t.jenis ? `${t.kata} (${t.jenis})` : t.kata;
+                return `<option value="${idx}">${label}</option>`;
+            }).join('');
             sel.disabled = false;
             state.targetIndex = 0;
             sel.value = '0';
 
             const matSel = $('matrixLetterSel');
             if (matSel) {
-                matSel.innerHTML = state.templates.map(t => `<option value="${t.kata}">Huruf ${t.kata}</option>`).join('');
+                matSel.innerHTML = state.templates.map(t => {
+                    const label = t.jenis ? `${t.kata} (${t.jenis})` : t.kata;
+                    return `<option value="${t.kata}">${label}</option>`;
+                }).join('');
                 matSel.disabled = false;
             }
         }
@@ -902,7 +910,7 @@
             grid.innerHTML = state.templates.map((t, idx) => `
                 <div class="letter-card" id="card-${idx}">
                     <div class="letter-header">
-                        <span class="letter-name">${t.kata}</span>
+                        <span class="letter-name">${t.kata} <small style="font-size:11px; font-weight:normal; color:var(--mute);">(${t.jenis || 'sign'})</small></span>
                         <span class="target-tag" id="target-tag-${idx}" ${idx === state.targetIndex ? '' : 'hidden'}>Target</span>
                     </div>
                     <div id="min-badge-container-${idx}" class="min-badge-placeholder"></div>
@@ -1280,7 +1288,7 @@
                 });
 
                 const orderTarget = x => {
-                    const idx = DAFTAR_TARGET.indexOf(x);
+                    const idx = state.templates.findIndex(t => t.kata === x);
                     return idx === -1 ? 999 : idx;
                 };
                 const hurufLainTepatList = Array.from(hurufLainTepatSet).sort((a, b) => orderTarget(a) - orderTarget(b));
@@ -1358,7 +1366,7 @@
             }
 
             const orderTarget = x => {
-                const idx = DAFTAR_TARGET.indexOf(x);
+                const idx = state.templates.findIndex(t => t.kata === x);
                 return idx === -1 ? 999 : idx;
             };
             const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };
@@ -1392,7 +1400,7 @@
 
             const notes = ($('matrixNotes').value || '').trim();
             const orderTarget = x => {
-                const idx = DAFTAR_TARGET.indexOf(x);
+                const idx = state.templates.findIndex(t => t.kata === x);
                 return idx === -1 ? 999 : idx;
             };
             const orderKondisi = { normal: 0, geser: 1, jauh: 2, dekat: 3, santai: 4, miring: 5 };

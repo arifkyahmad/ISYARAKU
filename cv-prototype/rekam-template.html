@@ -408,27 +408,17 @@
 
     <div id="toast" role="status" aria-live="polite"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../frontend/config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"
         crossorigin="anonymous"></script>
     <script src="cv-config.js"></script>
     <script src="cv-core.js"></script>
     <script>
-        // ================= KONSTANTA DAFTAR HURUF =================
-        const DAFTAR_HURUF = {
-            'A': '46e24274-4c92-4e45-9b6b-d5fcef207bd0',
-            'B': '1cf959a3-0f21-4930-b50d-3f9419159b64',
-            'L': '273e3444-17be-4be3-be6c-f2cb1e7206cc',
-            'V': 'f140eaf5-58c2-418c-99fd-a15ad489daa3',
-            'C': 'e6a62f6f-b4b9-4a78-a184-e430e3bb9337',
-            'D': '22848928-19a9-4cc2-95c3-ff3db77d7205',
-            'E': 'e759eac2-2fab-4014-a9bb-07f9fd40c364',
-            'F': '067d8140-d967-4859-91f7-b23bb8711a44',
-            '1': '82c6e4e5-79b0-4312-8818-b3bb56dc1e57',
-            '2': '9e4c10fd-27d0-49a3-9636-1534b7452dd2',
-            '3': 'b3c7bb1b-85e6-4d01-92ea-c80284aa044f',
-            '4': 'b168acb0-1967-4033-a93d-64bba216eb6a',
-            '5': '808fa6b4-14f8-496e-8e3b-165912abec72'
-        };
+        // ================= STATE & KONSTANTA =================
+        let supabaseClient = null;
+        let daftarKamus = []; // [{ id, kata, jenis }]
+        let kamusMap = {};    // id -> { id, kata, jenis }
 
         const MAKS_TANGAN = 1;
         const HITUNG_MUNDUR_REKAM = 3;
@@ -505,18 +495,64 @@
             $('letterSel').disabled = b;
         }
 
-        // ---------- inisialisasi dropdown ----------
-        function initDropdown() {
+        // ---------- inisialisasi database & dropdown ----------
+        async function initSupabaseAndDropdown() {
             const sel = $('letterSel');
-            sel.innerHTML = Object.keys(DAFTAR_HURUF).map(h => `<option value="${h}">Huruf ${h}</option>`).join('');
-            sel.addEventListener('change', updateSelectedLetter);
-            updateSelectedLetter();
+            sel.innerHTML = '<option value="">Memuat kamus dari database…</option>';
+            sel.disabled = true;
+
+            try {
+                if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_PUBLISHABLE_KEY === 'undefined') {
+                    throw new Error('Variabel SUPABASE_URL atau SUPABASE_PUBLISHABLE_KEY tidak ditemukan. Pastikan ../frontend/config.js termuat.');
+                }
+                if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                    throw new Error('Library Supabase gagal dimuat dari CDN. Periksa koneksi internet.');
+                }
+
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+                const { data, error } = await supabaseClient
+                    .from('kamus')
+                    .select('id, kata, jenis')
+                    .order('jenis', { ascending: true })
+                    .order('kata', { ascending: true });
+
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    throw new Error('Tabel kamus kosong atau tidak ada data yang ditemukan.');
+                }
+
+                daftarKamus = data;
+                kamusMap = {};
+                daftarKamus.forEach(item => {
+                    kamusMap[item.id] = item;
+                });
+
+                sel.innerHTML = daftarKamus.map(item => `
+                    <option value="${item.id}">${item.kata} (${item.jenis})</option>
+                `).join('');
+
+                sel.disabled = false;
+                sel.addEventListener('change', updateSelectedLetter);
+                updateSelectedLetter();
+                toast(`Berhasil memuat ${daftarKamus.length} kata/huruf dari kamus.`);
+            } catch (err) {
+                console.error('Gagal memuat kamus:', err);
+                sel.innerHTML = '<option value="">Gagal memuat kamus</option>';
+                showError('Gagal memuat data kamus dari Supabase: ' + (err.message || String(err)));
+            }
         }
 
         function updateSelectedLetter() {
-            const h = $('letterSel').value;
-            $('recBtnLetter').textContent = h;
-            $('kamusIdDisp').textContent = DAFTAR_HURUF[h] || '-';
+            const id = $('letterSel').value;
+            const item = kamusMap[id];
+            if (item) {
+                $('recBtnLetter').textContent = `${item.kata} (${item.jenis})`;
+                $('kamusIdDisp').textContent = item.id;
+            } else {
+                $('recBtnLetter').textContent = '-';
+                $('kamusIdDisp').textContent = '-';
+            }
         }
 
         // ---------- kamera dan MediaPipe ----------
@@ -647,24 +683,25 @@
             }
             if (state.running) return;
 
-            const letter = $('letterSel').value;
-            const kamusId = DAFTAR_HURUF[letter];
-            if (!kamusId) {
-                toast('Pilihan huruf tidak valid.');
+            const kamusId = $('letterSel').value;
+            const item = kamusMap[kamusId];
+            if (!item || !kamusId) {
+                toast('Pilihan sign/kata tidak valid.');
                 return;
             }
+            const itemLabel = `${item.kata} (${item.jenis})`;
 
             state.abort = false;
             setBusy(true);
 
-            const ok = await countdown(HITUNG_MUNDUR_REKAM, `Bentuk pose “${letter}” lalu tahan`, 'Merekam dalam');
+            const ok = await countdown(HITUNG_MUNDUR_REKAM, `Bentuk pose “${itemLabel}” lalu tahan`, 'Merekam dalam');
             if (!ok) {
                 hideBanner();
                 setBusy(false);
                 return;
             }
 
-            showBanner(`Merekam “${letter}”… tahan posisi`, '');
+            showBanner(`Merekam “${itemLabel}”… tahan posisi`, '');
             const rawFrames = [], labels = [], t0 = performance.now();
 
             while (rawFrames.length < FRAME_REKAM && (performance.now() - t0 < 3500)) {
@@ -716,10 +753,10 @@
             $('sqlOutput').value = sql;
             $('copyBtn').disabled = false;
 
-            const statusText = `✓ Berhasil merekam pose huruf “${letter}” (${rawFrames.length} frame, tangan ${dominantLabel}). Query SQL telah dibuat di bawah.`;
+            const statusText = `✓ Berhasil merekam pose “${itemLabel}” (${rawFrames.length} frame, tangan ${dominantLabel}). Query SQL telah dibuat di bawah.`;
             $('recStatus').className = 'status-box ok';
             $('recStatus').textContent = statusText;
-            toast(`Pose ${letter} berhasil direkam!`);
+            toast(`Pose ${itemLabel} berhasil direkam!`);
 
             setBusy(false);
         }
@@ -749,7 +786,7 @@
         });
 
         // ---------- inisialisasi awal ----------
-        initDropdown();
+        initSupabaseAndDropdown();
         if (location.protocol === 'file:') $('fileWarn').hidden = false;
     </script>
 </body>
