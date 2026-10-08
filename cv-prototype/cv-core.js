@@ -116,3 +116,52 @@ function distanceToTemplate(lm, titikTemplate, aspect) {
     return distanceToTemplateInfo(lm, titikTemplate, aspect).jarak;
 }
 
+// Hitung jarak untuk template 2 tangan.
+// handsLive: array berisi landmark tangan yang terdeteksi secara live.
+// templateA, templateB: masing-masing array 21 titik [[x, y], ...] atau titik landmark template.
+// aspect: rasio aspek video/layar.
+function distanceToTemplate2(handsLive, templateA, templateB, aspect) {
+    if (!handsLive || !Array.isArray(handsLive) || handsLive.length < 2) {
+        return { status: "tangan_kurang" };
+    }
+
+    const live1 = rotateUpright(normalizePts(toPts(handsLive[0], aspect)));
+    const live2 = rotateUpright(normalizePts(toPts(handsLive[1], aspect)));
+    const tplA = rotateUpright(templateA);
+    const tplB = rotateUpright(templateB);
+    const tplAm = mirrorPts(tplA);
+    const tplBm = mirrorPts(tplB);
+
+    // 4 kombinasi:
+    // 1. (live1 -> A, live2 -> B) tanpa cermin
+    const d1 = meanDist(live1, tplA) + meanDist(live2, tplB);
+    // 2. (live1 -> B, live2 -> A) tanpa cermin
+    const d2 = meanDist(live1, tplB) + meanDist(live2, tplA);
+    // 3. (live1 -> mirror(A), live2 -> mirror(B)) kedua tangan dicermin
+    const d3 = meanDist(live1, tplAm) + meanDist(live2, tplBm);
+    // 4. (live1 -> mirror(B), live2 -> mirror(A)) kedua tangan dicermin
+    const d4 = meanDist(live1, tplBm) + meanDist(live2, tplAm);
+
+    const minTotal = Math.min(d1, d2, d3, d4);
+    return minTotal / 2;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        toPts,
+        normalizePts,
+        meanDist,
+        distance,
+        gapInfo,
+        normalizeWorldPts,
+        meanDist3D,
+        distanceWorld,
+        nilaiTingkat,
+        mirrorPts,
+        rotateUpright,
+        distanceToTemplateInfo,
+        distanceToTemplate,
+        distanceToTemplate2
+    };
+}
+
