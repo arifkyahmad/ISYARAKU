@@ -67,65 +67,33 @@ from urut u
 join level_master lm on lm.id = u.level_id
 join section s on s.id = u.section_id;
 
+  -- ------------------------------------------------------------
+-- (3) SEED LEVEL (Plan B): Section Huruf A-C dan Angka 1-3
+-- Prasyarat: kamus alfabet A,B,C dan angka 1,2,3 sudah ada.
+-- Peringatan: delete from section ikut menghapus progres user.
 -- ------------------------------------------------------------
--- (3) SEED DUMMY — jalankan SEKALI. Ganti dengan konten asli nanti.
--- Section 1 "Dasar": 2 level x 3 soal + video dummy
--- ------------------------------------------------------------
-do $$
-declare
-  v_section uuid;
-  v_kat uuid;
-  v_l1 uuid;
-  v_l2 uuid;
-begin
-  insert into section (nama, tema, urutan)
-  values ('Dasar', 'Perkenalan', 1)
-  returning id into v_section;
+begin;
 
-  select id into v_kat from kategori where nama = 'Perkenalan' limit 1;
-  if v_kat is null then
-    insert into kategori (nama) values ('Perkenalan') returning id into v_kat;
-  end if;
+delete from section;  -- cascade: level_master, soal_level, progres_user
 
+with s as (
+  insert into section (nama, tema, urutan) values
+    ('Huruf', 'Abjad jari', 1),
+    ('Angka', 'Angka', 2)
+  returning id, urutan
+), l as (
   insert into level_master (section_id, nama, urutan)
-  values (v_section, 'Level 1', 1) returning id into v_l1;
-  insert into level_master (section_id, nama, urutan)
-  values (v_section, 'Level 2', 2) returning id into v_l2;
+  select id, case urutan when 1 then 'Huruf A-C' else 'Angka 1-3' end, 1 from s
+  returning id, section_id
+)
+insert into soal_level (level_id, kamus_id, urutan)
+select l.id, k.id, x.urutan
+from l
+join s on s.id = l.section_id
+join (values
+  (1,'A',1),(1,'B',2),(1,'C',3),
+  (2,'1',1),(2,'2',2),(2,'3',3)
+) as x(sec, kata, urutan) on x.sec = s.urutan
+join kamus k on k.kata = x.kata and k.jenis = case x.sec when 1 then 'alfabet' else 'angka' end;
 
-  insert into kamus (kategori_id, jenis, kata)
-  select v_kat, 'kata', k
-  from unnest(array['Halo','Terima kasih','Maaf','Tolong','Nama','Kamu']) as k
-  where not exists (select 1 from kamus where kata = k and jenis = 'kata');
-
-  insert into soal_level (level_id, kamus_id, urutan)
-  select case when x.lv = 1 then v_l1 else v_l2 end, ka.id, x.urutan
-  from (values
-    (1,'Halo',1), (1,'Terima kasih',2), (1,'Maaf',3),
-    (2,'Tolong',1), (2,'Nama',2), (2,'Kamu',3)
-  ) as x(lv, kata, urutan)
-  join kamus ka on ka.kata = x.kata and ka.jenis = 'kata';
-
-  insert into video (kamus_id, url_path)
-  select id, 'dummy/' || lower(replace(kata, ' ', '-')) || '.mp4'
-  from kamus
-  where jenis = 'kata'
-    and not exists (select 1 from video v where v.kamus_id = kamus.id);
-end $$;
-
--- Section 2 "Lanjutan" (tema Kantin): 1 level x 2 soal, untuk uji gembok section
-do $$
-declare
-  v_s2 uuid;
-  v_l uuid;
-begin
-  insert into section (nama, tema, urutan)
-  values ('Lanjutan', 'Kantin', 2) returning id into v_s2;
-
-  insert into level_master (section_id, nama, urutan)
-  values (v_s2, 'Level 1', 1) returning id into v_l;
-
-  insert into soal_level (level_id, kamus_id, urutan)
-  select v_l, id, row_number() over (order by kata)
-  from kamus
-  where jenis = 'kata' and kata in ('Nama', 'Kamu');
-end $$;
+commit;
