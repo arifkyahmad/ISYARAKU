@@ -1,0 +1,38 @@
+﻿// Snippet uji Endpoint 2 (Daftar soal per level)
+// Jalankan di Console browser pada halaman localhost yang memuat supabaseClient.js
+
+(async () => {
+  try {
+    // 1. Ambil 1 level_id acak/pertama dari view status level
+    const { data: levelList, error: errLevel } = await supabaseClient
+      .from('v_status_level')
+      .select('level_id, level_nama')
+      .limit(1);
+
+    if (errLevel || !levelList || levelList.length === 0) {
+      console.error('Gagal mengambil level_id contoh dari v_status_level:', errLevel);
+      return;
+    }
+
+    const sampleLevel = levelList[0];
+    console.log(`Menguji Endpoint 2 untuk level: "${sampleLevel.level_nama}" (ID: ${sampleLevel.level_id})`);
+
+    // 2. Jalankan query Endpoint 2
+    const { data, error } = await supabaseClient
+      .from('soal_level')
+      .select('id, urutan, kamus(id, kata, jenis, video(url_path))')
+      .eq('level_id', sampleLevel.level_id)
+      .order('urutan', { ascending: true });
+
+    if (error) {
+      console.error('Error menjalankan query Endpoint 2:', error);
+      return;
+    }
+
+    // 3. Tampilkan hasil query dalam format JSON
+    console.log('Hasil data Endpoint 2:');
+    console.log(JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Terjadi kesalahan eksekusi snippet uji:', err);
+  }
+})();

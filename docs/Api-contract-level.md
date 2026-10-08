@@ -103,27 +103,53 @@ Datanya berupa **satu baris per level** (rata, bukan bersarang). Untuk mengelomp
 
 ---
 
-## Endpoint 2 — Daftar soal per level (versi sementara)
+## Endpoint 2 - Daftar soal per level
 
-Dibutuhkan untuk mendapatkan `soal_level_id` sebelum menyimpan progres. Format final untuk layar belajar dan tes menunggu wireframe.
+Mengambil daftar soal dalam satu level beserta detail kata, jenis kata, dan path video contoh.
 
+### Syarat
+- `level_id` diperoleh dari Endpoint 1 (Peta level).
+
+### Query supabase-js
 ```js
 const { data, error } = await supabaseClient
   .from('soal_level')
-  .select('id, urutan, kamus(kata)')
+  .select('id, urutan, kamus(id, kata, jenis, video(url_path))')
   .eq('level_id', LEVEL_ID)
-  .order('urutan');
+  .order('urutan', { ascending: true });
 ```
 
 ### Contoh response
 
+[BELUM DIVERIFIKASI] (Bentuk response relasi `video` apakah objek tunggal `{ url_path: "..." }` atau array `[{ url_path: "..." }]` belum diverifikasi langsung terhadap response supabase-js runtime).
+
 ```json
 [
-  { "id": "0682da88-65c1-4aa4-aafe-16c8a9486673", "urutan": 1, "kamus": { "kata": "Halo" } }
+  {
+    "id": "0682da88-65c1-4aa4-aafe-16c8a9486673",
+    "urutan": 1,
+    "kamus": {
+      "id": "11111111-2222-3333-4444-555555555555",
+      "kata": "Halo",
+      "jenis": "kata",
+      "video": [BELUM DIVERIFIKASI]
+    }
+  }
 ]
 ```
 
-`id` di sini adalah `soal_level_id` yang dipakai di Endpoint 3. Urutan soal (`urutan`) hanya berlaku di dalam satu level, jadi selalu urutkan bersama filter `level_id`.
+### Arti kolom
+- `id`: ID baris `soal_level` (tipe UUID). Kolom ini adalah `soal_level_id` yang wajib dipakai saat menyimpan progres di Endpoint 3.
+- `urutan`: Nomor urut soal dalam level tersebut (integer).
+- `kamus.id`: ID kata di tabel kamus (UUID).
+- `kamus.kata`: Teks kata / materi yang dipelajari (string).
+- `kamus.jenis`: Kategori materi (`alfabet`, `kata`, `percakapan`, `gabungan`).
+- `kamus.video.url_path`: Path relatif file video di Supabase Storage (string).
+
+### Catatan penting untuk FE
+- **`id` adalah `soal_level_id`**: Simpan `id` dari hasil query ini untuk digunakan sebagai parameter `soal_level_id` saat memanggil Endpoint 3 (`progres_soal`).
+- **Konstruksi URL Video**: Nilai `url_path` hanya berisi path relatif (contoh: `dummy/halo.mp4`). URL video publik penuh diperoleh dengan menggabungkan `BASE + url_path`. Rujuk ke dokumentasi [docs/storage-video.md](storage-video.md) untuk definisi konstanta `BASE` (jangan menyalin ulang nilai BASE secara lokal).
+- **Urutan soal**: Nomor `urutan` hanya berlaku dan unik di dalam satu `level_id`. Selalu gunakan filter `.eq('level_id', LEVEL_ID)` bersamaan dengan `.order('urutan', { ascending: true })`.
 
 ---
 
@@ -247,7 +273,7 @@ Bagian ini supaya FE tahu apa yang **belum boleh diandalkan**.
 | **Poin di header peta** | Asumsi BE: jumlah `bintang` dari semua level. Belum dikonfirmasi tim | Boleh dibuat sementara dengan menjumlahkan `bintang` |
 | **Tampilan bintang** (bintang atau diganti progress ring/medali) | Menunggu Chery | FE membaca `bintang` (0-3), bentuk visual bebas |
 | **Data popup level** (jumlah kata, daftar kata, dll) | Menunggu wireframe | Belum ada endpoint |
-| **Layar belajar dan tes** (video contoh, praktik CV) | Menunggu wireframe | Belum ada endpoint. Endpoint 2 hanya sementara |
+| **Layar belajar dan tes** (video contoh, praktik CV) | Wireframe dalam pengerjaan | Endpoint 2 sudah tersedia dan final untuk daftar soal, video contoh, dan jenis kata |
 | **Query pengecoh kuis** | Belum dibuat | Lihat bagian alur di atas |
 | **Tes gabungan di akhir level** | Belum dirancang di data | Belum ada endpoint |
 | **Penanda "perlu review" di UI** | Data sudah ada (`perlu_review`), tampilannya belum dirancang | Boleh diabaikan dulu |
