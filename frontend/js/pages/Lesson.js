@@ -37,6 +37,32 @@ const stageEl         = document.getElementById("stage");
 
 let current = 0;
 
+// ===== Progres Level =====
+function perbaruiProgresLevel(selesaiSemua = false) {
+  if (!progressFill || !progressEl) return;
+  const totalSoal = daftarSoal.length;
+  if (totalSoal === 0) {
+    progressFill.style.width = "0%";
+    progressEl.setAttribute("aria-valuenow", 0);
+    return;
+  }
+
+  const totalPoin = totalSoal * 3;
+  let percent = 0;
+
+  if (selesaiSemua) {
+    percent = 100;
+  } else {
+    // Tahap selesai di soal aktif: video=0, practice=1, quiz=2
+    const tahapSelesai = Math.max(0, Math.min(current, 2));
+    const poinTerisi = (soalAktif * 3) + tahapSelesai;
+    percent = Math.round((poinTerisi / totalPoin) * 100);
+  }
+
+  progressFill.style.width = percent + "%";
+  progressEl.setAttribute("aria-valuenow", percent);
+}
+
 // ===== Navigasi sesi =====
 function showStep(index) {
   const prevName = steps[current];
@@ -48,12 +74,10 @@ function showStep(index) {
     el.hidden = el.dataset.step !== steps[current];
   });
 
-  const percent = Math.round(((current + 1) / TOTAL_STEPS) * 100);
-  progressFill.style.width = percent + "%";
-  progressEl.setAttribute("aria-valuenow", percent);
-
   backBtn.disabled = current === 0;
   nextBtn.setAttribute("aria-label", current === steps.length - 1 ? "Selesai" : "Lanjut");
+
+  perbaruiProgresLevel();
 
   const name = steps[current];
   if (stepHooks[name]?.onEnter) stepHooks[name].onEnter();
@@ -76,6 +100,7 @@ function selesaiQuiz() {
     soalAktif++;
     current = 0;
     stopCamera();
+    perbaruiProgresLevel();
     renderSoalAktif();
     showStep(0);
   } else {
@@ -87,6 +112,7 @@ function selesaiQuiz() {
 // Tampilkan pesan level selesai saat semua soal selesai
 function tampilkanLevelSelesai() {
   stopCamera();
+  perbaruiProgresLevel(true);
   if (stageEl) {
     stageEl.innerHTML = `
       <div class="card" style="padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
@@ -96,8 +122,6 @@ function tampilkanLevelSelesai() {
       </div>
     `;
   }
-  if (progressFill) progressFill.style.width = "100%";
-  if (progressEl) progressEl.setAttribute("aria-valuenow", 100);
   if (backBtn) backBtn.disabled = true;
   if (nextBtn) nextBtn.disabled = true;
 }
@@ -502,6 +526,7 @@ async function muatLevelDanSoal() {
     });
 
     soalAktif = 0;
+    perbaruiProgresLevel();
     renderSoalAktif();
     showStep(0);
   } catch (_) {
