@@ -1,4 +1,5 @@
 // ===== Konfigurasi =====
+let practiceBest = null; // stores best practice result for current question
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
 const LESSON_NAME = "Kata Sapaan";   // tampil di popup: "Kamu Lulus Belajar ..."
 let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar nanti
@@ -17,8 +18,8 @@ const stepHooks = {
     onLeave() { pauseVideo(); },
   },
   practice: {
-    onEnter() { startCamera(); },
-    onLeave() { stopCamera(); },
+    onEnter() { practiceBest = null; startCamera(); },
+    onLeave() { console.log("practiceBest", practiceBest); stopCamera(); },
   },
   quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
@@ -31,6 +32,11 @@ const nextBtn         = document.getElementById("nextBtn");
 const skipBtn         = document.getElementById("skipBtn");
 const video           = document.getElementById("lessonVideo");
 const feedback        = document.getElementById("feedback");
+// Accessibility: expose feedback changes to assistive technologies
+if (feedback) {
+  feedback.setAttribute('role', 'status');
+  feedback.setAttribute('aria-live', 'polite');
+}
 const videoCaptionEl  = document.getElementById("videoCaption");
 const practiceTitleEl = document.getElementById("practiceTitle");
 const stageEl         = document.getElementById("stage");
@@ -341,11 +347,15 @@ function evaluateFrame() {
   const d = distanceToTemplate(cvState.cur.lm, cvState.templateAktif, cvState.aspect);
   const tingkat = nilaiTingkat(d, ambang); // 'tepat' | 'hampir' | 'belum'
 
+  // Update practiceBest hierarchy: tepat > hampir > belum
   if (tingkat === "tepat") {
+    practiceBest = "tepat";
     showFeedbackCustom("correct", "Tepat");
   } else if (tingkat === "hampir") {
+    if (practiceBest !== "tepat") practiceBest = "hampir";
     showFeedbackCustom("wrong", "Hampir");
   } else {
+    if (!practiceBest) practiceBest = "belum";
     showFeedbackCustom("wrong", "Belum");
   }
 }
@@ -477,7 +487,12 @@ function showFeedback(state) {
 
 function showFeedbackCustom(state, text) {
   if (!feedback) return;
+  // Update visual state via data attribute and CSS class for styling
   feedback.dataset.state = state;
+  // Ensure previous state class is removed
+  feedback.className = '';
+  if (state) feedback.classList.add(`feedback-${state}`);
+  // Update the visible text
   feedback.textContent = text;
 }
 
