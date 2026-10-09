@@ -1,4 +1,5 @@
 // ===== Konfigurasi =====
+let practiceBest = null; // stores best practice result for current question
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
 const LESSON_NAME = "Kata Sapaan";   // tampil di popup: "Kamu Lulus Belajar ..."
 let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar nanti
@@ -17,8 +18,8 @@ const stepHooks = {
     onLeave() { pauseVideo(); },
   },
   practice: {
-    onEnter() { startCamera(); },
-    onLeave() { stopCamera(); },
+    onEnter() { practiceBest = null; startCamera(); },
+    onLeave() { console.log("practiceBest", practiceBest); simpanProgresUser(); stopCamera(); },
   },
   quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
@@ -31,6 +32,11 @@ const nextBtn         = document.getElementById("nextBtn");
 const skipBtn         = document.getElementById("skipBtn");
 const video           = document.getElementById("lessonVideo");
 const feedback        = document.getElementById("feedback");
+// Accessibility: expose feedback changes to assistive technologies
+if (feedback) {
+  feedback.setAttribute('role', 'status');
+  feedback.setAttribute('aria-live', 'polite');
+}
 const videoCaptionEl  = document.getElementById("videoCaption");
 const practiceTitleEl = document.getElementById("practiceTitle");
 const stageEl         = document.getElementById("stage");
@@ -341,11 +347,15 @@ function evaluateFrame() {
   const d = distanceToTemplate(cvState.cur.lm, cvState.templateAktif, cvState.aspect);
   const tingkat = nilaiTingkat(d, ambang); // 'tepat' | 'hampir' | 'belum'
 
+  // Update practiceBest hierarchy: tepat > hampir > belum
   if (tingkat === "tepat") {
+    practiceBest = "tepat";
     showFeedbackCustom("correct", "Tepat");
   } else if (tingkat === "hampir") {
+    if (practiceBest !== "tepat") practiceBest = "hampir";
     showFeedbackCustom("wrong", "Hampir");
   } else {
+    if (!practiceBest) practiceBest = "belum";
     showFeedbackCustom("wrong", "Belum");
   }
 }
@@ -468,6 +478,59 @@ function stopCamera() {
   showFeedbackCustom("idle", "");
 }
 
+// Save practice result to Supabase when leaving practice stage
+async function simpanProgresUser() {
+  // Snapshot values before any await so they reflect the question being left
+  const capturedPracticeBest = practiceBest;
+  const capturedCameraOn = cvState.cameraOn;
+  // Get current question data
+  const soal = daftarSoal[soalAktif];
+  if (!soal) return;
+  const soal_level_id = soal.soal_level_id;
+
+  const client = getSupabase();
+  if (!client) {
+    console.warn("Supabase client not available, cannot save progress");
+    return;
+  }
+
+  // Get authenticated user
+  let authRes;
+  try {
+    authRes = await client.auth.getUser();
+  } catch (e) {
+    console.warn("Error fetching auth user", e);
+    return;
+  }
+  const user = authRes?.data?.user;
+  if (!user) {
+    console.warn("User not logged in, skipping progress save");
+    return;
+  }
+  const akun_id = user.id;
+
+  // Determine payload based on practiceBest and camera state
+  let payload = null;
+  if (capturedPracticeBest !== null && capturedCameraOn) {
+    payload = { akun_id, soal_level_id, status_3tingkat: capturedPracticeBest, flag_review: false };
+  } else if (capturedPracticeBest === null && !capturedCameraOn) {
+    // Camera error or denied
+    payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
+  } else {
+    // practiceBest null but camera worked (no hand detected) – do not save
+    return;
+  }
+
+  try {
+    const { error } = await client.from("progres_user").upsert(payload, { onConflict: "akun_id,soal_level_id" });
+    if (error) {
+      console.warn("Failed to upsert progress", error.message);
+    }
+  } catch (e) {
+    console.warn("Exception during progress upsert", e);
+  }
+}
+
 // ===== Feedback praktik =====
 // state: "correct" | "wrong" | "idle"
 function showFeedback(state) {
@@ -477,7 +540,12 @@ function showFeedback(state) {
 
 function showFeedbackCustom(state, text) {
   if (!feedback) return;
+  // Update visual state via data attribute and CSS class for styling
   feedback.dataset.state = state;
+  // Ensure previous state class is removed
+  feedback.className = '';
+  if (state) feedback.classList.add(`feedback-${state}`);
+  // Update the visible text
   feedback.textContent = text;
 }
 
