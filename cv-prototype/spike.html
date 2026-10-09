@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spike CV: uji MediaPipe Hands</title>
+    <style>
+        :root {
+            --bg: #eef1f4;
+            --panel: #ffffff;
+            --ink: #18222d;
+            --mute: #5d6b7a;
+            --line: #d5dce3;
+            --accent: #0b62c4;
+            --accent-soft: #e3eefb;
+            --ok: #177a43;
+            --ok-soft: #dff3e7;
+            --warn: #a86a00;
+            --warn-soft: #fcefd2;
+            --bad: #b3261e;
+            --bad-soft: #fbe2df;
+            --mute-soft: #e7ebef;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif
+        }
+
+        header {
+            padding: 18px 24px 6px
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 2px;
+            letter-spacing: -.01em
+        }
+
+        header p {
+            margin: 0;
+            color: var(--mute);
+            max-width: 760px
+        }
+
+        .notice {
+            margin: 10px 24px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px
+        }
+
+        .notice.bad {
+            background: var(--bad-soft);
+            color: var(--bad)
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(320px, 660px) minmax(320px, 1fr);
+            gap: 18px;
+            padding: 16px 24px;
+            align-items: start
+        }
+
+        @media(max-width:920px) {
+            main {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px
+        }
+
+        .card h2 {
+            font-size: 15px;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            flex: none
+        }
+
+        .hint {
+            color: var(--mute);
+            font-size: 13px;
+            margin: 6px 0 0
+        }
+
+        .wide {
+            padding: 0 24px 28px
+        }
+
+        .stage {
+            position: relative;
+            background: #0c1116;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3
+        }
+
+        .mirror {
+            position: absolute;
+            inset: 0;
+            transform: scaleX(-1)
+        }
+
+        .mirror video,
+        .mirror canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%
+        }
+
+        .chip {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600
+        }
+
+        .chip.ok {
+            background: var(--ok-soft);
+            color: var(--ok)
+        }
+
+        .chip.bad {
+            background: var(--bad-soft);
+            color: var(--bad)
+        }
+
+        .chip.mute {
+            background: var(--mute-soft);
+            color: var(--mute)
+        }
+
+        .banner {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 14px 16px;
+            background: rgba(12, 17, 22, .82);
+            color: #fff;
+            text-align: center
+        }
+
+        .btitle {
+            font-size: 18px;
+            font-weight: 600
+        }
+
+        .bcount {
+            font-size: 38px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            margin-top: 2px
+        }
+
+        .err {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            text-align: center;
+            background: rgba(12, 17, 22, .9);
+            color: #fff;
+            font-size: 15px
+        }
+
+        .err[hidden] {
+            display: none;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 600
+        }
+
+        button:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px
+        }
+
+        button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff
+        }
+
+        button.primary:hover:not(:disabled) {
+            background: #0950a0;
+            color: #fff
+        }
+
+        button.danger:hover:not(:disabled) {
+            border-color: var(--bad);
+            color: var(--bad)
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed
+        }
+
+        input[type=text],
+        input[type=number],
+        select,
+        textarea {
+            font: inherit;
+            padding: 6px 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            min-width: 0
+        }
+
+        textarea {
+            width: 100%;
+            resize: vertical
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px
+        }
+
+        .row label {
+            color: var(--mute);
+            font-size: 13px
+        }
+
+        .grow {
+            flex: 1;
+            min-width: 120px
+        }
+
+        kbd {
+            background: var(--mute-soft);
+            border-radius: 4px;
+            padding: 0 5px;
+            font-size: 12px
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--mute)
+        }
+
+        .tplok {
+            color: var(--ok);
+            font-weight: 600
+        }
+
+        ol.plan {
+            margin: 8px 0 0;
+            padding-left: 20px;
+            font-size: 14px
+        }
+
+        ol.plan li {
+            margin: 2px 0
+        }
+
+        .live {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px
+        }
+
+        .light {
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center
+        }
+
+        .light.ok {
+            background: var(--ok-soft);
+            color: var(--ok)
+        }
+
+        .light.warn {
+            background: var(--warn-soft);
+            color: var(--warn)
+        }
+
+        .light.bad {
+            background: var(--bad-soft);
+            color: var(--bad)
+        }
+
+        .light.mute {
+            background: var(--mute-soft);
+            color: var(--mute);
+            font-size: 17px
+        }
+
+        .nums {
+            font-variant-numeric: tabular-nums;
+            font-size: 13px;
+            color: var(--mute);
+            text-align: right
+        }
+
+        .nums b {
+            color: var(--ink);
+            font-size: 20px;
+            display: block
+        }
+
+        .thr input {
+            width: 78px
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px
+        }
+
+        th,
+        td {
+            padding: 7px 8px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: top
+        }
+
+        th {
+            color: var(--mute);
+            font-weight: 600;
+            font-size: 12.5px
+        }
+
+        td.n {
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap
+        }
+
+        .tblwrap {
+            overflow-x: auto
+        }
+
+        .pass {
+            color: var(--ok);
+            font-weight: 700
+        }
+
+        .fail {
+            color: var(--bad);
+            font-weight: 700
+        }
+
+        .na {
+            color: var(--mute)
+        }
+
+        .grp td {
+            background: var(--mute-soft);
+            font-weight: 600;
+            font-size: 12.5px;
+            color: var(--mute)
+        }
+
+        .verdicts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin-top: 14px
+        }
+
+        .verdict {
+            border-radius: 10px;
+            padding: 12px 14px;
+            border: 1px solid var(--line)
+        }
+
+        .verdict.ok {
+            background: var(--ok-soft);
+            border-color: #b5dfc6
+        }
+
+        .verdict.bad {
+            background: var(--bad-soft);
+            border-color: #f0bcb7
+        }
+
+        .verdict.mute {
+            background: var(--mute-soft)
+        }
+
+        .verdict h3 {
+            margin: 0 0 4px;
+            font-size: 14px
+        }
+
+        .verdict ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13.5px
+        }
+
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #18222d;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 90vw;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s
+        }
+
+        #toast.show {
+            opacity: 1
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            #toast {
+                transition: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Spike CV: bisakah komputer membedakan dua pose tangan?</h1>
+        <p>Ini alat ukur, bukan produk. Tidak ada bahasa isyarat di sini: pose apa pun yang kamu rekam menjadi pose
+            acuan.
+            Yang diuji hanya satu pertanyaan, yaitu apakah angka jarak bisa memisahkan pose yang benar dari pose yang
+            salah.</p>
+    </header>
+    <div class="notice bad" id="fileWarn" hidden>
+        Halaman ini dibuka langsung dari file. Kamera biasanya gagal dengan cara ini. Jalankan lewat localhost
+        (perintahnya ada di penjelasan chat), lalu buka <b>http://localhost:8000/spike-cv.html</b>.
+    </div>
+
+    <main>
+        <section class="col">
+            <div class="stage" id="stage">
+                <div class="mirror">
+                    <video id="video" playsinline muted></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                <div class="chip mute" id="chip">Kamera belum menyala</div>
+                <div class="banner" id="banner" hidden>
+                    <div class="btitle" id="bTitle"></div>
+                    <div class="bcount" id="bCount"></div>
+                </div>
+                <div class="err" id="err" hidden></div>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">5</span>Coba langsung (menilai otomatis, tanpa klik)</h2>
+                <div class="row">
+                    <label for="liveTarget">Pose target</label>
+                    <select id="liveTarget"></select>
+                    <label for="modeSel">Cara hitung jarak</label>
+                    <select id="modeSel">
+                        <option value="norm">Normalisasi</option>
+                        <option value="world">World 3D</option>
+                    </select>
+                </div>
+                <div class="live">
+                    <div class="light mute" id="light">Rekam pose acuan dulu</div>
+                    <div class="nums"><b id="liveDist">-</b><span id="liveBoth"></span></div>
+                </div>
+                <div class="row thr">
+                    <label for="thrTepat">Tepat jika jarak &lt;</label><input type="number" id="thrTepat" step="0.005"
+                        min="0">
+                    <label for="thrHampir">Hampir jika &lt;</label><input type="number" id="thrHampir" step="0.005"
+                        min="0">
+                    <button id="useSuggest" type="button">Pakai saran dari hasil tes</button>
+                </div>
+                <p class="hint">Status hanya berubah kalau hasilnya sama selama beberapa frame berturut-turut, supaya
+                    tidak berkedip. Angka jarak tetap ditampilkan.</p>
+            </div>
+        </section>
+
+        <section class="col">
+            <div class="card">
+                <h2><span class="num">1</span>Nyalakan kamera</h2>
+                <div class="row"><button class="primary" id="camBtn" type="button">Nyalakan kamera</button></div>
+                <p class="hint">Izinkan kamera saat browser bertanya. Pakai <b>satu tangan yang sama</b> di semua
+                    langkah.
+                    Alat ini hanya membaca satu tangan.</p>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">2</span>Rekam dua pose acuan</h2>
+                <div class="row">
+                    <input type="text" id="nameA" class="grow" value="Kepalan" aria-label="Nama pose A">
+                    <button class="needs-idle" id="recA" type="button">Rekam pose A <kbd>1</kbd></button>
+                </div>
+                <div class="row">
+                    <input type="text" id="nameB" class="grow" value="Telapak terbuka" aria-label="Nama pose B">
+                    <button class="needs-idle" id="recB" type="button">Rekam pose B <kbd>2</kbd></button>
+                </div>
+                <p class="hint">Pilih dua pose satu tangan yang jelas berbeda. Setelah menekan tombol ada hitung mundur
+                    3 detik:
+                    bentuk posenya lalu tahan sampai selesai. Merekam ulang akan menghapus hasil tes lama.</p>
+                <div class="status" id="tplStatus">Belum ada pose yang direkam.</div>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">3</span>Tes otomatis</h2>
+                <div class="row">
+                    <button class="primary needs-idle" id="runAll" type="button">Mulai tes otomatis
+                        <kbd>S</kbd></button>
+                    <button id="stopBtn" type="button" hidden>Hentikan <kbd>Esc</kbd></button>
+                </div>
+                <p class="hint">Klik sekali, lalu pakai tanganmu tanpa menyentuh apa pun. Ikuti tulisan di atas video.
+                    Tiap skenario: hitung mundur, lalu 10 sampel diambil sendiri. Total sekitar 90 detik.</p>
+                <ol class="plan" id="plan"></ol>
+            </div>
+
+            <div class="card">
+                <h2>Catatan kondisi tes</h2>
+                <textarea id="note" rows="2"
+                    placeholder="Contoh: laptop Rifky, lampu kamar, jarak tangan sekitar 40 cm"></textarea>
+                <p class="hint">Isi ini supaya hasil bisa dibandingkan kalau nanti dites di cahaya atau perangkat lain.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <section class="wide">
+        <div class="card">
+            <h2><span class="num">4</span>Hasil dan kesimpulan</h2>
+            <p class="hint" style="margin:0 0 8px">Jarak dihitung dua cara sekaligus dari sampel yang sama.
+                <b>World 3D</b> memakai koordinat 3D meter dari MediaPipe yang dinormalisasi posisi dan skalanya.
+                <b>Normalisasi</b> memakai posisi titik 2D relatif terhadap pergelangan dan ukuran tangan. Tanda ✓ berarti
+                sampel jatuh di sisi yang benar dari batas tengah (tengah antara jarak benar terbesar dan jarak salah
+                terkecil).
+            </p>
+            <div class="tblwrap">
+                <table id="tbl"></table>
+            </div>
+            <div class="verdicts" id="verdicts"></div>
+            <div class="row">
+                <button class="primary" id="copyBtn" type="button">Salin ringkasan</button>
+                <button class="danger needs-idle" id="clearBtn" type="button">Hapus hasil tes</button>
+                <button class="danger needs-idle" id="resetBtn" type="button">Reset semua</button>
+            </div>
+            <textarea id="summary" rows="10" readonly hidden
+                style="margin-top:10px;font-family:Consolas,monospace;font-size:12.5px"></textarea>
+        </div>
+    </section>
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"
+        crossorigin="anonymous"></script>
+    <script src="cv-config.js"></script>
+    <script src="cv-core.js"></script>
+    <script>
+        // ================= PENGATURAN (ubah di sini) =================
+        const MAKS_TANGAN = 1;            // alat ini membandingkan satu tangan saja
+        const PREP_DETIK = 5;             // hitung mundur sebelum tiap skenario
+        const JUMLAH_SAMPEL = 10;         // sampel per skenario
+        const JEDA_SAMPEL_MS = 300;       // jarak antar sampel
+        const HITUNG_MUNDUR_REKAM = 3;    // hitung mundur sebelum merekam pose acuan
+        const FRAME_REKAM = 15;           // jumlah frame yang dirata-rata saat merekam pose acuan
+        const SMOOTH_FRAME = CV_CONFIG.frameKonsisten; // status live berubah setelah sekian frame konsisten
+        const DEFAULT_THRESHOLD = {
+            world: { tepat: 0.15, hampir: 0.30 },
+            norm: Object.assign({}, CV_CONFIG.ambang)
+        };
+        const STORAGE_KEY = 'spike-cv-v2';
+        const HANDS_VERSION = '0.4.1675469240';
+
+        const HAND_LINES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
+        [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17]];
+
+        const $ = id => document.getElementById(id);
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+        const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const f3 = x => (x == null || !isFinite(x)) ? '-' : x.toFixed(3);
+        const avg = a => a.reduce((s, x) => s + x, 0) / a.length;
+
+        const state = {
+            aspect: 4 / 3, cameraOn: false, gotFirst: false,
+            cur: null, fpsTimes: [],
+            names: { A: 'Kepalan', B: 'Telapak terbuka' },
+            templates: { A: null, B: null },   // {name, lm, worldLm, label}
+            samples: {},                   // id skenario -> {target, attempts, hits:[{lm, worldLm, label}]}
+            mode: 'norm',
+            thr: JSON.parse(JSON.stringify(DEFAULT_THRESHOLD)),
+            running: false, abort: false,
+            history: [], shown: null
+        };
+
+        let hands = null;
+        const video = $('video'), canvas = $('overlay'), ctx = canvas.getContext('2d');
+
+        function calcDistance(cur, tpl, mode, aspect) {
+            if (!cur || !tpl) return null;
+            if (mode === 'world') {
+                if (!cur.worldLm || !tpl.worldLm) return null;
+                return distanceWorld(cur.worldLm, tpl.worldLm);
+            }
+            if (!cur.lm || !tpl.lm) return null;
+            return distance(cur.lm, tpl.lm, mode, aspect);
+        }
+
+        // ---------- util tampilan ----------
+        let toastTimer;
+        function toast(msg) {
+            const t = $('toast'); t.textContent = msg; t.classList.add('show');
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+        function showError(msg) { const e = $('err'); e.textContent = msg; e.hidden = false; }
+        function hideError() { $('err').hidden = true; }
+        function showBanner(title, count) {
+            $('banner').hidden = false; $('bTitle').textContent = title; $('bCount').textContent = count || '';
+        }
+        function hideBanner() { $('banner').hidden = true; }
+        let actx;
+        function beep(freq = 660, dur = 0.08) {
+            try {
+                actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+                const o = actx.createOscillator(), g = actx.createGain();
+                o.frequency.value = freq; g.gain.value = 0.05;
+                o.connect(g); g.connect(actx.destination);
+                o.start(); o.stop(actx.currentTime + dur);
+            } catch (e) { }
+        }
+        function setBusy(b) {
+            state.running = b;
+            document.querySelectorAll('.needs-idle').forEach(el => el.disabled = b);
+            document.querySelectorAll('.rerun').forEach(el => el.disabled = b);
+            $('stopBtn').hidden = !b;
+        }
+
+        // ---------- penyimpanan ----------
+        function save() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    names: state.names, templates: state.templates, samples: state.samples,
+                    thr: state.thr, mode: state.mode, aspect: state.aspect, note: $('note').value
+                }));
+            } catch (e) { }
+        }
+        function load() {
+            try {
+                const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+                if (!s) return;
+                state.names = s.names || state.names;
+                if (s.templates) {
+                    ['A', 'B'].forEach(k => {
+                        const t = s.templates[k];
+                        if (t && t.lm && t.worldLm) {
+                            state.templates[k] = t;
+                        } else {
+                            state.templates[k] = null;
+                        }
+                    });
+                }
+                state.samples = s.samples || {};
+                state.thr = Object.assign(JSON.parse(JSON.stringify(DEFAULT_THRESHOLD)), s.thr || {});
+                if (!state.thr.world) state.thr.world = Object.assign({}, DEFAULT_THRESHOLD.world);
+                if (!state.thr.norm) state.thr.norm = Object.assign({}, DEFAULT_THRESHOLD.norm);
+                state.mode = (s.mode === 'raw') ? 'world' : (s.mode || state.mode);
+                state.aspect = s.aspect || state.aspect;
+                $('note').value = s.note || '';
+            } catch (e) { }
+        }
+
+        // ---------- skenario dan analisis ----------
+        function scenarios() {
+            const A = state.names.A || 'Pose A', B = state.names.B || 'Pose B';
+            return [
+                {
+                    id: 'benarA', target: 'A', expect: 'benar', grup: 'dasar', judul: `Benar: ${A}`,
+                    instr: `Peragakan “${A}” di tengah layar`
+                },
+                {
+                    id: 'benarB', target: 'B', expect: 'benar', grup: 'dasar', judul: `Benar: ${B}`,
+                    instr: `Peragakan “${B}” di tengah layar`
+                },
+                {
+                    id: 'salahAB', target: 'A', expect: 'salah', grup: 'dasar', judul: `Salah: target ${A}, peragakan ${B}`,
+                    instr: `Peragakan “${B}” (sengaja SALAH, targetnya “${A}”)`
+                },
+                {
+                    id: 'salahBA', target: 'B', expect: 'salah', grup: 'dasar', judul: `Salah: target ${B}, peragakan ${A}`,
+                    instr: `Peragakan “${A}” (sengaja SALAH, targetnya “${B}”)`
+                },
+                {
+                    id: 'geser', target: 'A', expect: 'benar', grup: 'tahan', judul: `${A} digeser ke kiri`,
+                    instr: `Peragakan “${A}” dengan tangan digeser ke pinggir KIRI layar`
+                },
+                {
+                    id: 'jauh', target: 'A', expect: 'benar', grup: 'tahan', judul: `${A} dijauhkan dari kamera`,
+                    instr: `Peragakan “${A}” dengan tangan DIJAUHKAN dari kamera (tampak kecil)`
+                },
+                {
+                    id: 'dekat', target: 'A', expect: 'benar', grup: 'tahan', judul: `${A} didekatkan ke kamera`,
+                    instr: `Peragakan “${A}” dengan tangan DIDEKATKAN ke kamera (tampak besar)`
+                }
+            ];
+        }
+        function statsFor(s, mode) {
+            const rec = state.samples[s.id], tpl = state.templates[s.target];
+            if (!rec || !tpl) return null;
+            let d;
+            if (mode === 'world') {
+                if (!tpl.worldLm) return null;
+                d = rec.hits.filter(h => h.worldLm).map(h => distanceWorld(h.worldLm, tpl.worldLm));
+            } else {
+                if (!tpl.lm) return null;
+                d = rec.hits.map(h => distance(h.lm, tpl.lm, mode, state.aspect));
+            }
+            const sameHand = rec.hits.filter(h => h.label === tpl.label).length;
+            if (!d.length) return { n: 0, attempts: rec.attempts, sameHand: 0 };
+            return { n: d.length, attempts: rec.attempts, min: Math.min(...d), max: Math.max(...d), mean: avg(d), sameHand };
+        }
+        function analyze(mode) {
+            const sc = scenarios(), st = {};
+            sc.forEach(s => st[s.id] = statsFor(s, mode));
+            const dasar = sc.filter(s => s.grup === 'dasar');
+            const lengkap = dasar.every(s => st[s.id] && st[s.id].n > 0);
+            let info = null;
+            if (lengkap) {
+                const bm = Math.max(...dasar.filter(s => s.expect === 'benar').map(s => st[s.id].max));
+                const sm = Math.min(...dasar.filter(s => s.expect === 'salah').map(s => st[s.id].min));
+                info = Object.assign({ benarMax: bm, salahMin: sm }, gapInfo(bm, sm));
+            }
+            const rows = sc.map(s => {
+                const x = st[s.id]; let lolos = null;
+                if (x && x.n > 0 && info && info.mid != null) {
+                    lolos = s.expect === 'benar' ? x.max < info.mid : x.min > info.mid;
+                }
+                return { s, x, lolos };
+            });
+            const tahan = rows.filter(r => r.s.grup === 'tahan' && r.x && r.x.n > 0);
+            return { rows, lengkap, info, tahanTotal: tahan.length, tahanLolos: tahan.filter(r => r.lolos === true).length };
+        }
+        function verdictOf(a) {
+            if (!a.lengkap) return {
+                cls: 'mute', title: 'Data dasar belum lengkap',
+                lines: ['Selesaikan empat skenario pertama (dua benar, dua salah).']
+            };
+            const i = a.info, lines = [
+                `Jarak benar terbesar: ${f3(i.benarMax)}`,
+                `Jarak salah terkecil: ${f3(i.salahMin)}`,
+                `Celah: ${f3(i.gap)} ${i.gap > 0 ? '(terpisah)' : '(tumpang tindih)'}`
+            ];
+            if (i.gap > 0) lines.push(`Saran batas: Tepat < ${f3(i.tepat)}, Hampir < ${f3(i.hampir)}`);
+            if (a.tahanTotal > 0) lines.push(`Tes geser/jauh/dekat: lolos ${a.tahanLolos} dari ${a.tahanTotal}`);
+            return {
+                cls: i.gap > 0 ? 'ok' : 'bad',
+                title: i.gap > 0 ? 'Pose bisa dibedakan' : 'Pose belum bisa dibedakan', lines
+            };
+        }
+
+        // ---------- render ----------
+        function renderPlan() {
+            $('plan').innerHTML = scenarios().map(s => `<li>${esc(s.instr)}</li>`).join('');
+            const opts = ['A', 'B'].map(k => `<option value="${k}">${esc(state.names[k] || k)} (${k})</option>`).join('');
+            const cur = $('liveTarget').value || 'A';
+            $('liveTarget').innerHTML = opts; $('liveTarget').value = cur;
+        }
+        function renderTemplates() {
+            const parts = [];
+            ['A', 'B'].forEach(k => {
+                const t = state.templates[k];
+                parts.push(t ? `<span class="tplok">Pose ${k} (${esc(t.name)}) sudah direkam.</span>` : `Pose ${k} belum direkam.`);
+            });
+            let extra = '';
+            if (state.templates.A && state.templates.B) {
+                const dw = (state.templates.A.worldLm && state.templates.B.worldLm)
+                    ? f3(distanceWorld(state.templates.A.worldLm, state.templates.B.worldLm))
+                    : '-';
+                const dn = (state.templates.A.lm && state.templates.B.lm)
+                    ? f3(distance(state.templates.A.lm, state.templates.B.lm, 'norm', state.aspect))
+                    : '-';
+                extra = `<br>Jarak antara pose A dan B: World 3D ${dw}, normalisasi ${dn}.`;
+            }
+            $('tplStatus').innerHTML = parts.join(' ') + extra;
+        }
+        function renderResults() {
+            const aW = analyze('world'), aN = analyze('norm');
+            const mark = l => l === null ? '<span class="na">-</span>' : (l ? '<span class="pass">✓</span>' : '<span class="fail">✗</span>');
+            const cell = x => (x && x.n > 0) ? `${f3(x.min)} / ${f3(x.mean)} / ${f3(x.max)}` : '-';
+            let html = `<tr><th>Skenario</th><th>Harusnya</th><th>Terdeteksi</th>
+    <th>World 3D (min / rata / maks)</th><th></th><th>Normalisasi (min / rata / maks)</th><th></th><th></th></tr>`;
+            let lastGrup = '';
+            aW.rows.forEach((r, i) => {
+                const n = aN.rows[i];
+                if (r.s.grup !== lastGrup) {
+                    html += `<tr class="grp"><td colspan="8">${r.s.grup === 'dasar' ? 'Tes dasar: bisakah dua pose dibedakan?' : 'Tes ketahanan: pose benar tapi posisi atau ukuran berubah'}</td></tr>`;
+                    lastGrup = r.s.grup;
+                }
+                const x = r.x;
+                const det = x ? `${x.n}/${x.attempts}${(x.n > 0 && x.sameHand < x.n) ? ' (tangan beda?)' : ''}` : (n.x ? `${n.x.n}/${n.x.attempts}${(n.x.n > 0 && n.x.sameHand < n.x.n) ? ' (tangan beda?)' : ''}` : '-');
+                html += `<tr><td>${esc(r.s.judul)}</td><td>${r.s.expect === 'benar' ? 'Tepat' : 'Belum'}</td>
+      <td class="n">${det}</td><td class="n">${cell(r.x)}</td><td>${mark(r.lolos)}</td>
+      <td class="n">${cell(n.x)}</td><td>${mark(n.lolos)}</td>
+      <td><button class="rerun" data-sid="${r.s.id}" type="button">Ulangi</button></td></tr>`;
+            });
+            $('tbl').innerHTML = html;
+            const vW = verdictOf(aW), vN = verdictOf(aN);
+            const vhtml = (title, v) => `<div class="verdict ${v.cls}"><h3>${title}: ${v.title}</h3><ul>${v.lines.map(l => `<li>${l}</li>`).join('')}</ul></div>`;
+            $('verdicts').innerHTML = vhtml('World 3D', vW) + vhtml('Normalisasi', vN);
+            document.querySelectorAll('.rerun').forEach(b => b.disabled = state.running || !state.cameraOn);
+        }
+        function syncThrInputs() {
+            if (!state.thr[state.mode]) {
+                state.thr[state.mode] = Object.assign({}, DEFAULT_THRESHOLD[state.mode] || { tepat: 0.15, hampir: 0.30 });
+            }
+            const t = state.thr[state.mode];
+            $('thrTepat').value = t.tepat; $('thrHampir').value = t.hampir;
+            $('modeSel').value = state.mode;
+        }
+
+        // ---------- live ----------
+        function setLight(cls, text) { const l = $('light'); l.className = 'light ' + cls; l.textContent = text; }
+        function updateLive() {
+            const key = $('liveTarget').value || 'A', tpl = state.templates[key];
+            if (!tpl) { setLight('mute', 'Rekam pose acuan dulu'); $('liveDist').textContent = '-'; $('liveBoth').textContent = ''; return; }
+            if (!state.cur) {
+                state.history = []; state.shown = null; setLight('mute', 'Tangan tidak terdeteksi');
+                $('liveDist').textContent = '-'; $('liveBoth').textContent = ''; return;
+            }
+            if (state.mode === 'world' && (!state.cur.worldLm || !tpl.worldLm)) {
+                state.history = []; state.shown = null; setLight('mute', 'Data 3D belum siap');
+                $('liveDist').textContent = '-'; $('liveBoth').textContent = ''; return;
+            }
+            const d = calcDistance(state.cur, tpl, state.mode, state.aspect);
+            if (d == null) {
+                $('liveDist').textContent = '-'; $('liveBoth').textContent = ''; return;
+            }
+            const t = state.thr[state.mode] || DEFAULT_THRESHOLD[state.mode] || CV_CONFIG.ambang;
+            const tingkat = nilaiTingkat(d, t);
+            const status = { tepat: 'ok', hampir: 'warn', belum: 'bad' }[tingkat] || 'bad';
+            state.history.push(status); if (state.history.length > SMOOTH_FRAME) state.history.shift();
+            if (state.history.length === SMOOTH_FRAME && state.history.every(x => x === state.history[0])) state.shown = state.history[0];
+            const show = state.shown || status;
+            setLight(show, { ok: 'Tepat', warn: 'Hampir', bad: 'Belum' }[show]);
+            $('liveDist').textContent = f3(d);
+            const parts = [];
+            ['A', 'B'].forEach(k => {
+                if (state.templates[k]) {
+                    const distK = calcDistance(state.cur, state.templates[k], state.mode, state.aspect);
+                    parts.push(`${k}: ${f3(distK)}`);
+                }
+            });
+            $('liveBoth').textContent = 'jarak ke ' + parts.join(' · ');
+        }
+
+        // ---------- kamera dan MediaPipe ----------
+        function updateChip() {
+            const chip = $('chip');
+            if (!state.cameraOn) { chip.className = 'chip mute'; chip.textContent = 'Kamera belum menyala'; return; }
+            if (!state.gotFirst) { chip.className = 'chip mute'; chip.textContent = 'Memuat model MediaPipe…'; return; }
+            const t = state.fpsTimes; let fps = 0;
+            if (t.length > 1) fps = Math.round((t.length - 1) / ((t[t.length - 1] - t[0]) / 1000));
+            chip.className = 'chip ' + (state.cur ? 'ok' : 'bad');
+            chip.textContent = (state.cur ? 'Tangan terdeteksi' : 'Tangan TIDAK terdeteksi') + ' · ' + fps + ' fps';
+        }
+        function drawHand(lm) {
+            const w = canvas.width, h = canvas.height;
+            ctx.lineWidth = 3; ctx.strokeStyle = '#4fd1a5';
+            HAND_LINES.forEach(([a, b]) => {
+                ctx.beginPath(); ctx.moveTo(lm[a].x * w, lm[a].y * h); ctx.lineTo(lm[b].x * w, lm[b].y * h); ctx.stroke();
+            });
+            ctx.fillStyle = '#ffffff';
+            lm.forEach(p => { ctx.beginPath(); ctx.arc(p.x * w, p.y * h, 4, 0, Math.PI * 2); ctx.fill(); });
+        }
+        function onResults(res) {
+            if (!window._sudahLog) { console.log(Object.keys(res)); window._sudahLog = true; }
+            state.gotFirst = true;
+            const now = performance.now();
+            state.fpsTimes.push(now); while (state.fpsTimes.length > 30) state.fpsTimes.shift();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
+            const worldLm = res.multiHandWorldLandmarks && res.multiHandWorldLandmarks[0];
+            if (lm) {
+                const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : '?';
+                state.cur = { lm, worldLm, label, t: now };
+                drawHand(lm);
+            } else {
+                state.cur = null;
+            }
+            updateChip(); updateLive();
+        }
+        async function startCamera() {
+            if (state.cameraOn) return;
+            hideError();
+            try {
+                if (typeof Hands === 'undefined') throw new Error('LIB');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('NOAPI');
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }, audio: false });
+                video.srcObject = stream;
+                await video.play();
+                if (video.readyState < 2) await new Promise(r => video.addEventListener('loadeddata', r, { once: true }));
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                state.aspect = video.videoWidth / video.videoHeight;
+                $('stage').style.aspectRatio = video.videoWidth + '/' + video.videoHeight;
+                hands = new Hands({ locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${HANDS_VERSION}/${file}` });
+                hands.setOptions({ maxNumHands: MAKS_TANGAN, modelComplexity: 1, minDetectionConfidence: 0.6, minTrackingConfidence: 0.5, selfieMode: false });
+                hands.onResults(onResults);
+                state.cameraOn = true; $('camBtn').disabled = true; $('camBtn').textContent = 'Kamera menyala';
+                updateChip(); renderResults();
+                loop();
+            } catch (e) {
+                let msg = 'Kamera gagal dinyalakan: ' + (e && e.message ? e.message : e);
+                if (e && e.message === 'LIB') msg = 'Library MediaPipe gagal dimuat. Cek koneksi internet lalu muat ulang halaman.';
+                else if (e && e.message === 'NOAPI') msg = 'Browser tidak menyediakan akses kamera di sini. Buka lewat http://localhost:8000, bukan dari file.';
+                else if (e && e.name === 'NotAllowedError') msg = 'Izin kamera ditolak. Klik ikon kamera di address bar, izinkan, lalu muat ulang halaman.';
+                else if (e && e.name === 'NotFoundError') msg = 'Kamera tidak ditemukan. Pastikan webcam terpasang dan tidak dipakai aplikasi lain.';
+                else if (e && e.name === 'NotReadableError') msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu lalu coba lagi.';
+                showError(msg);
+            }
+        }
+        let sending = false;
+        async function loop() {
+            if (video.readyState >= 2 && !sending) {
+                sending = true;
+                try { await hands.send({ image: video }); }
+                catch (e) { showError('Pemrosesan MediaPipe gagal: ' + (e && e.message ? e.message : e)); sending = false; return; }
+                sending = false;
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // ---------- rekam pose acuan ----------
+        async function countdown(n, title, sub) {
+            for (let i = n; i > 0; i--) {
+                if (state.abort) return false;
+                showBanner(title, sub ? `${sub} ${i}` : String(i));
+                beep(660, 0.08);
+                await sleep(1000);
+            }
+            beep(990, 0.15);
+            return !state.abort;
+        }
+        async function recordTemplate(key) {
+            if (!state.cameraOn) { toast('Nyalakan kamera dulu (langkah 1).'); return; }
+            if (state.running) return;
+            state.abort = false; setBusy(true);
+            const name = ($('name' + key).value || '').trim() || ('Pose ' + key);
+            state.names[key] = name;
+            const ok = await countdown(HITUNG_MUNDUR_REKAM, `Bentuk pose “${name}” lalu tahan`, 'Merekam dalam');
+            if (!ok) { hideBanner(); setBusy(false); return; }
+            showBanner(`Merekam “${name}”… tahan`, '');
+            const frames = [], worldFrames = [], labels = [], t0 = performance.now();
+            while (frames.length < FRAME_REKAM && performance.now() - t0 < 3000) {
+                await sleep(80);
+                if (state.cur) {
+                    frames.push(state.cur.lm);
+                    if (state.cur.worldLm) worldFrames.push(state.cur.worldLm);
+                    labels.push(state.cur.label);
+                }
+            }
+            hideBanner();
+            if (frames.length < 8) {
+                toast('Gagal merekam: tangan sering tidak terdeteksi. Coba lagi dengan cahaya lebih terang.');
+            } else {
+                const lm = frames[0].map((_, i) => ({
+                    x: avg(frames.map(fr => fr[i].x)), y: avg(frames.map(fr => fr[i].y)), z: avg(frames.map(fr => fr[i].z || 0))
+                }));
+                const worldLm = (worldFrames.length >= 8 || worldFrames.length > 0) ? worldFrames[0].map((_, i) => ({
+                    x: avg(worldFrames.map(fr => fr[i].x)), y: avg(worldFrames.map(fr => fr[i].y)), z: avg(worldFrames.map(fr => fr[i].z || 0))
+                })) : null;
+                const cnt = {}; labels.forEach(l => cnt[l] = (cnt[l] || 0) + 1);
+                const label = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
+                state.templates[key] = { name, lm, worldLm, label };
+                if (Object.keys(state.samples).length) { state.samples = {}; toast('Pose ' + key + ' tersimpan. Hasil tes lama dihapus karena acuannya berubah.'); }
+                else toast('Pose ' + key + ' tersimpan.');
+            }
+            setBusy(false); renderPlan(); renderTemplates(); renderResults(); updateLive(); save();
+        }
+
+        // ---------- tes otomatis ----------
+        async function runScenario(s) {
+            const tpl = state.templates[s.target];
+            if (!tpl) return false;
+            const ok = await countdown(PREP_DETIK, s.instr, 'Bersiap:');
+            if (!ok) return false;
+            const rec = { target: s.target, attempts: 0, hits: [] };
+            for (let i = 0; i < JUMLAH_SAMPEL; i++) {
+                if (state.abort) return false;
+                showBanner(s.instr, `Tahan… ${i + 1}/${JUMLAH_SAMPEL}`);
+                rec.attempts++;
+                if (state.cur) {
+                    const hit = {
+                        lm: state.cur.lm.map(p => ({ x: p.x, y: p.y, z: p.z || 0 })),
+                        label: state.cur.label
+                    };
+                    if (state.cur.worldLm) {
+                        hit.worldLm = state.cur.worldLm.map(p => ({ x: p.x, y: p.y, z: p.z || 0 }));
+                    }
+                    rec.hits.push(hit);
+                }
+                await sleep(JEDA_SAMPEL_MS);
+            }
+            state.samples[s.id] = rec;
+            save(); renderResults();
+            beep(880, 0.2);
+            return true;
+        }
+        async function runList(list) {
+            if (!state.cameraOn) { toast('Nyalakan kamera dulu (langkah 1).'); return; }
+            if (!state.templates.A || !state.templates.B) { toast('Rekam pose A dan B dulu (langkah 2).'); return; }
+            if (state.running) return;
+            state.abort = false; setBusy(true);
+            let selesai = true;
+            for (const s of list) {
+                const ok = await runScenario(s);
+                if (!ok) { selesai = false; break; }
+                showBanner('Selesai. Istirahat sebentar…', '');
+                await sleep(1200);
+            }
+            hideBanner(); setBusy(false); renderResults();
+            toast(selesai ? 'Tes selesai. Baca hasil di bagian 4.' : 'Tes dihentikan.');
+            if (selesai) $('tbl').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ---------- ringkasan ----------
+        function buildSummary() {
+            const aW = analyze('world'), aN = analyze('norm');
+            const L = [];
+            L.push('SPIKE CV: RINGKASAN');
+            L.push(`Pose A: ${state.names.A} | Pose B: ${state.names.B}`);
+            L.push('Kondisi: ' + ($('note').value.trim() || '(belum diisi)'));
+            if (state.templates.A && state.templates.B) {
+                const dw = (state.templates.A.worldLm && state.templates.B.worldLm)
+                    ? f3(distanceWorld(state.templates.A.worldLm, state.templates.B.worldLm))
+                    : '-';
+                const dn = (state.templates.A.lm && state.templates.B.lm)
+                    ? f3(distance(state.templates.A.lm, state.templates.B.lm, 'norm', state.aspect))
+                    : '-';
+                L.push(`Jarak antar pose acuan: World 3D ${dw}, normalisasi ${dn}`);
+            }
+            L.push('');
+            L.push('Skenario | harusnya | terdeteksi | World 3D min/rata/maks | lolos | normalisasi min/rata/maks | lolos');
+            aW.rows.forEach((r, i) => {
+                const n = aN.rows[i], x = r.x, y = n.x;
+                const det = x ? `${x.n}/${x.attempts}` : (y ? `${y.n}/${y.attempts}` : '-');
+                const c = z => (z && z.n > 0) ? `${f3(z.min)}/${f3(z.mean)}/${f3(z.max)}` : '-';
+                const m = l => l === null ? '-' : (l ? 'ya' : 'tidak');
+                L.push(`${r.s.judul} | ${r.s.expect === 'benar' ? 'Tepat' : 'Belum'} | ${det} | ${c(x)} | ${m(r.lolos)} | ${c(y)} | ${m(n.lolos)}`);
+            });
+            L.push('');
+            [['World 3D', aW], ['Normalisasi', aN]].forEach(([nm, a]) => {
+                const v = verdictOf(a);
+                L.push(`${nm}: ${v.title}`);
+                v.lines.forEach(l => L.push('  - ' + l));
+            });
+            L.push('');
+            const modeName = state.mode === 'world' ? 'World 3D' : (state.mode === 'norm' ? 'normalisasi' : state.mode);
+            const currentThr = state.thr[state.mode] || DEFAULT_THRESHOLD[state.mode] || { tepat: 0.15, hampir: 0.30 };
+            L.push(`Batas live saat ini (${modeName}): Tepat < ${currentThr.tepat}, Hampir < ${currentThr.hampir}`);
+            return L.join('\n');
+        }
+
+        // ---------- event ----------
+        $('camBtn').addEventListener('click', startCamera);
+        $('recA').addEventListener('click', () => recordTemplate('A'));
+        $('recB').addEventListener('click', () => recordTemplate('B'));
+        $('runAll').addEventListener('click', () => runList(scenarios()));
+        $('stopBtn').addEventListener('click', () => { state.abort = true; });
+        $('tbl').addEventListener('click', e => {
+            const b = e.target.closest('.rerun'); if (!b) return;
+            const s = scenarios().find(x => x.id === b.dataset.sid); if (s) runList([s]);
+        });
+        $('nameA').addEventListener('input', e => { state.names.A = e.target.value; renderPlan(); renderResults(); save(); });
+        $('nameB').addEventListener('input', e => { state.names.B = e.target.value; renderPlan(); renderResults(); save(); });
+        $('note').addEventListener('input', save);
+        $('liveTarget').addEventListener('change', () => { state.history = []; state.shown = null; updateLive(); });
+        $('modeSel').addEventListener('change', e => { state.mode = e.target.value; state.history = []; state.shown = null; syncThrInputs(); save(); updateLive(); });
+        function readThr() {
+            const t = parseFloat($('thrTepat').value), h = parseFloat($('thrHampir').value);
+            if (isFinite(t) && isFinite(h)) { state.thr[state.mode] = { tepat: t, hampir: h }; state.history = []; state.shown = null; save(); }
+        }
+        $('thrTepat').addEventListener('change', readThr);
+        $('thrHampir').addEventListener('change', readThr);
+        $('useSuggest').addEventListener('click', () => {
+            const a = analyze(state.mode);
+            if (a.info && a.info.gap > 0) {
+                state.thr[state.mode] = { tepat: +a.info.tepat.toFixed(3), hampir: +a.info.hampir.toFixed(3) };
+                syncThrInputs(); state.history = []; state.shown = null; save(); toast('Batas diisi dari hasil tes.');
+            } else toast('Belum ada saran: tes dasar belum lengkap atau kedua pose masih tumpang tindih.');
+        });
+        $('copyBtn').addEventListener('click', async () => {
+            const text = buildSummary(), ta = $('summary');
+            ta.hidden = false; ta.value = text; ta.select();
+            try { await navigator.clipboard.writeText(text); toast('Ringkasan disalin. Tempel ke chat.'); }
+            catch (e) { toast('Salin otomatis gagal. Teksnya sudah terpilih, tekan Ctrl+C.'); }
+        });
+        $('clearBtn').addEventListener('click', () => {
+            if (!confirm('Hapus semua hasil tes? Pose acuan tetap tersimpan.')) return;
+            state.samples = {}; save(); renderResults(); $('summary').hidden = true;
+        });
+        $('resetBtn').addEventListener('click', () => {
+            if (!confirm('Reset semua, termasuk pose acuan dan batas?')) return;
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+            state.templates = { A: null, B: null }; state.samples = {}; state.thr = JSON.parse(JSON.stringify(DEFAULT_THRESHOLD));
+            $('note').value = ''; renderTemplates(); renderResults(); syncThrInputs(); updateLive(); $('summary').hidden = true;
+        });
+        document.addEventListener('keydown', e => {
+            const tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            if (e.key === 'Escape' && state.running) { state.abort = true; return; }
+            if (state.running) return;
+            if (e.key === '1') recordTemplate('A');
+            else if (e.key === '2') recordTemplate('B');
+            else if (e.key === 's' || e.key === 'S') runList(scenarios());
+        });
+
+        // ---------- mulai ----------
+        load();
+        $('nameA').value = state.names.A; $('nameB').value = state.names.B;
+        if (location.protocol === 'file:') $('fileWarn').hidden = false;
+        renderPlan(); renderTemplates(); renderResults(); syncThrInputs(); updateLive();
+    </script>
+</body>
+
+</html>
