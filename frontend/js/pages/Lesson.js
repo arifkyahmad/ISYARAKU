@@ -240,7 +240,9 @@ const cvState = {
   templateAktif: null,
   templateLoading: false,
   animationId: null,
-  sending: false
+  sending: false,
+  hasilPertama: false,
+  timeoutId: null
 };
 let hands = null;
 
@@ -362,6 +364,10 @@ function evaluateFrame() {
 
 function onResults(res) {
   if (!cvState.cameraOn) return;
+  if (!cvState.hasilPertama) {
+    cvState.hasilPertama = true;
+    clearTimeout(cvState.timeoutId);
+  }
   const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
   if (lm) {
     const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : "Right";
@@ -443,6 +449,12 @@ async function startCamera() {
     }
 
     cvState.cameraOn = true;
+    cvState.timeoutId = setTimeout(() => {
+      if (!cvState.hasilPertama && cvState.cameraOn) {
+        stopCamera();
+        showFeedbackCustom("wrong", "Pendeteksi tangan gagal dimuat. Periksa koneksi, atau lanjut tanpa kamera.");
+      }
+    }, 15000);
     showFeedbackCustom("idle", "Tangan belum terlihat");
     loopCv();
   } catch (err) {
@@ -460,6 +472,9 @@ async function startCamera() {
 }
 
 function stopCamera() {
+  clearTimeout(cvState.timeoutId);
+  cvState.timeoutId = null;
+  cvState.hasilPertama = false;
   cvState.cameraOn = false;
   if (cvState.animationId) {
     cancelAnimationFrame(cvState.animationId);
