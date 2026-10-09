@@ -74,7 +74,10 @@ function showStep(index) {
     el.hidden = el.dataset.step !== steps[current];
   });
 
-  backBtn.disabled = current === 0;
+  // Di langkah video (current === 0), tombol kembali nonaktif (tidak bisa mundur ke soal sebelumnya jika soalAktif > 0)
+  // Back button disabled only on the very first step of the first question
+  backBtn.disabled = (soalAktif === 0 && current === 0);
+
   nextBtn.setAttribute("aria-label", current === steps.length - 1 ? "Selesai" : "Lanjut");
 
   perbaruiProgresLevel();
@@ -84,7 +87,23 @@ function showStep(index) {
 }
 
 
-const prevStep = () => showStep(current - 1);
+function prevStep() {
+  if (current > 0) {
+    // Move to previous stage within the same question
+    showStep(current - 1);
+    return;
+  }
+  // At the first stage of a question, move to the previous question's quiz stage if possible
+  if (soalAktif > 0) {
+    soalAktif--;
+    // Render the newly active question (loads template, resets camera and feedback)
+    renderSoalAktif();
+    // Show the last stage (quiz) of the previous question
+    showStep(steps.length - 1);
+    return;
+  }
+  // No previous step or question to go back to
+}
 
 function nextStep() {
   if (current === steps.length - 1) {
