@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Isyaraku - Beranda</title>
+
+  <link
+    rel="stylesheet" href="../css/Home.css"
+  >
+
+  <!-- =========================================================
+       SUPABASE
+       ========================================================= -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+
+    const supabaseClient = supabase.createClient(
+      "https://ogozgbkfgdlzlfxbmrff.supabase.co",
+      "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
+    );
+
+  </script>
+
+</head>
+
+
+<body>
+
+
+  <!-- =========================================================
+       GRAIN OVERLAY
+       ========================================================= -->
+
+  <div
+    class="noise"
+    aria-hidden="true"
+  ></div>
+
+
+  <!-- =========================================================
+       SIDEBAR OVERLAY
+       ========================================================= -->
+
+  <div
+    class="sidebar-overlay"
+    id="sidebarOverlay"
+  ></div>
+
+
+  <!-- =========================================================
+       SIDEBAR
+       ========================================================= -->
+
+  <aside
+    class="sidebar"
+    id="sidebar"
+  >
+
+    <!-- Tombol tutup -->
+
+    <button
+      class="sidebar-close"
+      id="sidebarClose"
+      aria-label="Tutup Sidebar"
+    >
+
+      <img
+        src="../assets/img/Arrow Left.svg"
+        alt="Tutup"
+      >
+
+    </button>
+
+
+    <!-- Navigation -->
+
+    <nav class="sidebar-nav">
+
+
+      <!-- =====================================================
+           MENU UTAMA
+           ===================================================== -->
+
+      <ul class="sidebar-menu">
+
+
+        <!-- Beranda -->
+
+        <li class="sidebar-item active">
+
+          <img
+            src="../assets/img/Home.png"
+            alt=""
+            class="sidebar-icon"
+          >
+
+          <span>
+            Beranda
+          </span>
+
+        </li>
+
+
+        <!-- Kamus -->
+
+        <li class="sidebar-item">
+
+          <img
+            src="../assets/img/Kamus.svg"
+            alt=""
+            class="sidebar-icon"
+          >
+
+          <span>
+            Kamus
+          </span>
+
+        </li>
+
+
+        <!-- Profil -->
+
+        <li class="sidebar-item">
+
+          <img
+            src="../assets/img/user.png"
+            alt=""
+            class="sidebar-icon sidebar-icon-profil"
+          >
+
+          <span>
+            Profil
+          </span>
+
+        </li>
+
+
+        <!-- Pengaturan -->
+
+        <li class="sidebar-item">
+
+          <img
+            src="../assets/img/settings.png"
+            alt=""
+            class="sidebar-icon"
+          >
+
+          <span>
+            Pengaturan
+          </span>
+
+        </li>
+
+
+      </ul>
+
+
+
+      <!-- =====================================================
+           MENU BAHAYA
+           ===================================================== -->
+
+      <ul class="sidebar-menu sidebar-menu-danger">
+
+
+        <!-- Logout -->
+
+        <li
+          class="sidebar-item sidebar-item-danger"
+          id="btnLogout"
+        >
+
+          <img
+            src="../assets/img/Logout 3.svg"
+            alt=""
+            class="sidebar-icon"
+          >
+
+          <span>
+            Keluar
+          </span>
+
+        </li>
+
+
+        <!-- Delete Account -->
+
+        <li
+          class="sidebar-item sidebar-item-danger"
+          id="btnDeleteAccount"
+        >
+
+          <img
+            src="../assets/img/Trash Bin Trash.svg"
+            alt=""
+            class="sidebar-icon"
+          >
+
+          <span>
+            Hapus Akun
+          </span>
+
+        </li>
+
+
+      </ul>
+
+
+    </nav>
+
+  </aside>
+
+
+
+  <!-- =========================================================
+       HEADER
+       ========================================================= -->
+
+  <header class="top-header">
+
+
+    <!-- =======================================================
+         LOGO
+         ======================================================= -->
+
+    <div class="header-left">
+
+      <button
+        class="btn-logo"
+        aria-label="Menu"
+      >
+
+        <span class="logo-pill">
+          !syaraku
+        </span>
+
+      </button>
+
+    </div>
+
+
+
+    <!-- =======================================================
+         HEADER KANAN
+         ======================================================= -->
+
+    <div class="header-right">
+
+
+      <!-- XP -->
+
+      <div class="xp-badge">
+
+        <span class="xp-icon">
+          ⭐
+        </span>
+
+        <span class="xp-value">
+          240
+        </span>
+
+      </div>
+
+
+
+      <!-- Profil -->
+
+      <button
+        class="profile-badge"
+        aria-label="Profil"
+      >
+
+        <span class="profile-name">
+          Leon
+        </span>
+
+        <img
+          src="../assets/img/ProfilePhoto.svg"
+          alt="Avatar"
+          class="profile-avatar"
+        >
+
+      </button>
+
+
+    </div>
+
+
+  </header>
+
+
+
+  <!-- =========================================================
+       HAMBURGER
+       ========================================================= -->
+
+  <button
+    class="hamburger-btn"
+    id="hamburgerBtn"
+    aria-label="Menu"
+  >
+
+    <img
+      src="../assets/img/PurpleHamburgerMenu.svg"
+      alt="Menu"
+    >
+
+  </button>
+
+
+
+  <!-- =========================================================
+       MAIN CONTENT
+       ========================================================= -->
+
+  <main class="main-content">
+
+
+    <!-- =======================================================
+         BACKGROUND BLUR ORBS
+         =======================================================
+
+         Layer paling belakang.
+
+         z-index:
+         0 = blur
+         1 = dekorasi
+         2 = learning path
+         3 = node / section
+         ======================================================= -->
+
+    <div
+      class="blur-orbs"
+      aria-hidden="true"
+    >
+
+      <div class="blur-orb blur-orb-1"></div>
+
+      <div class="blur-orb blur-orb-2"></div>
+
+      <div class="blur-orb blur-orb-3"></div>
+
+      <div class="blur-orb blur-orb-4"></div>
+
+      <div class="blur-orb blur-orb-5"></div>
+
+      <div class="blur-orb blur-orb-6"></div>
+
+      <div class="blur-orb blur-orb--small blur-orb-7"></div>
+
+      <div class="blur-orb blur-orb--small blur-orb-8"></div>
+
+      <div class="blur-orb blur-orb--small blur-orb-9"></div>
+
+      <div class="blur-orb blur-orb--small blur-orb-10"></div>
+
+    </div>
+
+
+
+    <!-- =======================================================
+         DEKORASI LAYAR
+         ======================================================= -->
+
+
+    <!-- Perosotan -->
+
+    <div class="deco deco-slide">
+
+      <img
+        src="../assets/img/Perosotan.svg"
+        alt=""
+      >
+
+    </div>
+
+
+    <!-- Ayunan -->
+
+    <div class="deco deco-swing">
+
+      <img
+        src="../assets/img/Ayunan.svg"
+        alt=""
+      >
+
+    </div>
+
+
+    <!-- Garland atas -->
+
+    <div class="deco deco-garland-top">
+
+      <img
+        src="../assets/img/OrnamenGantung.svg"
+        alt=""
+      >
+
+    </div>
+
+
+    <!-- Garland tengah -->
+
+    <div class="deco deco-garland-mid1">
+
+      <img
+        src="../assets/img/OrnamenGantung.svg"
+        alt=""
+      >
+
+    </div>
+
+    <div class="deco deco-garland-mid2">
+
+      <img
+        src="../assets/img/OrnamenGantung.svg"
+        alt=""
+      >
+
+    </div>
+
+    
+
+
+    <!-- Balon ungu -->
+
+    <div class="deco deco-balloon">
+
+      <img
+        src="../assets/img/PurplePallete.svg"
+        alt=""
+      >
+
+    </div>
+
+
+    <!-- Balon teal -->
+
+    <div class="deco deco-teal-balloon">
+
+      <img
+        src="../assets/img/Teal Palettes.svg"
+        alt=""
+      >
+
+    </div>
+
+
+
+    <!-- =======================================================
+         LEARNING PATH
+         ======================================================= -->
+
+    <div class="learning-path-container">
+
+
+
+      <!-- =====================================================
+           UNIT BANNER
+           ===================================================== -->
+
+      <div class="unit-banner">
+
+
+        <span class="unit-badge">
+          Unit 1: Menuju Gerbang SD
+        </span>
+
+      </div>
+
+
+
+      <!-- =====================================================
+           SECTION 3 — TAMAN BERMAIN
+           ===================================================== -->
+
+      <div class="section-card section-card--purple">
+
+
+        <div class="section-info">
+
+          <span class="section-label">
+            SECTION 3
+          </span>
+
+          <h2 class="section-title">
+            Taman Bermain
+          </h2>
+
+        </div>
+
+
+        <button
+          class="section-book-btn"
+          aria-label="Buka materi"
+        >
+
+          <img
+            src="../assets/img/Book Bookmark.svg"
+            alt="Buku"
+          >
+
+        </button>
+
+
+      </div>
+
+
+
+      <!-- =====================================================
+           PATH SECTION 3
+           ===================================================== -->
+
+      <div class="path-wrapper">
+
+
+        <!-- Jalur -->
+
+        <img
+          src="../assets/img/Jalur.svg"
+          alt=""
+          class="jalur-img"
+        >
+
+
+
+        <!-- ===================================================
+             NODE S3-1
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s3-1 node--purple completed"
+        >
+
+          <img
+            src="../assets/img/FrameLevelPurple.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <img
+            src="../assets/img/wallet.png"
+            alt="Dompet"
+            class="node-icon"
+          >
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s3-1">
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+
+        <!-- ===================================================
+             TOKO KELONTONG
+             =================================================== -->
+
+        <div class="scene-img scene-toko">
+
+          <img
+            src="../assets/img/TokoKelontong.svg"
+            alt="Toko Kelontong"
+          >
+
+        </div>
+
+
+
+        <!-- ===================================================
+             NODE S3-2
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s3-2 node--purple"
+        >
+
+          <img
+            src="../assets/img/FrameLevelPurple.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <img
+            src="../assets/img/shopping-cart.png"
+            alt="Keranjang"
+            class="node-icon"
+          >
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s3-2">
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- =====================================================
+           SECTION 2 — KANTIN
+           ===================================================== -->
+
+      <div class="section-card section-card--dark-purple">
+
+
+        <div class="section-info">
+
+          <span class="section-label">
+            SECTION 2
+          </span>
+
+          <h2 class="section-title">
+            Kantin
+          </h2>
+
+        </div>
+
+
+        <button
+          class="section-book-btn"
+          aria-label="Buka materi"
+        >
+
+          <img
+            src="../assets/img/OpenedBook.svg"
+            alt="Buku"
+          >
+
+        </button>
+
+
+      </div>
+
+
+
+      <!-- =====================================================
+           PATH SECTION 2
+           ===================================================== -->
+
+      <div class="path-wrapper">
+
+
+        <!-- Jalur -->
+
+        <img
+          src="../assets/img/Jalur.svg"
+          alt=""
+          class="jalur-img"
+        >
+
+
+
+        <!-- ===================================================
+             NODE S2-1 — 123
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s2-1 node--teal completed"
+        >
+
+          <img
+            src="../assets/img/FrameLevelGreen.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <span class="node-text">
+            123
+          </span>
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s2-1">
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+
+        <!-- ===================================================
+             NODE S2-2 — ABC
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s2-2 node--teal completed"
+        >
+
+          <img
+            src="../assets/img/FrameLevelGreen.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <span class="node-text">
+            ABC
+          </span>
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s2-2">
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+
+        <!-- ===================================================
+             PAPAN TULIS
+             ===================================================
+
+             Papan dan tas dibuat terpisah supaya posisi tas
+             dapat diatur menggunakan CSS.
+             =================================================== -->
+
+        <div class="scene-img scene-papan">
+
+
+          <!-- Papan tulis -->
+
+          <img
+            src="../assets/img/PapanTulis.svg"
+            alt="Papan Tulis"
+            class="scene-papan-board"
+          >
+
+
+          <!-- Tas -->
+
+          <img
+            src="../assets/img/Tas.svg"
+            alt="Tas"
+            class="scene-papan-bag"
+          >
+
+
+        </div>
+
+
+
+        <!-- ===================================================
+             NODE S2-3 — DOUBLE HAND
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s2-3 node--teal"
+        >
+
+          <img
+            src="../assets/img/FrameLevelGreen.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <img
+            src="../assets/img/DoubleHand.svg"
+            alt="Tangan"
+            class="node-icon-sm"
+          >
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s2-3">
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+
+        <!-- ===================================================
+             NODE S2-4 — BOOK
+             =================================================== -->
+
+        <div
+          class="lesson-node node-s2-4 node--teal active"
+        >
+
+          <img
+            src="../assets/img/FrameLevelGreen.svg"
+            alt=""
+            class="node-frame"
+          >
+
+          <img
+            src="../assets/img/OpenedBook.svg"
+            alt="Buku"
+            class="node-icon-sm"
+          >
+
+        </div>
+
+
+        <!-- Stars -->
+
+        <div class="node-stars node-stars-s2-4">
+
+          <img
+            src="../assets/img/BintangFilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/BintangFilled.svg"
+            alt="★"
+          >
+
+          <img
+            src="../assets/img/Bintang unfilled.svg"
+            alt="★"
+          >
+
+        </div>
+
+
+      </div>
+
+
+
+      <!-- =====================================================
+           SECTION 1 — SEKOLAH
+           ===================================================== -->
+
+      <div class="section-card section-card--teal">
+
+
+        <div class="section-info">
+
+          <span class="section-label">
+            SECTION 1
+          </span>
+
+          <h2 class="section-title">
+            Sekolah
+          </h2>
+
+        </div>
+
+
+        <button
+          class="section-book-btn"
+          aria-label="Buka materi"
+        >
+
+          <img
+            src="../assets/img/OpenedBook.svg"
+            alt="Buku"
+          >
+
+        </button>
+
+
+      </div>
+
+
+    </div>
+    <!-- /learning-path-container -->
+
+
+  </main>
+
+  <div
+    class="lesson-modal"
+    id="lessonModal"
+    aria-hidden="true"
+  >
+    <section
+      class="lesson-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lessonModalTitle"
+      aria-describedby="lessonModalDescription"
+    >
+      <div class="lesson-modal-hero">
+        <h2 class="lesson-modal-title" id="lessonModalTitle">Kata Sapaan</h2>
+        <img src="../assets/img/DoubleHand.svg" alt="" class="lesson-modal-icon">
+      </div>
+      <p class="lesson-modal-description" id="lessonModalDescription">
+        “Ayo kawan! Mari belajar bahasa isyarat Kata Sapaan!”
+      </p>
+      <div class="lesson-modal-actions">
+        <button class="lesson-modal-start" id="lessonModalStart" type="button">
+          Mulai Sekarang
+        </button>
+        <button class="lesson-modal-cancel" id="lessonModalCancel" type="button">
+          Batal
+        </button>
+      </div>
+    </section>
+  </div>
+
+
+  <!-- Popup selesai pelajaran -->
+  <div class="lesson-modal" id="completeModal" aria-hidden="true">
+    <section
+      class="complete-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="completeModalTitle"
+      aria-describedby="completeModalDesc"
+    >
+      <h2 class="complete-modal-title" id="completeModalTitle">Selamat!</h2>
+
+      <div class="complete-modal-stars" id="completeModalStars">
+        <img src="../assets/img/BintangFilled.svg" alt="">
+        <img src="../assets/img/BintangFilled.svg" alt="">
+        <img src="../assets/img/BintangFilled.svg" alt="">
+      </div>
+
+      <p class="complete-modal-desc" id="completeModalDesc">Kamu Lulus Belajar Kata Sapaan</p>
+
+      <div class="lesson-modal-actions">
+        <button class="lesson-modal-start" id="completeModalNext" type="button">Lanjut Belajar</button>
+        <button class="lesson-modal-cancel" id="completeModalCancel" type="button">Batal</button>
+      </div>
+    </section>
+  </div>
+
+
+  <nav
+    class="mobile-bottom-nav"
+    aria-label="Navigasi utama"
+  >
+
+    <button
+      class="mobile-nav-item active"
+      type="button"
+      aria-label="Beranda"
+      aria-current="page"
+      data-nav-target="Beranda"
+    >
+      <img src="../assets/img/Home.svg" alt="" aria-hidden="true">
+    </button>
+
+    <button
+      class="mobile-nav-item"
+      type="button"
+      aria-label="Kamus"
+      data-nav-target="Kamus"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 6.5C9.5 4.8 6.5 4.5 3.5 5.2v13c3-.7 6-.4 8.5 1.3m0-13c2.5-1.7 5.5-2 8.5-1.3v13c-3-.7-6-.4-8.5 1.3m0-13v13" />
+      </svg>
+    </button>
+
+    <button
+      class="mobile-nav-item"
+      type="button"
+      aria-label="Profil"
+      data-nav-target="Profil"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="8" r="3.25" />
+        <path d="M5.5 20v-1.3a6.5 6.5 0 0 1 13 0V20z" />
+      </svg>
+    </button>
+
+  </nav>
+
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+
+  <script src="../js/pages/Home.js"></script>
+
+
+</body>
+
+</html>

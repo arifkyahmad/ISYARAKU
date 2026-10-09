@@ -1,0 +1,231 @@
+:root {
+  --purple-900: #5b3f9e;
+  --purple-700: #6a4aa8;
+  --purple-500: #8a6bc7;
+  --purple-300: #b39ddb;
+  --pink-200: #f0c8ff;
+  --ink: #6b3f7f;
+  --white: #ffffff;
+  --radius-lg: 1.5rem;
+  --radius-md: 0.9rem;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: clamp(14px, 1.1vw + 8px, 18px); }
+
+body {
+  min-height: 100vh;
+  font-family: "Lexend", system-ui, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(135deg, var(--purple-300) 0%, var(--purple-500) 40%, var(--purple-900) 100%);
+  background-attachment: fixed;
+}
+
+.lesson {
+  width: min(100%, 52rem);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ---------- Progress ---------- */
+.progress {
+  height: 0.75rem;
+  background: var(--white);
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.progress__fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--pink-200), var(--purple-900));
+  transition: width 0.4s ease;
+}
+
+/* ---------- Stage & kartu ---------- */
+.stage { flex: 1; display: flex; flex-direction: column; }
+.step { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+.step[hidden] { display: none; }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+}
+
+/* ---------- Sesi 1: Video ---------- */
+.video-card {
+  position: relative;
+  flex: 1;
+  min-height: 18rem;
+  overflow: hidden;
+}
+.video-card__player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;   /* video utuh, tidak terpotong */
+  background: var(--white);
+}
+.video-card__player:fullscreen {
+  object-fit: contain;
+  background: #000;
+}
+
+.caption {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 0.9rem 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ---------- Sesi 2: Praktik (computer vision) ---------- */
+.practice-card {
+  flex: 1;
+  min-height: 24rem;
+  padding: 1.5rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.practice-card__title {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.practice-card__camera {
+  position: relative;
+  flex: 1;
+  min-height: 12rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #f6f1fc;
+}
+.practice-card__camera video,
+.practice-card__camera canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);   /* mirror seperti cermin */
+}
+.practice-card__feedback {
+  min-height: 1.5rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.practice-card__feedback[data-state="correct"] { color: #00a82d; }
+.practice-card__feedback[data-state="wrong"]   { color: #d62839; }
+.practice-card__feedback[data-state="idle"]    { color: transparent; }
+
+.skip-btn {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.skip-btn:hover { transform: translateY(-1px); }
+
+/* ---------- Sesi 3: Soal ---------- */
+.quiz-video {
+  position: relative;
+  flex: 1;
+  min-height: 18rem;
+  overflow: hidden;
+}
+
+.quiz-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);   /* desktop: 3 pilihan sejajar */
+  gap: 1.5rem;
+}
+
+.quiz-option {
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.quiz-option:hover { transform: translateY(-1px); }
+.quiz-option:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+/* Status pilihan */
+.quiz-option.is-selected { box-shadow: 0 0 0 3px var(--pink-200); }
+.quiz-option[data-state="correct"] { box-shadow: 0 0 0 3px #00a82d; color: #00a82d; }
+.quiz-option[data-state="wrong"]   { box-shadow: 0 0 0 3px #d62839; color: #d62839; }
+
+
+/* ---------- Navigasi ---------- */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.nav__btn {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white);
+  cursor: pointer;
+  box-shadow: 0 0.25rem 0.75rem rgba(60, 30, 110, 0.25);
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+.nav__btn svg {
+  width: 1.6rem;
+  height: 1.6rem;
+  fill: none;
+  stroke: var(--purple-700);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav__btn:hover:not(:disabled) { transform: scale(1.08); }
+.nav__btn:active:not(:disabled) { transform: scale(0.96); }
+.nav__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.nav__btn:focus-visible,
+.skip-btn:focus-visible {
+  outline: 3px solid var(--white);
+  outline-offset: 3px;
+}
+
+/* ---------- Responsif & aksesibilitas ---------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+@media (max-width: 480px) {
+  .lesson { padding: 1rem; gap: 1rem; }
+  .video-card { flex: 0 0 auto; aspect-ratio: 5 / 8; min-height: 0; }
+  .practice-card { min-height: 20rem; padding: 1.25rem 1rem 1rem; }
+  .quiz-video { flex: 0 0 auto; aspect-ratio: 4 / 3; min-height: 0; }
+  .quiz-options { grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
+}

@@ -1,14 +1,14 @@
 # API Contract — Level (Peta Level & Progres)
 
-**Tanggal:** 29 September 2026
-**Status:** Peta level, simpan progres, dan baca progres sudah dites di Supabase. Data popup, layar belajar, dan layar tes belum ada.
+**Tanggal:** 3 Oktober 2026
+**Status:** Peta level (termasuk bintang), simpan progres, dan baca progres sudah dites di Supabase. Data popup level, layar belajar, layar tes, dan data kuis belum ada.
 **Penulis:** Rifky (BE)
 
 ---
 
 ## Ringkasan
 
-Dokumen ini mencakup data yang dibutuhkan halaman **peta level**: daftar section dan level beserta statusnya (terkunci / berjalan / selesai), dan cara menyimpan serta membaca progres per soal. Semua diakses lewat `supabaseClient` (Supabase JS), tidak ada server terpisah.
+Dokumen ini mencakup data yang dibutuhkan halaman **peta level**: daftar section dan level beserta status (terkunci / berjalan / selesai) dan bintang (0-3), serta cara menyimpan dan membaca progres per soal. Semua diakses lewat `supabaseClient` (Supabase JS), tidak ada server terpisah.
 
 Desktop dan Mobile memakai **query yang sama persis**.
 
@@ -24,12 +24,12 @@ Desktop dan Mobile memakai **query yang sama persis**.
 
 ## Endpoint 1 — Peta level
 
-Satu query untuk seluruh isi peta: semua level dari semua section, terurut, lengkap dengan status milik user yang login.
+Satu query untuk seluruh isi peta: semua level dari semua section, terurut, lengkap dengan status dan bintang milik user yang login.
 
 ```js
 const { data, error } = await supabaseClient
   .from('v_status_level')
-  .select('level_id, section_id, urutan_section, urutan_level, nama_section, tema, nama_level, total_soal, dikerjakan, belum, perlu_review, selesai, status')
+  .select('level_id, section_id, urutan_section, urutan_level, nama_section, tema, nama_level, total_soal, dikerjakan, belum, tepat, perlu_review, selesai, bintang, status')
   .order('urutan_section')
   .order('urutan_level');
 ```
@@ -49,8 +49,10 @@ const { data, error } = await supabaseClient
     "total_soal": 3,
     "dikerjakan": 3,
     "belum": 0,
+    "tepat": 3,
     "perlu_review": 0,
     "selesai": true,
+    "bintang": 3,
     "status": "selesai"
   },
   {
@@ -64,8 +66,10 @@ const { data, error } = await supabaseClient
     "total_soal": 2,
     "dikerjakan": 0,
     "belum": 0,
+    "tepat": 0,
     "perlu_review": 0,
     "selesai": false,
+    "bintang": 0,
     "status": "berjalan"
   }
 ]
@@ -81,48 +85,88 @@ Datanya berupa **satu baris per level** (rata, bukan bersarang). Untuk mengelomp
 | `urutan_section`, `urutan_level` | urutan tampil. `urutan_level` dihitung per section |
 | `nama_section`, `tema`, `nama_level` | teks untuk banner dan node |
 | `total_soal` | jumlah soal (kata) di level itu |
-| `dikerjakan` | soal yang sudah punya progres milik user |
-| `belum` | soal yang hasil terakhirnya `belum` |
+| `dikerjakan` | soal yang sudah punya progres milik user (apa pun hasilnya) |
+| `belum` | soal yang hasil terakhirnya `belum` **dan tidak di-skip** |
+| `tepat` | soal yang hasil terakhirnya `tepat` dan tidak di-skip |
 | `perlu_review` | soal yang di-skip lewat fallback tanpa kamera (`flag_review = true`) |
-| `selesai` | `true` jika semua soal dikerjakan dan tidak ada yang `belum` |
+| `selesai` | `true` jika semua soal sudah dikerjakan (apa pun hasilnya) |
+| `bintang` | 0 sampai 3, aturan di bawah |
 | `status` | `selesai`, `berjalan`, atau `terkunci` (aturan di bawah) |
 
 ### Catatan penting untuk FE
 
-- **Tanpa login, peta tetap muncul** dan semua `dikerjakan` bernilai 0. Ini bukan error. Level pertama akan berstatus `berjalan`, sisanya `terkunci`.
-- **Response memberi angka mentah.** Tampilan bintang, persentase, atau medali ditentukan FE dari `dikerjakan`, `total_soal`, dan `belum`. Aturan bintang belum diputuskan (lihat bagian bawah).
+- **Tanpa login, peta tetap muncul** dan semua `dikerjakan` bernilai 0. Ini bukan error. Level pertama berstatus `berjalan`, sisanya `terkunci`.
+- **`bintang` sudah dihitung di database.** FE cukup membaca angkanya, tidak perlu menghitung ulang.
 - Ikon level murni urusan FE (CSS), tidak ada di data.
-- `status` sudah memuat aturan gembok level **dan** gembok section. FE tidak perlu menghitung ulang.
+- `status` sudah memuat aturan gembok level **dan** gembok section.
+- Angka poin di header peta: asumsi sementara = jumlah `bintang` dari semua level (lihat bagian "Belum diputuskan").
 
 ---
 
-## Endpoint 2 — Daftar soal per level (versi sementara)
+## Endpoint 2 — Daftar soal per level
 
-Dibutuhkan untuk mendapatkan `soal_level_id` sebelum menyimpan progres. Format final untuk layar belajar dan tes menunggu wireframe.
+Mengambil daftar soal dalam satu level beserta detail kata, jenis kata, dan path video contoh.
 
+### Syarat
+- `level_id` diperoleh dari Endpoint 1 (Peta level).
+
+### Query supabase-js
 ```js
 const { data, error } = await supabaseClient
   .from('soal_level')
-  .select('id, urutan, kamus(kata)')
+  .select('id, urutan, kamus(id, kata, jenis, video(url_path))')
   .eq('level_id', LEVEL_ID)
-  .order('urutan');
+  .order('urutan', { ascending: true });
 ```
 
 ### Contoh response
 
 ```json
 [
-  { "id": "0682da88-65c1-4aa4-aafe-16c8a9486673", "urutan": 1, "kamus": { "kata": "Halo" } }
+  {
+    "id": "d065085d-d823-469e-b21a-873c2dfb110c",
+    "urutan": 1,
+    "kamus": {
+      "id": "85df1ec2-0f38-4710-891f-b1edd64809e9",
+      "kata": "Halo",
+      "jenis": "kata",
+      "video": { "url_path": "dummy/halo.mp4" }
+    }
+  },
+  {
+    "id": "394f14c3-0a5c-45c9-8b73-22d664a19595",
+    "urutan": 2,
+    "kamus": {
+      "id": "cb4bb16b-b4f3-41b8-8a61-8a500864647f",
+      "kata": "Apa",
+      "jenis": "kata",
+      "video": null
+    }
+  }
 ]
 ```
 
-`id` di sini adalah `soal_level_id` yang dipakai di Endpoint 3. Urutan soal (`urutan`) hanya berlaku di dalam satu level, jadi selalu urutkan bersama filter `level_id`.
+Contoh dipotong jadi 2 dari 4 soal. Diuji 8 Okt 2026 untuk satu level seed.
+
+### Arti kolom
+- `id`: ID baris `soal_level` (tipe UUID). Kolom ini adalah `soal_level_id` yang wajib dipakai saat menyimpan progres di Endpoint 3.
+- `urutan`: Nomor urut soal dalam level tersebut (integer).
+- `kamus.id`: ID kata di tabel kamus (UUID).
+- `kamus.kata`: Teks kata / materi yang dipelajari (string).
+- `kamus.jenis`: `alfabet`, `kata`, `percakapan`, atau `gabungan`.
+- `kamus.video`: objek tunggal `{ url_path }` (bukan array), atau `null` jika video belum ada. `url_path` = path relatif di Supabase Storage (string).
+
+### Catatan penting untuk FE
+- **`id` adalah `soal_level_id`**: Simpan `id` dari hasil query ini untuk digunakan sebagai parameter `soal_level_id` saat memanggil Endpoint 3 (`progres_soal`).
+- **`video` bisa `null`**: FE wajib menanganinya (tampilkan label kata dan pesan video belum tersedia, jangan error).
+- **Konstruksi URL Video**: Nilai `url_path` hanya berisi path relatif (contoh: `dummy/halo.mp4`). URL video publik penuh diperoleh dengan menggabungkan `BASE + url_path`. Rujuk ke dokumentasi [docs/storage-video.md](storage-video.md) untuk definisi konstanta `BASE` (jangan menyalin ulang nilai BASE secara lokal).
+- **Urutan soal**: Nomor `urutan` hanya berlaku dan unik di dalam satu `level_id`. Selalu gunakan filter `.eq('level_id', LEVEL_ID)` bersamaan dengan `.order('urutan', { ascending: true })`.
 
 ---
 
 ## Endpoint 3 — Simpan progres per soal
 
-Menyimpan **hasil terakhir** satu soal. Menyimpan soal yang sama berkali-kali menimpa baris lama (tidak ada duplikat, tidak ada histori percobaan).
+Menyimpan **hasil terakhir** satu soal (hasil **praktik**). Menyimpan soal yang sama berkali-kali menimpa baris lama (tidak ada duplikat, tidak ada histori percobaan).
 
 ```js
 const { data: { user } } = await supabaseClient.auth.getUser();
@@ -148,7 +192,11 @@ const { data, error } = await supabaseClient
 | `status_3tingkat` | ya | `tepat`, `hampir`, atau `belum` (huruf kecil) |
 | `flag_review` | tidak (default `false`) | `true` jika soal di-skip (fallback tanpa kamera) |
 
+**Soal di-skip (tanpa kamera):** simpan `status_3tingkat: 'belum'` dengan `flag_review: true`. Soal tetap terhitung dikerjakan, dan untuk bintang dihitung setara `hampir` (maksimal 2 bintang untuk level itu).
+
 Untuk menyimpan banyak soal sekaligus, `upsert` menerima array baris.
+
+**Hasil kuis tidak disimpan di database** (lihat bagian alur di bawah).
 
 ---
 
@@ -183,12 +231,33 @@ Hasil hanya berisi soal yang **sudah punya progres**. Level yang belum dikerjaka
 
 Dihitung di database (view `v_status_level`), bukan di FE.
 
-1. **selesai:** semua soal di level itu sudah punya progres dan tidak ada yang berstatus `belum`.
+1. **selesai:** semua soal di level itu sudah punya progres. **Apa pun hasilnya** (`tepat`, `hampir`, `belum`, atau di-skip) tetap dihitung selesai.
 2. **berjalan:** level terbuka tapi belum selesai. Level pertama di seluruh peta selalu terbuka.
 3. **terkunci:** level sebelumnya (urutan section lalu urutan level) belum selesai.
 4. **Gembok section:** karena level diurutkan lintas section, level pertama section 2 baru terbuka setelah level terakhir section 1 selesai.
 
-Soal berstatus `belum` **tidak dihitung selesai**. Anak harus mengulang soal itu (hasil baru menimpa yang lama) supaya level berikutnya terbuka.
+## Aturan bintang
+
+| Kondisi level | Bintang |
+|---|---|
+| Belum semua soal dikerjakan | 0 |
+| Semua dikerjakan, ada soal yang hasil akhirnya `belum` | 1 |
+| Semua dikerjakan, tidak ada `belum`, tapi ada `hampir` atau soal di-skip | 2 |
+| Semua dikerjakan dan semua `tepat` | 3 |
+
+Dihitung dari hasil **praktik** saja. Kuis tidak memengaruhi bintang.
+
+---
+
+## Alur belajar per soal (aturan untuk FE)
+
+Urutan per soal (kata): **video contoh → praktik dengan CV → kuis tebak arti.**
+
+- **Praktik:** soal yang hasilnya salah (`belum`) diulang **satu kali** di akhir sesi level. Kalau percobaan kedua tetap salah, level tetap berjalan dan soal itu berakhir sebagai `belum` (level selesai dengan 1 bintang). Hanya **hasil akhir** yang disimpan lewat Endpoint 3.
+- **Kuis:** pilihan ganda, video peragaan, user memilih arti. Jawaban salah membuat soal diulang di akhir sesi **sampai benar**. Tidak bisa di-skip, tidak memengaruhi bintang, dan hasilnya tidak disimpan di database.
+- **Saran agar tidak macet:** setelah 2 kali salah di soal kuis yang sama, tampilkan jawaban yang benar (user tetap harus memilihnya).
+- **Pengecoh kuis:** diambil acak dari tabel `kamus` secara keseluruhan (bukan hanya dari level itu, karena soal per level sedikit). Query pengecoh belum dibuat atau diuji oleh BE.
+- **Antrean ulang** (praktik dan kuis) diurus FE di dalam sesi. Kalau user menutup halaman di tengah level, antrean ulang hilang.
 
 ---
 
@@ -212,17 +281,15 @@ Bagian ini supaya FE tahu apa yang **belum boleh diandalkan**.
 
 | Hal | Status | Dampak ke FE |
 |---|---|---|
-| **Rumus poin** | Belum diputuskan, dibahas dengan tim | Jangan menghitung poin dulu. Tampilkan placeholder |
-| **Aturan bintang per level** | Belum diputuskan | Bintang boleh dibuat sementara dari `dikerjakan` dan `total_soal` |
-| **Cara menyimpan soal yang di-skip** (fallback tanpa kamera) | **Belum diputuskan** | Lihat catatan di bawah |
+| **Poin di header peta** | Asumsi BE: jumlah `bintang` dari semua level. Belum dikonfirmasi tim | Boleh dibuat sementara dengan menjumlahkan `bintang` |
+| **Tampilan bintang** (bintang atau diganti progress ring/medali) | Menunggu Chery | FE membaca `bintang` (0-3), bentuk visual bebas |
 | **Data popup level** (jumlah kata, daftar kata, dll) | Menunggu wireframe | Belum ada endpoint |
-| **Layar belajar dan tes** (video, tes gabungan) | Menunggu wireframe | Belum ada endpoint. Endpoint 2 hanya sementara |
-| **Foto profil** | Ditunda | Pakai avatar default atau inisial dari nama akun. Nama user diambil dari tabel `akun` (`nama`) |
+| **Layar belajar dan tes** (video contoh, praktik CV) | Menunggu wireframe | Endpoint 2 sudah diuji (8 Okt 2026). Layar belajar dan tes menunggu wireframe |
+| **Query pengecoh kuis** | Belum dibuat | Lihat bagian alur di atas |
+| **Tes gabungan di akhir level** | Belum dirancang di data | Belum ada endpoint |
 | **Penanda "perlu review" di UI** | Data sudah ada (`perlu_review`), tampilannya belum dirancang | Boleh diabaikan dulu |
 
-### Catatan: soal yang di-skip
-
-Aturan yang disepakati: soal yang di-skip lewat fallback dihitung selesai, tapi level ditandai "perlu direview". Namun kolom `status_3tingkat` tidak boleh kosong dan hanya menerima `tepat` / `hampir` / `belum`. Jika soal di-skip disimpan sebagai `belum`, view akan menganggap level **belum selesai** dan level berikutnya tetap terkunci. Sampai ini diputuskan, **jangan menyimpan skip lewat Endpoint 3**. Opsi yang sedang dipertimbangkan BE: view mengabaikan `belum` yang `flag_review = true` dalam hitungan `belum`.
+Sudah diputuskan: 2 section, foto profil ditunda (pakai avatar default atau inisial dari `akun.nama`), "Unit" dibuang dari desain.
 
 ---
 

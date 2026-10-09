@@ -5,11 +5,11 @@ const googleBtn = document.getElementById("googleBtn");
 
 toggle.addEventListener("click", () => {
 
-    if(password.type === "password"){
+    if (password.type === "password") {
         password.type = "text";
         eyeIcon.src = "../assets/img/view.png";
         eyeIcon.alt = "Hide Password";
-    }else{
+    } else {
         password.type = "password";
         eyeIcon.src = "../assets/img/hide.png";
         eyeIcon.alt = "Show Password";
@@ -22,11 +22,11 @@ googleBtn.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: new URL("../index.html", window.location.href).href
+            redirectTo: window.location.origin + "/frontend/pages/Home.html"
         }
     });
 
-    if(error) alert(error.message);
+    if (error) alert(error.message);
 
 });
 
@@ -35,7 +35,7 @@ document.querySelector(".login-btn").addEventListener("click", async () => {
     const email = document.getElementById("email").value;
     const pass = password.value;
 
-    if(email === "" || pass === ""){
+    if (email === "" || pass === "") {
         alert("Mohon isi email dan kata sandi.");
         return;
     }
@@ -45,10 +45,10 @@ document.querySelector(".login-btn").addEventListener("click", async () => {
         password: pass
     });
 
-    if(error){
+    if (error) {
         alert(error.message);
-    }else{
-        alert("Login berhasil!");
+    } else {
+        window.location.href = "Home.html";
     }
 
 });
