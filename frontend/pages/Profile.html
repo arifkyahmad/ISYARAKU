@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7653b8">
+  <title>IsyaraKu - Profil</title>
+  <link rel="stylesheet" href="../css/Profile.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://ogozgbkfgdlzlfxbmrff.supabase.co",
+      "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
+    );
+  </script>
+  <script src="../js/pages/Profile.js" defer></script>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi utama">
+    <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Tutup sidebar">
+      <img src="../assets/img/Arrow Left.svg" alt="">
+    </button>
+    <nav class="sidebar-nav" aria-label="Menu halaman">
+      <ul class="sidebar-menu">
+        <li><a class="sidebar-item" href="Home.html"><img src="../assets/img/Home.png" alt="" class="sidebar-icon"><span>Beranda</span></a></li>
+        <li><a class="sidebar-item" href="Kamus.html"><img src="../assets/img/Kamus.svg" alt="" class="sidebar-icon"><span>Kamus</span></a></li>
+        <li><a class="sidebar-item active" href="Profile.html" aria-current="page"><img src="../assets/img/user.png" alt="" class="sidebar-icon"><span>Profil</span></a></li>
+        <li><button class="sidebar-item" type="button"><img src="../assets/img/Settings.png" alt="" class="sidebar-icon"><span>Pengaturan</span></button></li>
+      </ul>
+      <ul class="sidebar-menu sidebar-menu-danger">
+        <li><button class="sidebar-item sidebar-item-danger" id="btnLogout" type="button"><img src="../assets/img/Logout 3.svg" alt="" class="sidebar-icon"><span>Keluar</span></button></li>
+        <li><button class="sidebar-item sidebar-item-danger" id="btnDeleteAccount" type="button"><img src="../assets/img/Trash Bin Trash.svg" alt="" class="sidebar-icon"><span>Hapus Akun</span></button></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <header class="profile-summary">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka sidebar" aria-expanded="false" aria-controls="sidebar">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="mobile-back" href="Home.html" aria-label="Kembali ke Beranda">
+      <img src="../assets/img/Arrow Left.svg" alt="">
+    </a>
+    <div class="profile-summary__content">
+      <div class="profile-avatar" aria-hidden="true">
+        <img class="profile-avatar__image" src="../assets/img/Profil_Profile.svg" alt="">
+        <img class="profile-avatar__edit" src="../assets/img/Ear icon.svg" alt="">
+      </div>
+      <h1 id="profileName">Leonio Putra</h1>
+      <p id="profileEmail">nio@gmail.com</p>
+    </div>
+  </header>
+
+  <main class="profile-content">
+    <section class="profile-options" aria-label="Informasi dan tindakan akun">
+      <button class="profile-option" type="button">
+        <span class="profile-option__copy"><strong>Nama Lengkap</strong><span id="profileNameDetail">Leonio Putra</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </button>
+      <button class="profile-option" type="button">
+        <span class="profile-option__copy"><strong>Email</strong><span id="profileEmailDetail">nio@gmail.com</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </button>
+      <button class="profile-option" type="button">
+        <span class="profile-option__copy"><strong>Password</strong><span aria-label="Tersembunyi">••••••••</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </button>
+      <a class="profile-option" href="Profile.html#settings">
+        <span class="profile-option__copy"><strong>Pengaturan</strong><span>Atur akun kamu disini</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </a>
+      <button class="profile-option profile-option--danger" id="deleteAccount" type="button">
+        <span class="profile-option__copy"><strong>Hapus Akun</strong><span>Akun kamu akan terhapus secara permanen</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </button>
+      <button class="profile-option profile-option--danger" id="logoutAccount" type="button">
+        <span class="profile-option__copy"><strong>Keluar Akun</strong><span>Kamu akan keluar sementara dari akun saat ini</span></span>
+        <span class="profile-option__chevron" aria-hidden="true"></span>
+      </button>
+    </section>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Navigasi utama">
+    <a class="mobile-nav-item" href="Home.html" aria-label="Beranda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10.5h-6v-6h-5v6h-6z"></path></svg>
+    </a>
+    <a class="mobile-nav-item" href="Kamus.html" aria-label="Kamus">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C9.5 4.8 6.5 4.5 3.5 5.2v13c3-.7 6-.4 8.5 1.3m0-13c2.5-1.7 5.5-2 8.5-1.3v13c-3-.7-6-.4-8.5 1.3m0-13v13"></path></svg>
+    </a>
+    <a class="mobile-nav-item is-active" href="Profile.html" aria-label="Profil" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 20v-1.3a6.5 6.5 0 0 1 13 0V20z"></path></svg>
+    </a>
+  </nav>
+</body>
+</html>

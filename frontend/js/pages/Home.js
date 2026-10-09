@@ -61,12 +61,10 @@ sidebarItems.forEach((item) => {
         // sudah di halaman ini
         break;
       case 'Kamus':
-        // window.location.href = '../frontend/pages/Kamus.html';
-        console.log('Navigasi ke Kamus');
+        window.location.href = 'Kamus.html';
         break;
       case 'Profil':
-        // window.location.href = '../frontend/pages/Profil.html';
-        console.log('Navigasi ke Profil');
+        window.location.href = 'Profile.html';
         break;
       case 'Pengaturan':
         // window.location.href = '../frontend/pages/Pengaturan.html';
@@ -89,6 +87,10 @@ mobileNavItems.forEach((item) => {
 
     sidebarItem?.click();
   });
+});
+
+document.querySelector('.profile-badge')?.addEventListener('click', () => {
+  window.location.href = 'Profile.html';
 });
 
 /* -----------------------------------------------------------------

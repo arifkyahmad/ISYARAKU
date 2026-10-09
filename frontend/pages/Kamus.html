@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#7653b8">
+  <title>IsyaraKu - Kamus</title>
+  <link rel="stylesheet" href="../css/Kamus.css">
+  <script src="../js/pages/Kamus.js" defer></script>
+</head>
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi utama">
+    <button class="sidebar-close" id="sidebarClose" type="button" aria-label="Tutup sidebar">
+      <img src="../assets/img/Arrow Left.svg" alt="">
+    </button>
+
+    <nav class="sidebar-nav" aria-label="Menu halaman">
+      <ul class="sidebar-menu">
+        <li>
+          <a class="sidebar-item" href="Home.html">
+            <img src="../assets/img/Home.png" alt="" class="sidebar-icon">
+            <span>Beranda</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-item active" href="Kamus.html" aria-current="page">
+            <img src="../assets/img/Kamus.svg" alt="" class="sidebar-icon">
+            <span>Kamus</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-item" href="Profile.html">
+            <img src="../assets/img/user.png" alt="" class="sidebar-icon sidebar-icon-profil">
+            <span>Profil</span>
+          </a>
+        </li>
+        <li>
+          <button class="sidebar-item" type="button">
+            <img src="../assets/img/settings.png" alt="" class="sidebar-icon">
+            <span>Pengaturan</span>
+          </button>
+        </li>
+      </ul>
+
+      <ul class="sidebar-menu sidebar-menu-danger">
+        <li>
+          <button class="sidebar-item sidebar-item-danger" id="btnLogout" type="button">
+            <img src="../assets/img/Logout 3.svg" alt="" class="sidebar-icon">
+            <span>Keluar</span>
+          </button>
+        </li>
+        <li>
+          <button class="sidebar-item sidebar-item-danger" id="btnDeleteAccount" type="button">
+            <img src="../assets/img/Trash Bin Trash.svg" alt="" class="sidebar-icon">
+            <span>Hapus Akun</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <header class="dictionary-hero">
+    <img class="dictionary-hero__hand" src="../assets/img/Tangan menyentuh.svg" alt="" aria-hidden="true">
+    <div class="dictionary-hero__copy">
+      <h1>Pojok Latihan Kata</h1>
+      <p>“Tanganmu punya cerita indah! Ayo belajar isyarat baru hari ini.”</p>
+    </div>
+  </header>
+
+  <main class="dictionary">
+    <div class="dictionary-toolbar">
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Buka sidebar" aria-expanded="false" aria-controls="sidebar">
+        <span></span><span></span><span></span>
+      </button>
+
+      <div class="dictionary-tabs" role="tablist" aria-label="Jenis kamus">
+        <button class="dictionary-tab is-active" id="lettersTab" type="button" role="tab" aria-selected="true" aria-controls="lettersPanel">
+          Kamus Huruf
+        </button>
+        <button class="dictionary-tab" id="wordsTab" type="button" role="tab" aria-selected="false" aria-controls="wordsPanel" tabindex="-1">
+          Kamus Kosakata
+        </button>
+      </div>
+
+      <label class="dictionary-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"></circle>
+          <path d="m16 16 5 5"></path>
+        </svg>
+        <span class="visually-hidden">Cari kamus</span>
+        <input id="dictionarySearch" type="search" placeholder="Temukan apa yang kamu cari..." autocomplete="off">
+      </label>
+    </div>
+
+    <section class="dictionary-panel" id="lettersPanel" role="tabpanel" aria-labelledby="lettersTab">
+      <div class="letter-grid" id="letterGrid" aria-live="polite">
+        <article class="letter-card" data-letter="A"><span aria-hidden="true">A</span><img src="../assets/img/hand-illustration A.svg" alt="Isyarat tangan huruf A"></article>
+        <article class="letter-card" data-letter="B"><span aria-hidden="true">B</span><img src="../assets/img/hand-illustration B.svg" alt="Isyarat tangan huruf B"></article>
+        <article class="letter-card" data-letter="C"><span aria-hidden="true">C</span><img src="../assets/img/hand-illustration C.svg" alt="Isyarat tangan huruf C"></article>
+        <article class="letter-card" data-letter="D"><span aria-hidden="true">D</span><img src="../assets/img/hand-illustration D.svg" alt="Isyarat tangan huruf D"></article>
+        <article class="letter-card" data-letter="E"><span aria-hidden="true">E</span><img src="../assets/img/hand-illustration E.svg" alt="Isyarat tangan huruf E"></article>
+        <article class="letter-card" data-letter="F"><span aria-hidden="true">F</span><img src="../assets/img/hand-illustration F.svg" alt="Isyarat tangan huruf F"></article>
+        <article class="letter-card" data-letter="G"><span aria-hidden="true">G</span><img src="../assets/img/hand-illustration G.svg" alt="Isyarat tangan huruf G"></article>
+        <article class="letter-card" data-letter="H"><span aria-hidden="true">H</span><img src="../assets/img/hand-illustration H.svg" alt="Isyarat tangan huruf H"></article>
+        <article class="letter-card" data-letter="I"><span aria-hidden="true">I</span><img src="../assets/img/hand-illustration I.svg" alt="Isyarat tangan huruf I"></article>
+        <article class="letter-card" data-letter="J"><span aria-hidden="true">J</span><img src="../assets/img/hand-illustration J.svg" alt="Isyarat tangan huruf J"></article>
+        <article class="letter-card" data-letter="K"><span aria-hidden="true">K</span><img src="../assets/img/hand-illustration K.svg" alt="Isyarat tangan huruf K"></article>
+        <article class="letter-card" data-letter="L"><span aria-hidden="true">L</span><img src="../assets/img/hand-illustration L.svg" alt="Isyarat tangan huruf L"></article>
+        <article class="letter-card" data-letter="M"><span aria-hidden="true">M</span><img src="../assets/img/hand-illustration M.svg" alt="Isyarat tangan huruf M"></article>
+        <article class="letter-card" data-letter="N"><span aria-hidden="true">N</span><img src="../assets/img/hand-illustration N.svg" alt="Isyarat tangan huruf N"></article>
+        <article class="letter-card" data-letter="O"><span aria-hidden="true">O</span><img src="../assets/img/hand-illustration O.svg" alt="Isyarat tangan huruf O"></article>
+      </div>
+      <p class="empty-state" id="letterEmptyState" hidden>Tidak ada huruf yang cocok dengan pencarian.</p>
+    </section>
+
+    <section class="dictionary-panel words-panel" id="wordsPanel" role="tabpanel" aria-labelledby="wordsTab" hidden>
+      <h2 class="category-heading">Pilih Kategori Kosakata</h2>
+      <div class="category-list" id="categoryList">
+        <article class="category-card" data-category="sekolah">
+          <span class="category-icon category-icon--school">
+            <img src="../assets/img/backpack.svg" alt="">
+          </span>
+          <span class="category-copy">
+            <span class="category-name">Sekolah</span>
+            <span class="category-count">24 Kata</span>
+          </span>
+          <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5"></path>
+          </svg>
+        </article>
+        <article class="category-card" data-category="keluarga">
+          <span class="category-icon category-icon--family">
+            <img src="../assets/img/heart-handshake.svg" alt="">
+          </span>
+          <span class="category-copy">
+            <span class="category-name">Keluarga</span>
+            <span class="category-count">18 Kata</span>
+          </span>
+          <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5"></path>
+          </svg>
+        </article>
+        <article class="category-card" data-category="transportasi">
+          <span class="category-icon category-icon--transport">
+            <img src="../assets/img/truck.svg" alt="">
+          </span>
+          <span class="category-copy">
+            <span class="category-name">Transportasi</span>
+            <span class="category-count">6 Kata</span>
+          </span>
+          <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5"></path>
+          </svg>
+        </article>
+        <article class="category-card" data-category="warna">
+          <span class="category-icon category-icon--color">
+            <img src="../assets/img/palette.svg" alt="">
+          </span>
+          <span class="category-copy">
+            <span class="category-name">Warna</span>
+            <span class="category-count">7 Kata</span>
+          </span>
+          <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m7 10 5 5 5-5"></path>
+          </svg>
+        </article>
+      </div>
+      <p class="empty-state" id="categoryEmptyState" hidden>Tidak ada kategori yang cocok dengan pencarian.</p>
+    </section>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Navigasi utama">
+    <a class="mobile-nav-item" href="Home.html" aria-label="Beranda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10.5h-6v-6h-5v6h-6z"></path></svg>
+    </a>
+    <a class="mobile-nav-item is-active" href="Kamus.html" aria-label="Kamus" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C9.5 4.8 6.5 4.5 3.5 5.2v13c3-.7 6-.4 8.5 1.3m0-13c2.5-1.7 5.5-2 8.5-1.3v13c-3-.7-6-.4-8.5 1.3m0-13v13"></path></svg>
+    </a>
+    <a class="mobile-nav-item" href="Profile.html" aria-label="Profil">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 20v-1.3a6.5 6.5 0 0 1 13 0V20z"></path></svg>
+    </a>
+  </nav>
+</body>
+</html>
