@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pelajaran | !syaraku</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/Lesson.css">
+  <script src="../js/pages/Lesson.js" defer></script>
+</head>
+<body>
+  <main class="lesson">
+
+    <!-- Progress bar -->
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progres pelajaran">
+      <div class="progress__fill" id="progressFill"></div>
+    </div>
+
+    <!-- Area sesi: hanya satu .step yang tampil, diatur oleh JS -->
+    <section class="stage" id="stage" aria-live="polite">
+
+      <!-- SESI 1: Video materi -->
+      <div class="step" data-step="video" hidden>
+        <div class="card video-card">
+          <video class="video-card__player" id="lessonVideo" controls preload="metadata" playsinline>
+            <source src="../assets/video/Test.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="caption">Video Isyarat “Halo/Hai”</p>
+      </div>
+
+      <!-- SESI 2: Praktik (computer vision) -->
+      <div class="step" data-step="practice" hidden>
+        <div class="card practice-card">
+          <h2 class="practice-card__title">Sekarang saatnya Kamu mencoba!</h2>
+
+          <div class="practice-card__camera">
+            <video id="cameraFeed" autoplay playsinline muted></video>
+            <canvas id="cameraOverlay"></canvas>
+          </div>
+
+          <p class="practice-card__feedback" id="feedback" data-state="idle"></p>
+        </div>
+
+        <button class="skip-btn" id="skipBtn" type="button">Skip praktek</button>
+      </div>
+
+      <div class="step" data-step="quiz" hidden>
+        <div class="card quiz-video">
+          <video class="video-card__player" id="quizVideo" controls preload="metadata" playsinline>
+            <source src="../assets/video/Test.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <div class="quiz-options" id="quizOptions">
+          <button class="quiz-option" type="button">A. Halo</button>
+          <button class="quiz-option" type="button">B. Hai</button>
+          <button class="quiz-option" type="button">C. Apa Kabar?</button>
+        </div>
+      </div>
+
+      
+
+      <!-- Sesi berikutnya ditambahkan di sini dengan pola yang sama:
+           <div class="step" data-step="nama-sesi" hidden> ... </div> -->
+
+    </section>
+
+    <!-- Navigasi -->
+    <nav class="nav" aria-label="Navigasi pelajaran">
+      <button class="nav__btn" id="backBtn" type="button" aria-label="Kembali">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+      </button>
+      <button class="nav__btn" id="nextBtn" type="button" aria-label="Lanjut">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+      </button>
+    </nav>
+
+  </main>
+</body>
+</html>
