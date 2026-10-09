@@ -288,21 +288,26 @@ async function loadUserData() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     if (error || !user) return;
 
-    // Ambil profil pengguna dari tabel profiles
+    // Ambil profil pengguna dari tabel akun
     const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('xp, full_name')
+      .from('akun')
+      .select('nama')
       .eq('id', user.id)
       .single();
 
     if (profile) {
+      const profileNameEl = document.querySelector('.profile-name');
+      if (profileNameEl) {
+        profileNameEl.textContent = profile.nama;
+      }
+
       // Update tampilan XP
       const xpEl = document.querySelector('.xp-value');
       if (xpEl && profile.xp !== undefined) {
         xpEl.textContent = profile.xp.toLocaleString('id-ID');
       }
 
-      console.log('User loaded:', profile.full_name);
+      console.log('User loaded:', profile.nama);
     }
   } catch (err) {
     // Abaikan error saat offline / belum login
