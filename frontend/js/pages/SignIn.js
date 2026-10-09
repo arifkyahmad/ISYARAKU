@@ -22,7 +22,7 @@ googleBtn.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: window.location.origin + "/frontend/pages/Home.html"
+            redirectTo: new URL("../index.html", window.location.href).href
         }
     });
 
