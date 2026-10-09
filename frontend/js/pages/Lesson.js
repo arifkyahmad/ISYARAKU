@@ -19,7 +19,7 @@ const stepHooks = {
   },
   practice: {
     onEnter() { practiceBest = null; startCamera(); },
-    onLeave() { console.log("practiceBest", practiceBest); stopCamera(); },
+    onLeave() { console.log("practiceBest", practiceBest); simpanProgresUser(); stopCamera(); },
   },
   quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
@@ -476,6 +476,59 @@ function stopCamera() {
   cvState.sending = false;
   clearHandCanvas();
   showFeedbackCustom("idle", "");
+}
+
+// Save practice result to Supabase when leaving practice stage
+async function simpanProgresUser() {
+  // Snapshot values before any await so they reflect the question being left
+  const capturedPracticeBest = practiceBest;
+  const capturedCameraOn = cvState.cameraOn;
+  // Get current question data
+  const soal = daftarSoal[soalAktif];
+  if (!soal) return;
+  const soal_level_id = soal.soal_level_id;
+
+  const client = getSupabase();
+  if (!client) {
+    console.warn("Supabase client not available, cannot save progress");
+    return;
+  }
+
+  // Get authenticated user
+  let authRes;
+  try {
+    authRes = await client.auth.getUser();
+  } catch (e) {
+    console.warn("Error fetching auth user", e);
+    return;
+  }
+  const user = authRes?.data?.user;
+  if (!user) {
+    console.warn("User not logged in, skipping progress save");
+    return;
+  }
+  const akun_id = user.id;
+
+  // Determine payload based on practiceBest and camera state
+  let payload = null;
+  if (capturedPracticeBest !== null && capturedCameraOn) {
+    payload = { akun_id, soal_level_id, status_3tingkat: capturedPracticeBest, flag_review: false };
+  } else if (capturedPracticeBest === null && !capturedCameraOn) {
+    // Camera error or denied
+    payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
+  } else {
+    // practiceBest null but camera worked (no hand detected) – do not save
+    return;
+  }
+
+  try {
+    const { error } = await client.from("progres_user").upsert(payload, { onConflict: "akun_id,soal_level_id" });
+    if (error) {
+      console.warn("Failed to upsert progress", error.message);
+    }
+  } catch (e) {
+    console.warn("Exception during progress upsert", e);
+  }
 }
 
 // ===== Feedback praktik =====
