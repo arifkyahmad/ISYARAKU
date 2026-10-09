@@ -8,6 +8,8 @@ const confirmEyeIcon = document.getElementById("confirmEyeIcon");
 const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 const agreeTerms = document.getElementById("agreeTerms");
 const googleBtn = document.getElementById("googleBtn");
+const nameInput = document.getElementById("fullName");
+const emailInput = document.getElementById("email");
 
 toggle.addEventListener("click", () => {
 
@@ -64,7 +66,7 @@ googleBtn.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: window.location.origin + "/frontend/pages/../index.html"
+            redirectTo: new URL("../index.html", window.location.href).href
         }
     });
 
@@ -74,11 +76,18 @@ googleBtn.addEventListener("click", async () => {
 
 registerBtn.addEventListener("click", async () => {
 
-    const name = document.getElementById("fullName").value;
-    const email = document.getElementById("email").value;
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+
+    emailInput.value = email;
 
     if (name === "" || email === "" || password.value === "" || confirmPassword.value === "") {
         alert("Semua field wajib diisi.");
+        return;
+    }
+
+    if (!emailInput.checkValidity()) {
+        alert("Masukkan alamat email yang valid.");
         return;
     }
 
@@ -102,8 +111,10 @@ registerBtn.addEventListener("click", async () => {
 
     if (error) {
         alert(error.message);
+    } else if (data.user) {
+        alert("Registrasi berhasil!");
     } else {
-        alert("Registrasi berhasil! Silakan cek email untuk verifikasi.");
+        alert("Registrasi belum berhasil. Silakan coba lagi.");
     }
 
 });
