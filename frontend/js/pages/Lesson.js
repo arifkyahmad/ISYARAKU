@@ -6,8 +6,10 @@ let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar na
 const steps = ["video", "practice", "quiz"]; 
 const TOTAL_STEPS = steps.length;      
 
-// SEMENTARA, diganti data soal di sesi berikutnya
-const KAMUS_ID_SEMENTARA = "46e24274-4c92-4e45-9b6b-d5fcef207bd0";
+// State Soal & Level
+let levelId = null;
+let daftarSoal = [];
+let soalAktif = 0;
 
 // Hook opsional per sesi: dipanggil saat sesi tampil / ditinggalkan.
 const stepHooks = {
@@ -22,13 +24,16 @@ const stepHooks = {
 };
 
 // ===== Elemen =====
-const progressEl   = document.querySelector(".progress");
-const progressFill = document.getElementById("progressFill");
-const backBtn      = document.getElementById("backBtn");
-const nextBtn      = document.getElementById("nextBtn");
-const skipBtn      = document.getElementById("skipBtn");
-const video        = document.getElementById("lessonVideo");
-const feedback     = document.getElementById("feedback");
+const progressEl      = document.querySelector(".progress");
+const progressFill    = document.getElementById("progressFill");
+const backBtn         = document.getElementById("backBtn");
+const nextBtn         = document.getElementById("nextBtn");
+const skipBtn         = document.getElementById("skipBtn");
+const video           = document.getElementById("lessonVideo");
+const feedback        = document.getElementById("feedback");
+const videoCaptionEl  = document.getElementById("videoCaption");
+const practiceTitleEl = document.getElementById("practiceTitle");
+const stageEl         = document.getElementById("stage");
 
 let current = 0;
 
@@ -58,8 +63,93 @@ function showStep(index) {
 const prevStep = () => showStep(current - 1);
 
 function nextStep() {
-  if (current === steps.length - 1) return finishLesson();
+  if (current === steps.length - 1) {
+    selesaiQuiz();
+    return;
+  }
   showStep(current + 1);
+}
+
+// Menangani selesainya sesi quiz: pindah ke soal berikutnya atau selesai level
+function selesaiQuiz() {
+  if (soalAktif < daftarSoal.length - 1) {
+    soalAktif++;
+    current = 0;
+    stopCamera();
+    renderSoalAktif();
+    showStep(0);
+  } else {
+    // Soal terakhir selesai: tampilkan pesan level selesai tanpa navigasi baru dulu
+    tampilkanLevelSelesai();
+  }
+}
+
+// Tampilkan pesan level selesai saat semua soal selesai
+function tampilkanLevelSelesai() {
+  stopCamera();
+  if (stageEl) {
+    stageEl.innerHTML = `
+      <div class="card" style="padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+        <h2 style="font-size: 1.5rem; color: var(--ink);">Selamat! Level Selesai</h2>
+        <p style="color: var(--ink); max-width: 28rem; line-height: 1.5;">Kamu telah menyelesaikan semua soal pada level ini.</p>
+        <button type="button" class="skip-btn" style="max-width: 14rem; margin-top: 1rem; background: var(--purple-700); color: var(--white);" onclick="window.location.href='${HOME_URL}'">Kembali ke Beranda</button>
+      </div>
+    `;
+  }
+  if (progressFill) progressFill.style.width = "100%";
+  if (progressEl) progressEl.setAttribute("aria-valuenow", 100);
+  if (backBtn) backBtn.disabled = true;
+  if (nextBtn) nextBtn.disabled = true;
+}
+
+// Tampilkan pesan jika level tidak ditemukan atau terjadi kendala
+function tampilkanPesanError(pesan) {
+  stopCamera();
+  if (stageEl) {
+    stageEl.innerHTML = `
+      <div class="card" style="padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+        <h2 style="font-size: 1.3rem; color: var(--ink);">${pesan}</h2>
+        <button type="button" class="skip-btn" style="max-width: 14rem; margin-top: 1rem; background: var(--purple-700); color: var(--white);" onclick="window.location.href='${HOME_URL}'">Kembali ke Beranda</button>
+      </div>
+    `;
+  }
+  if (backBtn) backBtn.disabled = true;
+  if (nextBtn) nextBtn.disabled = true;
+}
+
+// Render data soal aktif ke tampilan materi video, praktik, dll.
+function renderSoalAktif() {
+  const soal = daftarSoal[soalAktif];
+  if (!soal) return;
+
+  const kataLabel = soal.kata || "Materi";
+
+  // Label caption video materi
+  if (videoCaptionEl) {
+    videoCaptionEl.textContent = `Video Isyarat “${kataLabel}”`;
+  }
+
+  // Label judul pada sesi praktik
+  if (practiceTitleEl) {
+    practiceTitleEl.textContent = `Sekarang saatnya Kamu mencoba “${kataLabel}”!`;
+  }
+
+  // Update video jika url_path tersedia, jika kosong jangan putar video
+  if (video) {
+    pauseVideo();
+    if (soal.url_path) {
+      video.src = soal.url_path;
+      video.load();
+    } else {
+      video.removeAttribute("src");
+      video.load();
+    }
+  }
+
+  // Reset kamera, feedback praktik, dan muat template untuk soal aktif
+  stopCamera();
+  showFeedbackCustom("idle", "");
+  muatTemplateSoalAktif();
 }
 
 backBtn.addEventListener("click", prevStep);
@@ -98,7 +188,7 @@ const cvState = {
   aspect: 4 / 3,
   cur: null,
   stream: null,
-  templateA: null,
+  templateAktif: null,
   templateLoading: false,
   animationId: null,
   sending: false
@@ -143,9 +233,14 @@ function getSupabase() {
   return null;
 }
 
-// Muat template A sekali saja dari tabel template_pose
-async function loadTemplateSekali() {
-  if (cvState.templateA || cvState.templateLoading) return;
+// Muat template pose per soal dari tabel template_pose berdasarkan kamus_id soal aktif
+async function muatTemplateSoalAktif() {
+  const soal = daftarSoal[soalAktif];
+  if (!soal || !soal.kamus_id) {
+    cvState.templateAktif = null;
+    return;
+  }
+  cvState.templateAktif = null;
   cvState.templateLoading = true;
   try {
     const client = getSupabase();
@@ -156,7 +251,7 @@ async function loadTemplateSekali() {
     const { data, error } = await client
       .from("template_pose")
       .select("landmark_data")
-      .eq("kamus_id", KAMUS_ID_SEMENTARA)
+      .eq("kamus_id", soal.kamus_id)
       .maybeSingle();
 
     if (error) {
@@ -169,7 +264,7 @@ async function loadTemplateSekali() {
         try { lm = JSON.parse(lm); } catch (_) {}
       }
       if (lm && Array.isArray(lm.titik)) {
-        cvState.templateA = lm.titik;
+        cvState.templateAktif = lm.titik;
       }
     }
   } catch (_) {
@@ -193,14 +288,14 @@ function evaluateFrame() {
   // Gambar skeleton tangan
   drawHand(cvState.cur.lm);
 
-  if (!cvState.templateA) {
-    showFeedbackCustom("idle", "Memuat template...");
+  if (!cvState.templateAktif) {
+    showFeedbackCustom("idle", cvState.templateLoading ? "Memuat template..." : "Template belum tersedia");
     return;
   }
 
   // Ambang hanya dari CV_CONFIG (melalui cv-core.js nilaiTingkat)
   const ambang = (typeof CV_CONFIG !== "undefined" && CV_CONFIG.ambang) ? CV_CONFIG.ambang : null;
-  const d = distanceToTemplate(cvState.cur.lm, cvState.templateA, cvState.aspect);
+  const d = distanceToTemplate(cvState.cur.lm, cvState.templateAktif, cvState.aspect);
   const tingkat = nilaiTingkat(d, ambang); // 'tepat' | 'hampir' | 'belum'
 
   if (tingkat === "tepat") {
@@ -244,8 +339,10 @@ async function startCamera() {
   if (cvState.cameraOn) return;
   showFeedbackCustom("idle", "Menyiapkan kamera...");
 
-  // Muat template A di latar belakang sekali
-  loadTemplateSekali();
+  // Pastikan template untuk soal aktif dimuat
+  if (!cvState.templateAktif && !cvState.templateLoading) {
+    muatTemplateSoalAktif();
+  }
 
   try {
     if (typeof Hands === "undefined") {
@@ -349,10 +446,73 @@ quizOptions.forEach((btn) => {
   });
 });
 
-// ===== Mulai =====
-showStep(0);
+// ===== Inisialisasi Level & Soal =====
+async function muatLevelDanSoal() {
+  const urlParams = new URLSearchParams(window.location.search);
+  levelId = urlParams.get("level");
 
-//pindah ke home setelah selesai belajar
+  // Syarat 2: Baca parameter level dari URL. Kalau kosong: tampilkan "Level tidak ditemukan", jangan error di Console
+  if (!levelId || !levelId.trim()) {
+    tampilkanPesanError("Level tidak ditemukan");
+    return;
+  }
+
+  const client = getSupabase();
+  if (!client) {
+    tampilkanPesanError("Koneksi ke database gagal");
+    return;
+  }
+
+  try {
+    // Syarat 3: Query soal_level join kamus left join video order by urutan
+    const { data, error } = await client
+      .from("soal_level")
+      .select("id, urutan, kamus_id, kamus(id, kata, jenis, video(url_path))")
+      .eq("level_id", levelId)
+      .order("urutan", { ascending: true });
+
+    if (error) {
+      tampilkanPesanError("Gagal memuat data soal");
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      tampilkanPesanError("Tidak ada soal pada level ini");
+      return;
+    }
+
+    // Mapping tiap soal membawa soal_level_id, kamus_id, kata, url_path
+    daftarSoal = data.map((item) => {
+      const k = item.kamus || {};
+      let urlPath = null;
+      if (k.video) {
+        if (Array.isArray(k.video) && k.video[0]) {
+          urlPath = k.video[0].url_path;
+        } else if (typeof k.video === "object") {
+          urlPath = k.video.url_path;
+        }
+      }
+      return {
+        soal_level_id: item.id,
+        kamus_id: item.kamus_id || k.id,
+        kata: k.kata || "",
+        jenis: k.jenis || "",
+        url_path: urlPath || null,
+      };
+    });
+
+    soalAktif = 0;
+    renderSoalAktif();
+    showStep(0);
+  } catch (_) {
+    tampilkanPesanError("Terjadi kendala saat memuat soal");
+  }
+}
+
+// ===== Mulai =====
+muatLevelDanSoal();
+
+// Pindah ke home setelah selesai belajar
 function finishLesson() {
   const params = new URLSearchParams({
     complete: "1",
