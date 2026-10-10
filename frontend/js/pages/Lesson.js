@@ -1,8 +1,9 @@
 // ===== Konfigurasi =====
 let practiceBest = null; // stores best practice result for current question
+let pendingSimpan = Promise.resolve();
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
 const LESSON_NAME = "Kata Sapaan";   // tampil di popup: "Kamu Lulus Belajar ..."
-let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar nanti
+let earnedStars   = 0;               // 0-3, bisa dihitung dari jawaban benar nanti
 
 const steps = ["video", "practice", "quiz"]; 
 const TOTAL_STEPS = steps.length;      
@@ -19,7 +20,7 @@ const stepHooks = {
   },
   practice: {
     onEnter() { practiceBest = null; startCamera(); },
-    onLeave() { console.log("practiceBest", practiceBest); simpanProgresUser(); stopCamera(); },
+    onLeave() { console.log("practiceBest", practiceBest); pendingSimpan = simpanProgresUser(); stopCamera(); },
   },
   quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
@@ -640,7 +641,44 @@ async function muatLevelDanSoal() {
 muatLevelDanSoal();
 
 // Pindah ke home setelah selesai belajar
-function finishLesson() {
+async function finishLesson() {
+  await pendingSimpan;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const levelId = urlParams.get("level");
+
+  const supabaseClient = getSupabase();
+  if (!supabaseClient) {
+    earnedStars = 0;
+    console.warn("Supabase client tidak tersedia");
+  } else {
+    try {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+      if (authError || !authData?.user) {
+        earnedStars = 0;
+        console.warn("Pengguna belum login");
+      } else {
+        const { data, error } = await supabaseClient
+          .from('v_status_level')
+          .select('bintang')
+          .eq('level_id', levelId)
+          .single();
+
+        if (error) {
+          earnedStars = 0;
+          console.warn("Gagal memuat bintang:", error);
+        } else if (data && data.bintang !== undefined && data.bintang !== null) {
+          earnedStars = data.bintang;
+        } else {
+          earnedStars = 0;
+        }
+      }
+    } catch (err) {
+      earnedStars = 0;
+      console.warn("Error saat mengambil bintang:", err);
+    }
+  }
+
   const params = new URLSearchParams({
     complete: "1",
     lesson: LESSON_NAME,
