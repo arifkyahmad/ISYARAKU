@@ -1,11 +1,12 @@
 // ===== Konfigurasi =====
 let practiceBest = null; // stores best practice result for current question
+let pendingSimpan = Promise.resolve();
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
-const LESSON_NAME = "Kata Sapaan";   // tampil di popup: "Kamu Lulus Belajar ..."
-let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar nanti
+let earnedStars   = 0;               // 0-3, bisa dihitung dari jawaban benar nanti
+let isFinishing   = false;
 
-const steps = ["video", "practice", "quiz"]; 
-const TOTAL_STEPS = steps.length;      
+const steps = ["video", "practice", "quiz"];
+const TOTAL_STEPS = steps.length;
 
 // State Soal & Level
 let levelId = null;
@@ -19,7 +20,7 @@ const stepHooks = {
   },
   practice: {
     onEnter() { practiceBest = null; startCamera(); },
-    onLeave() { console.log("practiceBest", practiceBest); simpanProgresUser(); stopCamera(); },
+    onLeave() { console.log("practiceBest", practiceBest); pendingSimpan = simpanProgresUser(); stopCamera(); },
   },
   quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
@@ -143,9 +144,13 @@ function tampilkanLevelSelesai() {
       <div class="card" style="padding: 2.5rem 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
         <h2 style="font-size: 1.5rem; color: var(--ink);">Selamat! Level Selesai</h2>
         <p style="color: var(--ink); max-width: 28rem; line-height: 1.5;">Kamu telah menyelesaikan semua soal pada level ini.</p>
-        <button type="button" class="skip-btn" style="max-width: 14rem; margin-top: 1rem; background: var(--purple-700); color: var(--white);" onclick="window.location.href='${HOME_URL}'">Kembali ke Beranda</button>
+        <button type="button" id="finishLessonBtn" class="skip-btn" style="max-width: 14rem; margin-top: 1rem; background: var(--purple-700); color: var(--white);" onclick="finishLesson()">Kembali ke Beranda</button>
       </div>
     `;
+    const finishBtn = document.getElementById("finishLessonBtn");
+    if (finishBtn) {
+      finishBtn.addEventListener("click", finishLesson);
+    }
   }
   if (backBtn) backBtn.disabled = true;
   if (nextBtn) nextBtn.disabled = true;
@@ -640,12 +645,62 @@ async function muatLevelDanSoal() {
 muatLevelDanSoal();
 
 // Pindah ke home setelah selesai belajar
-function finishLesson() {
+async function finishLesson() {
+  if (isFinishing) return;
+  isFinishing = true;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetLevelId = urlParams.get("level") || levelId;
+  const supabaseClient = getSupabase();
+
+  await pendingSimpan;
+
+  let lessonName = "";
+
+  if (!supabaseClient) {
+    earnedStars = 0;
+    console.warn("Supabase client tidak tersedia");
+  } else {
+    try {
+      const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+      if (authError || !authData?.user) {
+        earnedStars = 0;
+        console.warn("Pengguna belum login");
+      } else {
+        const { data, error } = await supabaseClient
+          .from('v_status_level')
+          .select('bintang, nama_level')
+          .eq('level_id', targetLevelId)
+          .single();
+
+        if (error) {
+          earnedStars = 0;
+          console.warn("Gagal memuat bintang:", error);
+        } else if (data) {
+          if (data.bintang !== undefined && data.bintang !== null) {
+            earnedStars = data.bintang;
+          } else {
+            earnedStars = 0;
+          }
+          if (data.nama_level) {
+            lessonName = data.nama_level;
+          }
+        } else {
+          earnedStars = 0;
+        }
+      }
+    } catch (err) {
+      earnedStars = 0;
+      console.warn("Error saat mengambil bintang:", err);
+    }
+  }
+
   const params = new URLSearchParams({
     complete: "1",
-    lesson: LESSON_NAME,
+    lesson: lessonName,
     stars: earnedStars,
   });
   window.location.href = `${HOME_URL}?${params}`;
 }
+window.finishLesson = finishLesson;
 
