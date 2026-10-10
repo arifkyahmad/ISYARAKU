@@ -303,13 +303,22 @@ async function loadUserData() {
         profileNameEl.textContent = profile.nama;
       }
 
-      // Update tampilan XP
-      const xpEl = document.querySelector('.xp-value');
-      if (xpEl && profile.xp !== undefined) {
-        xpEl.textContent = profile.xp.toLocaleString('id-ID');
-      }
-
       console.log('User loaded:', profile.nama);
+    }
+
+    // Ambil total bintang dari view v_status_level
+    const { data: statusLevels, error: levelError } = await supabaseClient
+      .from('v_status_level')
+      .select('bintang');
+
+    if (levelError) {
+      console.warn(levelError);
+    } else if (statusLevels) {
+      const totalBintang = statusLevels.reduce((sum, item) => sum + (item.bintang || 0), 0);
+      const xpEl = document.querySelector('.xp-value');
+      if (xpEl) {
+        xpEl.textContent = totalBintang;
+      }
     }
   } catch (err) {
     // Abaikan error saat offline / belum login
