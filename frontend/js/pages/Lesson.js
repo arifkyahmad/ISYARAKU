@@ -12,10 +12,9 @@ const stepHooks = {
     onLeave() { pauseVideo(); },
   },
   practice: {
-    // onEnter() { startCamera(); },
-    // onLeave() { stopCamera(); },
+    onEnter() { startCamera(); },
+    onLeave() { stopCamera(); },
   },
-  quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
 };
 
 // ===== Elemen =====
@@ -26,8 +25,12 @@ const nextBtn      = document.getElementById("nextBtn");
 const skipBtn      = document.getElementById("skipBtn");
 const video        = document.getElementById("lessonVideo");
 const feedback     = document.getElementById("feedback");
+const cameraFeed   = document.getElementById("cameraFeed");
+const cameraStatus = document.getElementById("cameraStatus");
 
 let current = 0;
+let cameraStream = null;
+let cameraRequest = 0;
 
 // ===== Navigasi sesi =====
 function showStep(index) {
@@ -74,6 +77,43 @@ function pauseVideo() {
   if (video && !video.paused) video.pause();
 }
 
+function stopCamera() {
+  cameraRequest += 1;
+  cameraStream?.getTracks().forEach((track) => track.stop());
+  cameraStream = null;
+  cameraFeed.srcObject = null;
+}
+
+async function startCamera() {
+  cameraStatus.hidden = false;
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    cameraStatus.textContent = "Browser ini tidak mendukung akses kamera. Kamu tetap bisa melanjutkan.";
+    return;
+  }
+
+  const requestId = ++cameraRequest;
+  cameraStatus.textContent = "Meminta izin akses kamera...";
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    if (requestId !== cameraRequest) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+
+    cameraStream = stream;
+    cameraFeed.srcObject = stream;
+    cameraStatus.hidden = true;
+  } catch (error) {
+    if (requestId !== cameraRequest) return;
+    cameraStatus.hidden = false;
+    cameraStatus.textContent = error.name === "NotAllowedError"
+      ? "Akses kamera ditolak. Izinkan akses kamera atau lanjutkan tanpa praktik."
+      : `Kamera tidak dapat dibuka: ${error.message}`;
+  }
+}
+
 // ===== Feedback praktik =====
 // state: "correct" | "wrong" | "idle"
 function showFeedback(state) {
@@ -91,6 +131,7 @@ quizOptions.forEach((btn) => {
 
 // ===== Mulai =====
 showStep(0);
+window.addEventListener("pagehide", stopCamera);
 
 //pindah ke home setelah selesai belajar
 function finishLesson() {
@@ -101,4 +142,3 @@ function finishLesson() {
   });
   window.location.href = `${HOME_URL}?${params}`;
 }
-

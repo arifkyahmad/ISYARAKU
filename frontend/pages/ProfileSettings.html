@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f1e8ff">
+  <title>IsyaraKu - Pengaturan Akun</title>
+  <link rel="stylesheet" href="../css/ProfileSettings.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://ogozgbkfgdlzlfxbmrff.supabase.co",
+      "sb_publishable_p4KbttxSFHwJ0MWJf-ZYzw_us_3Hgd9"
+    );
+  </script>
+  <script src="../js/pages/ProfileSettings.js" defer></script>
+</head>
+<body>
+  <header class="settings-header">
+    <a class="settings-back" href="Profile.html" aria-label="Kembali ke profil">
+      <span class="settings-back__menu" aria-hidden="true"><i></i><i></i><i></i></span>
+      <img class="settings-back__arrow" src="../assets/img/Arrow Left.svg" alt="">
+    </a>
+    <h1>Pengaturan Akun Saya</h1>
+  </header>
+
+  <main class="settings-content">
+    <form class="settings-form" id="accountSettingsForm">
+      <label class="settings-field">
+        <span>Nama Lengkap</span>
+        <input id="fullName" name="fullName" type="text" autocomplete="name" required>
+      </label>
+      <label class="settings-field">
+        <span>Email</span>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </label>
+      <label class="settings-field settings-field--password">
+        <span>Password</span>
+        <input id="password" name="password" type="password" autocomplete="new-password" placeholder="••••••••">
+        <button class="password-toggle" type="button" data-password-target="password" aria-label="Tampilkan password">
+          <img src="../assets/img/hide.png" alt="">
+        </button>
+      </label>
+      <label class="settings-field settings-field--password">
+        <span>Konfirmasi Password</span>
+        <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" placeholder="••••••••">
+        <button class="password-toggle" type="button" data-password-target="confirmPassword" aria-label="Tampilkan konfirmasi password">
+          <img src="../assets/img/hide.png" alt="">
+        </button>
+      </label>
+      <p class="settings-message" id="settingsMessage" role="status" aria-live="polite"></p>
+      <div class="settings-actions">
+        <a class="settings-cancel" href="Profile.html">Batal</a>
+        <button class="settings-save" id="saveChanges" type="submit">Simpan Perubahan</button>
+      </div>
+    </form>
+  </main>
+
+  <nav class="mobile-bottom-nav" aria-label="Navigasi utama">
+    <a class="mobile-nav-item" href="Home.html" aria-label="Beranda">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7v10.5h-6v-6h-5v6h-6z"></path></svg>
+    </a>
+    <a class="mobile-nav-item" href="Kamus.html" aria-label="Kamus">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C9.5 4.8 6.5 4.5 3.5 5.2v13c3-.7 6-.4 8.5 1.3m0-13c2.5-1.7 5.5-2 8.5-1.3v13c-3-.7-6-.4-8.5 1.3m0-13v13"></path></svg>
+    </a>
+    <a class="mobile-nav-item is-active" href="Profile.html" aria-label="Profil" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 20v-1.3a6.5 6.5 0 0 1 13 0V20z"></path></svg>
+    </a>
+  </nav>
+</body>
+</html>

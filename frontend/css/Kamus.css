@@ -313,11 +313,26 @@ input {
 }
 
 .dictionary-words-active .dictionary-toolbar {
-  grid-template-columns: 96px minmax(300px, 1fr) 190px;
+  grid-template-columns: 54px minmax(0, 2.5fr) minmax(0, 1fr);
+  gap: 6px;
+}
+
+.dictionary-words-active .menu-toggle {
+  position: static;
+  grid-column: 1;
+  justify-self: start;
+}
+
+.dictionary-words-active .dictionary-tabs {
+  grid-column: 2;
+}
+
+.dictionary-words-active .dictionary-search {
+  grid-column: 3;
 }
 
 .words-panel {
-  width: min(100%, 675px);
+  width: min(calc(100% - 120px), 800px);
   margin-left: auto;
 }
 
@@ -385,14 +400,113 @@ input {
 
 .category-card {
   display: flex;
+  width: 100%;
   min-height: 44px;
   align-items: center;
   gap: 8px;
   padding: 4px 10px;
+  color: inherit;
   background: #fff;
   border: 1px solid #e3e7ed;
   border-radius: 11px;
   box-shadow: 0 2px 4px rgba(44, 65, 80, 0.06);
+  font: inherit;
+  text-align: left;
+}
+
+.category-card--trigger {
+  cursor: pointer;
+}
+
+.category-card--trigger:focus-visible {
+  outline: 2px solid #239d99;
+  outline-offset: 2px;
+}
+
+.category-card--trigger[aria-expanded="true"] .category-chevron {
+  transform: rotate(180deg);
+}
+
+.category-group[hidden],
+.category-card[hidden] {
+  display: none;
+}
+
+.category-group {
+  display: grid;
+  gap: 8px;
+}
+
+.category-words {
+  display: grid;
+  gap: 8px;
+}
+
+.category-words[hidden] {
+  display: none;
+}
+
+.category-word {
+  display: flex;
+  min-height: 78px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #e3e7ed;
+  border-radius: 15px;
+  box-shadow: 0 2px 4px rgba(44, 65, 80, 0.06);
+}
+
+.category-word__thumbnail {
+  display: block;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.category-word__copy {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 2px;
+}
+
+.category-word__copy strong {
+  overflow: hidden;
+  color: #343646;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-word__copy > span {
+  overflow: hidden;
+  color: #737684;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-word__play {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+}
+
+.category-word__play img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.category-card--trigger .category-chevron {
+  transition: transform 0.2s ease;
 }
 
 .category-icon {
@@ -456,10 +570,6 @@ input {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.5;
-}
-
-.category-card[hidden] {
-  display: none;
 }
 
 .visually-hidden {
@@ -526,8 +636,8 @@ input {
   }
 
   .words-panel {
-    width: auto;
-    margin-left: 0;
+    width: calc(100% - 60px);
+    margin-left: 60px;
   }
 
   .menu-toggle,
@@ -586,7 +696,7 @@ input {
   }
 
   .words-panel {
-    padding: 4px 4px 0;
+    padding: 4px 0 0;
   }
 
   .category-heading {
@@ -604,6 +714,41 @@ input {
     padding: 6px 12px;
     border-radius: 12px;
     box-shadow: 0 2px 5px rgba(44, 65, 80, 0.08);
+  }
+
+  .category-group {
+    gap: 8px;
+  }
+
+  .category-words {
+    gap: 8px;
+  }
+
+  .category-word {
+    min-height: 84px;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 15px;
+  }
+
+  .category-word__thumbnail {
+    width: 56px;
+    height: 56px;
+    flex-basis: 56px;
+  }
+
+  .category-word__copy strong {
+    font-size: 14px;
+  }
+
+  .category-word__copy > span {
+    font-size: 11px;
+  }
+
+  .category-word__play {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
   }
 
   .category-icon {

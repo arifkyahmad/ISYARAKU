@@ -2,7 +2,7 @@
 
 :root {
   font-family: 'Poppins', sans-serif;
-  color: #382d43;
+  color: #111;
   background: #fff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -165,17 +165,26 @@ button {
   object-fit: contain;
 }
 
-.profile-avatar__edit {
-  position: absolute;
-  top: 0;
-  right: -1px;
+.profile-name__edit {
   display: block;
-  width: 15px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
   object-fit: contain;
 }
 
+.profile-name__edit-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
 .profile-summary h1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   margin: 0;
   font-size: 13px;
   font-weight: 700;
@@ -243,9 +252,9 @@ button {
   justify-content: space-between;
   gap: 12px;
   padding: 7px 16px 6px 20px;
-  color: #fff;
-  background: #6549ae;
-  border: 0;
+  color: #111;
+  background: transparent;
+  border: 1px solid #8a69d4;
   border-radius: 7px;
   cursor: pointer;
   text-align: left;
@@ -283,7 +292,8 @@ button {
 
 .profile-option--danger {
   color: #c91919;
-  background: #f1e8ff;
+  background: transparent;
+  border-color: transparent;
 }
 
 .mobile-bottom-nav {
@@ -352,9 +362,14 @@ button {
   }
 
   .profile-option {
-    min-height: 41px;
+    min-height: 46px;
     padding: 6px 15px 6px 20px;
     border-radius: 8px;
+  }
+
+  .profile-option--danger {
+    min-height: 48px;
+    border-color: transparent;
   }
 
   .profile-option strong {
