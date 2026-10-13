@@ -5,8 +5,10 @@ const lettersTab = document.getElementById('lettersTab');
 const wordsTab = document.getElementById('wordsTab');
 const lettersPanel = document.getElementById('lettersPanel');
 const wordsPanel = document.getElementById('wordsPanel');
-const categoryCards = [...document.querySelectorAll('.category-card')];
+const categoryCards = [...document.querySelectorAll('.category-group, .category-card')];
 const categoryEmptyState = document.getElementById('categoryEmptyState');
+const schoolCategory = document.getElementById('schoolCategory');
+const schoolWords = document.getElementById('schoolWords');
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -67,6 +69,12 @@ function selectTab(selectedTab) {
 dictionarySearch.addEventListener('input', filterLetters);
 lettersTab.addEventListener('click', () => selectTab(lettersTab));
 wordsTab.addEventListener('click', () => selectTab(wordsTab));
+
+schoolCategory.addEventListener('click', () => {
+  const isExpanded = schoolCategory.getAttribute('aria-expanded') === 'true';
+  schoolCategory.setAttribute('aria-expanded', String(!isExpanded));
+  schoolWords.hidden = isExpanded;
+});
 
 [lettersTab, wordsTab].forEach((tab) => {
   tab.addEventListener('keydown', (event) => {

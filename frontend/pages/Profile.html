@@ -45,31 +45,25 @@
     <div class="profile-summary__content">
       <div class="profile-avatar" aria-hidden="true">
         <img class="profile-avatar__image" src="../assets/img/Profil_Profile.svg" alt="">
-        <img class="profile-avatar__edit" src="../assets/img/Ear icon.svg" alt="">
       </div>
-      <h1 id="profileName">Leonio Putra</h1>
+      <h1 class="profile-summary__name">
+        <span id="profileName">Leonio Putra</span>
+        <a class="profile-name__edit-link" href="ProfileSettings.html" aria-label="Edit profil">
+          <img class="profile-name__edit" src="../assets/img/pen-square.png" alt="">
+        </a>
+      </h1>
       <p id="profileEmail">nio@gmail.com</p>
     </div>
   </header>
 
   <main class="profile-content">
     <section class="profile-options" aria-label="Informasi dan tindakan akun">
-      <button class="profile-option" type="button">
+      <button class="profile-option profile-option--field" type="button">
         <span class="profile-option__copy"><strong>Nama Lengkap</strong><span id="profileNameDetail">Leonio Putra</span></span>
-        <span class="profile-option__chevron" aria-hidden="true"></span>
       </button>
-      <button class="profile-option" type="button">
+      <button class="profile-option profile-option--field" type="button">
         <span class="profile-option__copy"><strong>Email</strong><span id="profileEmailDetail">nio@gmail.com</span></span>
-        <span class="profile-option__chevron" aria-hidden="true"></span>
       </button>
-      <button class="profile-option" type="button">
-        <span class="profile-option__copy"><strong>Password</strong><span aria-label="Tersembunyi">••••••••</span></span>
-        <span class="profile-option__chevron" aria-hidden="true"></span>
-      </button>
-      <a class="profile-option" href="Profile.html#settings">
-        <span class="profile-option__copy"><strong>Pengaturan</strong><span>Atur akun kamu disini</span></span>
-        <span class="profile-option__chevron" aria-hidden="true"></span>
-      </a>
       <button class="profile-option profile-option--danger" id="deleteAccount" type="button">
         <span class="profile-option__copy"><strong>Hapus Akun</strong><span>Akun kamu akan terhapus secara permanen</span></span>
         <span class="profile-option__chevron" aria-hidden="true"></span>

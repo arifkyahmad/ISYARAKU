@@ -118,17 +118,71 @@
     <section class="dictionary-panel words-panel" id="wordsPanel" role="tabpanel" aria-labelledby="wordsTab" hidden>
       <h2 class="category-heading">Pilih Kategori Kosakata</h2>
       <div class="category-list" id="categoryList">
-        <article class="category-card" data-category="sekolah">
-          <span class="category-icon category-icon--school">
-            <img src="../assets/img/backpack.svg" alt="">
-          </span>
-          <span class="category-copy">
-            <span class="category-name">Sekolah</span>
-            <span class="category-count">24 Kata</span>
-          </span>
-          <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m7 10 5 5 5-5"></path>
-          </svg>
+        <article class="category-group" data-category="sekolah">
+          <button class="category-card category-card--trigger" id="schoolCategory" type="button" aria-expanded="false" aria-controls="schoolWords">
+            <span class="category-icon category-icon--school">
+              <img src="../assets/img/backpack.svg" alt="">
+            </span>
+            <span class="category-copy">
+              <span class="category-name">Sekolah</span>
+              <span class="category-count">24 Kata</span>
+            </span>
+            <svg class="category-chevron" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7 10 5 5 5-5"></path>
+            </svg>
+          </button>
+          <div class="category-words" id="schoolWords" hidden>
+            <article class="category-word">
+              <img class="category-word__thumbnail" src="../assets/img/thumbnail-guru.jpg" alt="Isyarat untuk guru">
+              <span class="category-word__copy">
+                <strong>Guru</strong>
+                <span>Tangan mengetuk kening dahi, lalu isyarat mengajar</span>
+              </span>
+              <a class="category-word__play" href="DetailKamus.html?word=Guru&amp;category=Sekolah" aria-label="Pelajari isyarat Guru">
+                <img src="../assets/img/play-action.svg" alt="">
+              </a>
+            </article>
+            <article class="category-word">
+              <img class="category-word__thumbnail" src="../assets/img/thumbnail-kelas.jpg" alt="Isyarat untuk kelas">
+              <span class="category-word__copy">
+                <strong>Kelas</strong>
+                <span>Isyarat membentuk kubus ruangan, papan tulis</span>
+              </span>
+              <a class="category-word__play" href="DetailKamus.html?word=Kelas&amp;category=Sekolah" aria-label="Pelajari isyarat Kelas">
+                <img src="../assets/img/play-action.svg" alt="">
+              </a>
+            </article>
+            <article class="category-word">
+              <img class="category-word__thumbnail" src="../assets/img/thumbnail-buku.jpg" alt="Isyarat untuk buku">
+              <span class="category-word__copy">
+                <strong>Buku</strong>
+                <span>Menangkupkan kedua tangan lalu membukanya lebar</span>
+              </span>
+              <a class="category-word__play" href="DetailKamus.html?word=Buku&amp;category=Sekolah" aria-label="Pelajari isyarat Buku">
+                <img src="../assets/img/play-action.svg" alt="">
+              </a>
+            </article>
+            <article class="category-word">
+              <img class="category-word__thumbnail" src="../assets/img/thumbnail-pensil.jpg" alt="Isyarat untuk pensil">
+              <span class="category-word__copy">
+                <strong>Pensil</strong>
+                <span>Menggenggam jari telunjuk seolah seolah menulis di udara</span>
+              </span>
+              <a class="category-word__play" href="DetailKamus.html?word=Pensil&amp;category=Sekolah" aria-label="Pelajari isyarat Pensil">
+                <img src="../assets/img/play-action.svg" alt="">
+              </a>
+            </article>
+            <article class="category-word">
+              <img class="category-word__thumbnail" src="../assets/img/thumbnail-murid.jpg" alt="Isyarat untuk murid">
+              <span class="category-word__copy">
+                <strong>Murid</strong>
+                <span>Isyarat hormat lalu memegang tali ransel sekolah</span>
+              </span>
+              <a class="category-word__play" href="DetailKamus.html?word=Murid&amp;category=Sekolah" aria-label="Pelajari isyarat Murid">
+                <img src="../assets/img/play-action.svg" alt="">
+              </a>
+            </article>
+          </div>
         </article>
         <article class="category-card" data-category="keluarga">
           <span class="category-icon category-icon--family">
