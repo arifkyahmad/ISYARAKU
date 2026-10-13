@@ -531,18 +531,22 @@ async function simpanProgresUser() {
 
   // Determine payload based on practiceBest and camera state
   let payload = null;
+  let hanyaJikaBelumAda = false;
   if (capturedPracticeBest !== null && capturedCameraOn) {
     payload = { akun_id, soal_level_id, status_3tingkat: capturedPracticeBest, flag_review: false };
   } else if (capturedPracticeBest === null && !capturedCameraOn) {
     // Camera error or denied
     payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
   } else {
-    // practiceBest null but camera worked (no hand detected) – do not save
-    return;
+    // practiceBest null but camera worked (no hand detected) – save as belum only if not exists
+    payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
+    hanyaJikaBelumAda = true;
   }
 
   try {
-    const { error } = await client.from("progres_user").upsert(payload, { onConflict: "akun_id,soal_level_id" });
+    const upsertOptions = { onConflict: "akun_id,soal_level_id" };
+    if (hanyaJikaBelumAda) upsertOptions.ignoreDuplicates = true;
+    const { error } = await client.from("progres_user").upsert(payload, upsertOptions);
     if (error) {
       console.warn("Failed to upsert progress", error.message);
     }
