@@ -22,7 +22,7 @@ const stepHooks = {
     onEnter() { practiceBest = null; startCamera(); },
     onLeave() { console.log("practiceBest", practiceBest); pendingSimpan = simpanProgresUser(); stopCamera(); },
   },
-  quiz: { onLeave() { document.getElementById("quizVideo").pause(); } },
+  quiz: { onLeave() { const qv = document.getElementById("quizVideo"); if (qv) qv.pause(); } },
 };
 
 // ===== Elemen =====
