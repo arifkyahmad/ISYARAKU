@@ -39,10 +39,10 @@ create table kategori (
 create table kamus (
   id uuid primary key default gen_random_uuid(),
   kategori_id uuid references kategori(id) on delete set null,
-  jenis varchar(20) not null check (jenis in ('alfabet','kata','percakapan','gabungan')),
+  jenis varchar(20) not null check (jenis in ('alfabet','angka','kata','percakapan','gabungan')),
   kata varchar(255) not null,
   constraint kategori_wajib_kecuali_alfabet
-    check (jenis = 'alfabet' or kategori_id is not null)
+    check (jenis in ('alfabet','angka') or kategori_id is not null)
 );
 
 -- 6. video (FK -> kamus)

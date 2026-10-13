@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Perekam Template Pose Huruf (Internal)</title>
+    <style>
+        :root {
+            --bg: #eef1f4;
+            --panel: #ffffff;
+            --ink: #18222d;
+            --mute: #5d6b7a;
+            --line: #d5dce3;
+            --accent: #0b62c4;
+            --accent-soft: #e3eefb;
+            --ok: #177a43;
+            --ok-soft: #dff3e7;
+            --warn: #a86a00;
+            --warn-soft: #fcefd2;
+            --bad: #b3261e;
+            --bad-soft: #fbe2df;
+            --mute-soft: #e7ebef;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+        }
+
+        header {
+            padding: 18px 24px 6px;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 2px;
+            letter-spacing: -.01em;
+        }
+
+        header p {
+            margin: 0;
+            color: var(--mute);
+            max-width: 760px;
+        }
+
+        .notice {
+            margin: 10px 24px 0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .notice.bad {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(320px, 620px) minmax(320px, 1fr);
+            gap: 18px;
+            padding: 16px 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 920px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .card h2 {
+            font-size: 15px;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .num {
+            display: inline-grid;
+            place-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            flex: none;
+        }
+
+        .hint {
+            color: var(--mute);
+            font-size: 13px;
+            margin: 6px 0 0;
+        }
+
+        .stage {
+            position: relative;
+            background: #0c1116;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+        }
+
+        .mirror {
+            position: absolute;
+            inset: 0;
+            transform: scaleX(-1);
+        }
+
+        .mirror video,
+        .mirror canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .chip {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .chip.ok {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .chip.bad {
+            background: var(--bad-soft);
+            color: var(--bad);
+        }
+
+        .chip.mute {
+            background: var(--mute-soft);
+            color: var(--mute);
+        }
+
+        .banner {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 14px 16px;
+            background: rgba(12, 17, 22, .82);
+            color: #fff;
+            text-align: center;
+        }
+
+        .btitle {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .bcount {
+            font-size: 38px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.1;
+            margin-top: 2px;
+        }
+
+        .err {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            text-align: center;
+            background: rgba(12, 17, 22, .9);
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .err[hidden] {
+            display: none;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        button:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        button.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        button.primary:hover:not(:disabled) {
+            background: #0950a0;
+            color: #fff;
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        select,
+        textarea {
+            font: inherit;
+            padding: 7px 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            color: var(--ink);
+            min-width: 0;
+        }
+
+        textarea {
+            width: 100%;
+            resize: vertical;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            line-height: 1.45;
+            background: #f8fafc;
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .grow {
+            flex: 1;
+        }
+
+        kbd {
+            background: var(--mute-soft);
+            border-radius: 4px;
+            padding: 0 5px;
+            font-size: 12px;
+        }
+
+        .status-box {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            background: var(--mute-soft);
+            color: var(--ink);
+        }
+
+        .status-box.ok {
+            background: var(--ok-soft);
+            color: var(--ok);
+        }
+
+        .meta-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: var(--mute-soft);
+            font-size: 12px;
+            font-family: monospace;
+            color: var(--mute);
+        }
+
+        #toast {
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%);
+            background: #18222d;
+            color: #fff;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 90vw;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+            z-index: 999;
+        }
+
+        #toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Perekam Template Pose Huruf (Alat Internal)</h1>
+        <p>Alat internal untuk merekam pose acuan 21 titik MediaPipe Hands yang dinormalisasi (<code>cv-core.js</code>)
+            dan menghasilkan query SQL siap salin untuk tabel <code>template_pose</code> di database.</p>
+    </header>
+
+    <div class="notice bad" id="fileWarn" hidden>
+        Halaman ini dibuka langsung dari file (<code>file://</code>). Akses kamera mungkin diblokir browser. Jalankan
+        lewat web server lokal (misal: <code>http://localhost:8000/rekam-template.html</code>).
+    </div>
+
+    <main>
+        <!-- Kolom Kamera & Rekam -->
+        <section class="col">
+            <div class="stage" id="stage">
+                <div class="mirror">
+                    <video id="video" playsinline muted></video>
+                    <canvas id="overlay"></canvas>
+                </div>
+                <div class="chip mute" id="chip">Kamera belum menyala</div>
+                <div class="banner" id="banner" hidden>
+                    <div class="btitle" id="bTitle"></div>
+                    <div class="bcount" id="bCount"></div>
+                </div>
+                <div class="err" id="err" hidden></div>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">1</span>Nyalakan kamera</h2>
+                <div class="row">
+                    <button class="primary" id="camBtn" type="button">Nyalakan kamera</button>
+                </div>
+                <p class="hint">Izinkan akses kamera. Posisikan tangan di tengah frame dengan pencahayaan yang cukup.
+                </p>
+            </div>
+        </section>
+
+        <!-- Kolom Pengaturan Huruf & Hasil SQL -->
+        <section class="col">
+            <div class="card">
+                <h2><span class="num">2</span>Pilih huruf & rekam</h2>
+                <div class="row">
+                    <label for="letterSel"><b>Pilih Huruf:</b></label>
+                    <select id="letterSel" class="grow"></select>
+                </div>
+                <div class="row" style="margin-top:6px;">
+                    <span class="hint">kamus_id: <span class="meta-tag" id="kamusIdDisp">-</span></span>
+                </div>
+
+                <div class="row" style="margin-top:14px;">
+                    <button class="primary" id="recBtn" type="button" style="padding:10px 18px;font-size:15px;">
+                        Rekam pose <span id="recBtnLetter">A</span> <kbd>R</kbd>
+                    </button>
+                </div>
+                <p class="hint">Setelah tombol ditekan, akan ada hitung mundur 3 detik. Bentuk pose tangan yang rapi dan
+                    tahan sampai 15 frame terkumpul.</p>
+
+                <div class="status-box" id="recStatus">Belum ada template yang direkam di sesi ini.</div>
+            </div>
+
+            <div class="card">
+                <h2><span class="num">3</span>Query SQL siap salin</h2>
+                <textarea id="sqlOutput" rows="8" readonly
+                    placeholder="Hasil query SQL akan muncul di sini setelah pose berhasil direkam..."></textarea>
+                <div class="row" style="margin-top:10px;">
+                    <button class="primary" id="copyBtn" type="button" disabled>Salin SQL</button>
+                    <span class="hint" id="copyHint"></span>
+                </div>
+                <p class="hint">Salin query di atas lalu jalankan di SQL Editor Supabase untuk memperbarui pose acuan
+                    huruf.</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../frontend/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js"
+        crossorigin="anonymous"></script>
+    <script src="cv-config.js"></script>
+    <script src="cv-core.js"></script>
+    <script>
+        // ================= STATE & KONSTANTA =================
+        let supabaseClient = null;
+        let daftarKamus = []; // [{ id, kata, jenis }]
+        let kamusMap = {};    // id -> { id, kata, jenis }
+
+        const MAKS_TANGAN = 1;
+        const HITUNG_MUNDUR_REKAM = 3;
+        const FRAME_REKAM = 15;
+        const MIN_FRAME_VALID = 8;
+        const HANDS_VERSION = '0.4.1675469240';
+
+        const HAND_LINES = [
+            [0, 1], [1, 2], [2, 3], [3, 4],
+            [0, 5], [5, 6], [6, 7], [7, 8],
+            [5, 9], [9, 10], [10, 11], [11, 12],
+            [9, 13], [13, 14], [14, 15], [15, 16],
+            [13, 17], [17, 18], [18, 19], [19, 20],
+            [0, 17]
+        ];
+
+        const $ = id => document.getElementById(id);
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        const state = {
+            aspect: 4 / 3,
+            cameraOn: false,
+            gotFirst: false,
+            cur: null,
+            fpsTimes: [],
+            running: false,
+            abort: false
+        };
+
+        let hands = null;
+        const video = $('video'), canvas = $('overlay'), ctx = canvas.getContext('2d');
+
+        // ---------- util UI ----------
+        let toastTimer;
+        function toast(msg) {
+            const t = $('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function showError(msg) {
+            const e = $('err');
+            e.textContent = msg;
+            e.hidden = false;
+        }
+        function hideError() { $('err').hidden = true; }
+
+        function showBanner(title, count) {
+            $('banner').hidden = false;
+            $('bTitle').textContent = title;
+            $('bCount').textContent = count || '';
+        }
+        function hideBanner() { $('banner').hidden = true; }
+
+        let actx;
+        function beep(freq = 660, dur = 0.08) {
+            try {
+                actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+                const o = actx.createOscillator(), g = actx.createGain();
+                o.frequency.value = freq;
+                g.gain.value = 0.05;
+                o.connect(g);
+                g.connect(actx.destination);
+                o.start();
+                o.stop(actx.currentTime + dur);
+            } catch (e) { }
+        }
+
+        function setBusy(b) {
+            state.running = b;
+            $('recBtn').disabled = b || !state.cameraOn;
+            $('letterSel').disabled = b;
+        }
+
+        // ---------- inisialisasi database & dropdown ----------
+        async function initSupabaseAndDropdown() {
+            const sel = $('letterSel');
+            sel.innerHTML = '<option value="">Memuat kamus dari database…</option>';
+            sel.disabled = true;
+
+            try {
+                if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_PUBLISHABLE_KEY === 'undefined') {
+                    throw new Error('Variabel SUPABASE_URL atau SUPABASE_PUBLISHABLE_KEY tidak ditemukan. Pastikan ../frontend/config.js termuat.');
+                }
+                if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                    throw new Error('Library Supabase gagal dimuat dari CDN. Periksa koneksi internet.');
+                }
+
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+                const { data, error } = await supabaseClient
+                    .from('kamus')
+                    .select('id, kata, jenis')
+                    .order('jenis', { ascending: true })
+                    .order('kata', { ascending: true });
+
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    throw new Error('Tabel kamus kosong atau tidak ada data yang ditemukan.');
+                }
+
+                daftarKamus = data;
+                kamusMap = {};
+                daftarKamus.forEach(item => {
+                    kamusMap[item.id] = item;
+                });
+
+                sel.innerHTML = daftarKamus.map(item => `
+                    <option value="${item.id}">${item.kata} (${item.jenis})</option>
+                `).join('');
+
+                sel.disabled = false;
+                sel.addEventListener('change', updateSelectedLetter);
+                updateSelectedLetter();
+                toast(`Berhasil memuat ${daftarKamus.length} kata/huruf dari kamus.`);
+            } catch (err) {
+                console.error('Gagal memuat kamus:', err);
+                sel.innerHTML = '<option value="">Gagal memuat kamus</option>';
+                showError('Gagal memuat data kamus dari Supabase: ' + (err.message || String(err)));
+            }
+        }
+
+        function updateSelectedLetter() {
+            const id = $('letterSel').value;
+            const item = kamusMap[id];
+            if (item) {
+                $('recBtnLetter').textContent = `${item.kata} (${item.jenis})`;
+                $('kamusIdDisp').textContent = item.id;
+            } else {
+                $('recBtnLetter').textContent = '-';
+                $('kamusIdDisp').textContent = '-';
+            }
+        }
+
+        // ---------- kamera dan MediaPipe ----------
+        function updateChip() {
+            const chip = $('chip');
+            if (!state.cameraOn) { chip.className = 'chip mute'; chip.textContent = 'Kamera belum menyala'; return; }
+            if (!state.gotFirst) { chip.className = 'chip mute'; chip.textContent = 'Memuat model MediaPipe…'; return; }
+            const t = state.fpsTimes; let fps = 0;
+            if (t.length > 1) fps = Math.round((t.length - 1) / ((t[t.length - 1] - t[0]) / 1000));
+            chip.className = 'chip ' + (state.cur ? 'ok' : 'bad');
+            chip.textContent = (state.cur ? 'Tangan terdeteksi' : 'Tangan TIDAK terdeteksi') + ' · ' + fps + ' fps';
+        }
+
+        function drawHand(lm) {
+            const w = canvas.width, h = canvas.height;
+            ctx.lineWidth = 3; ctx.strokeStyle = '#4fd1a5';
+            HAND_LINES.forEach(([a, b]) => {
+                ctx.beginPath();
+                ctx.moveTo(lm[a].x * w, lm[a].y * h);
+                ctx.lineTo(lm[b].x * w, lm[b].y * h);
+                ctx.stroke();
+            });
+            ctx.fillStyle = '#ffffff';
+            lm.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x * w, p.y * h, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function onResults(res) {
+            state.gotFirst = true;
+            const now = performance.now();
+            state.fpsTimes.push(now);
+            while (state.fpsTimes.length > 30) state.fpsTimes.shift();
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const lm = res.multiHandLandmarks && res.multiHandLandmarks[0];
+            if (lm) {
+                const label = (res.multiHandedness && res.multiHandedness[0]) ? res.multiHandedness[0].label : 'Right';
+                const worldLm = res.multiHandWorldLandmarks && res.multiHandWorldLandmarks[0];
+                state.cur = { lm, label, worldLm: worldLm || null, t: now };
+                drawHand(lm);
+            } else {
+                state.cur = null;
+            }
+            updateChip();
+        }
+
+        async function startCamera() {
+            if (state.cameraOn) return;
+            hideError();
+            try {
+                if (typeof Hands === 'undefined') throw new Error('LIB');
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('NOAPI');
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+                    audio: false
+                });
+                video.srcObject = stream;
+                await video.play();
+                if (video.readyState < 2) await new Promise(r => video.addEventListener('loadeddata', r, { once: true }));
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                state.aspect = video.videoWidth / video.videoHeight;
+                $('stage').style.aspectRatio = video.videoWidth + '/' + video.videoHeight;
+
+                hands = new Hands({
+                    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@${HANDS_VERSION}/${file}`
+                });
+                hands.setOptions({
+                    maxNumHands: MAKS_TANGAN,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.6,
+                    minTrackingConfidence: 0.5,
+                    selfieMode: false
+                });
+                hands.onResults(onResults);
+
+                state.cameraOn = true;
+                $('camBtn').disabled = true;
+                $('camBtn').textContent = 'Kamera menyala';
+                $('recBtn').disabled = false;
+                updateChip();
+                loop();
+            } catch (e) {
+                let msg = 'Kamera gagal dinyalakan: ' + (e && e.message ? e.message : e);
+                if (e && e.message === 'LIB') msg = 'Library MediaPipe gagal dimuat. Cek koneksi internet lalu muat ulang halaman.';
+                else if (e && e.message === 'NOAPI') msg = 'Browser tidak menyediakan akses kamera di sini. Buka lewat http://localhost:8000, bukan dari file.';
+                else if (e && e.name === 'NotAllowedError') msg = 'Izin kamera ditolak. Klik ikon kamera di address bar, izinkan, lalu muat ulang halaman.';
+                else if (e && e.name === 'NotFoundError') msg = 'Kamera tidak ditemukan. Pastikan webcam terpasang dan tidak dipakai aplikasi lain.';
+                else if (e && e.name === 'NotReadableError') msg = 'Kamera sedang dipakai aplikasi lain. Tutup aplikasi itu lalu coba lagi.';
+                showError(msg);
+            }
+        }
+
+        let sending = false;
+        async function loop() {
+            if (video.readyState >= 2 && !sending) {
+                sending = true;
+                try {
+                    await hands.send({ image: video });
+                } catch (e) {
+                    showError('Pemrosesan MediaPipe gagal: ' + (e && e.message ? e.message : e));
+                    sending = false;
+                    return;
+                }
+                sending = false;
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // ---------- perekaman pose template ----------
+        async function countdown(n, title, sub) {
+            for (let i = n; i > 0; i--) {
+                if (state.abort) return false;
+                showBanner(title, sub ? `${sub} ${i}` : String(i));
+                beep(660, 0.08);
+                await sleep(1000);
+            }
+            beep(990, 0.15);
+            return !state.abort;
+        }
+
+        async function rekamTemplate() {
+            if (!state.cameraOn) {
+                toast('Nyalakan kamera terlebih dahulu (Langkah 1).');
+                return;
+            }
+            if (state.running) return;
+
+            const kamusId = $('letterSel').value;
+            const item = kamusMap[kamusId];
+            if (!item || !kamusId) {
+                toast('Pilihan sign/kata tidak valid.');
+                return;
+            }
+            const itemLabel = `${item.kata} (${item.jenis})`;
+
+            state.abort = false;
+            setBusy(true);
+
+            const ok = await countdown(HITUNG_MUNDUR_REKAM, `Bentuk pose “${itemLabel}” lalu tahan`, 'Merekam dalam');
+            if (!ok) {
+                hideBanner();
+                setBusy(false);
+                return;
+            }
+
+            showBanner(`Merekam “${itemLabel}”… tahan posisi`, '');
+            const rawFrames = [], labels = [], worldFrames = [], t0 = performance.now();
+
+            while (rawFrames.length < FRAME_REKAM && (performance.now() - t0 < 3500)) {
+                await sleep(80);
+                if (state.cur && state.cur.lm) {
+                    rawFrames.push(state.cur.lm);
+                    labels.push(state.cur.label || 'Right');
+                    if (state.cur.worldLm) worldFrames.push(state.cur.worldLm);
+                }
+            }
+            hideBanner();
+
+            if (rawFrames.length < MIN_FRAME_VALID) {
+                const errMsg = `Gagal merekam: hanya terdeteksi ${rawFrames.length}/${FRAME_REKAM} frame (minimal ${MIN_FRAME_VALID}). Pastikan tangan tampak jelas di kamera.`;
+                toast(errMsg);
+                $('recStatus').className = 'status-box';
+                $('recStatus').textContent = errMsg;
+                setBusy(false);
+                return;
+            }
+
+            // Normalisasi tiap frame menggunakan toPts dan normalizePts dari cv-core.js
+            const normFrames = rawFrames.map(lm => normalizePts(toPts(lm, state.aspect)));
+
+            // Rata-ratakan 21 titik koordinat [x, y] antar frame dan bulatkan ke 5 desimal
+            const titik = [];
+            for (let i = 0; i < 21; i++) {
+                const avgX = normFrames.reduce((sum, f) => sum + f[i][0], 0) / normFrames.length;
+                const avgY = normFrames.reduce((sum, f) => sum + f[i][1], 0) / normFrames.length;
+                titik.push([+avgX.toFixed(5), +avgY.toFixed(5)]);
+            }
+
+            // Ambil label tangan yang paling sering muncul
+            const cnt = {};
+            labels.forEach(l => { cnt[l] = (cnt[l] || 0) + 1; });
+            const dominantLabel = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || 'Right';
+
+            // Rata-ratakan sudut jari dari worldLm jika tersedia (field tambahan, tidak wajib)
+            let sudutRataRata = null;
+            if (worldFrames.length >= MIN_FRAME_VALID) {
+                const sudutPerFrame = worldFrames.map(wlm => sudutJari(wlm)).filter(s => s !== null);
+                if (sudutPerFrame.length > 0) {
+                    sudutRataRata = [];
+                    for (let k = 0; k < 8; k++) {
+                        const avg = sudutPerFrame.reduce((sum, s) => sum + s[k], 0) / sudutPerFrame.length;
+                        sudutRataRata.push(+avg.toFixed(1));
+                    }
+                }
+            }
+
+            // Bentuk objek JSON template
+            const landmarkData = {
+                versi: 1,
+                tangan: 1,
+                label: dominantLabel,
+                titik: titik,
+                ...(sudutRataRata ? { sudut: sudutRataRata } : {})
+            };
+            const jsonStr = JSON.stringify(landmarkData);
+
+            // Bentuk query SQL
+            const sql = `insert into template_pose (id, kamus_id, landmark_data)\nvalues (gen_random_uuid(), '${kamusId}', '${jsonStr}'::jsonb)\non conflict (kamus_id) do update set landmark_data = excluded.landmark_data;`;
+
+            $('sqlOutput').value = sql;
+            $('copyBtn').disabled = false;
+
+            const statusText = `✓ Berhasil merekam pose “${itemLabel}” (${rawFrames.length} frame, tangan ${dominantLabel}). Query SQL telah dibuat di bawah.`;
+            $('recStatus').className = 'status-box ok';
+            $('recStatus').textContent = statusText;
+            toast(`Pose ${itemLabel} berhasil direkam!`);
+
+            setBusy(false);
+        }
+
+        // ---------- event listener ----------
+        $('camBtn').addEventListener('click', startCamera);
+        $('recBtn').addEventListener('click', rekamTemplate);
+
+        $('copyBtn').addEventListener('click', async () => {
+            const sql = $('sqlOutput').value;
+            if (!sql) return;
+            try {
+                await navigator.clipboard.writeText(sql);
+                toast('Query SQL berhasil disalin ke clipboard!');
+            } catch (e) {
+                $('sqlOutput').select();
+                toast('Teks SQL sudah diseleksi. Tekan Ctrl+C untuk menyalin.');
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            const tag = (e.target.tagName || '').toLowerCase();
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+            if (e.key === 'r' || e.key === 'R') {
+                if (state.cameraOn && !state.running) rekamTemplate();
+            }
+        });
+
+        // ---------- inisialisasi awal ----------
+        initSupabaseAndDropdown();
+        if (location.protocol === 'file:') $('fileWarn').hidden = false;
+    </script>
+</body>
+
+</html>
