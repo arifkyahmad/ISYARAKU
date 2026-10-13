@@ -44,8 +44,8 @@ async function loadAccountSettings() {
   }
 
   const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('full_name')
+    .from('akun')
+    .select('nama')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -54,7 +54,7 @@ async function loadAccountSettings() {
     return;
   }
 
-  fullNameInput.value = profile?.full_name
+  fullNameInput.value = profile?.nama
     || user.user_metadata?.full_name
     || user.user_metadata?.name
     || user.user_metadata?.nama
@@ -119,8 +119,8 @@ settingsForm.addEventListener('submit', async (event) => {
     }
 
     const { error: profileError } = await supabaseClient
-      .from('profiles')
-      .upsert({ id: user.id, full_name: fullName }, { onConflict: 'id' });
+      .from('akun')
+      .upsert({ id: user.id, nama: fullName }, { onConflict: 'id' });
 
     if (profileError) {
       showSettingsMessage(`Data akun diperbarui, tetapi profil gagal disimpan: ${profileError.message}`);
