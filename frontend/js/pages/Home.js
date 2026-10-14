@@ -277,21 +277,35 @@ async function loadUserData() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     if (error || !user) return;
 
-    // Ambil profil pengguna dari tabel profiles
+    // Ambil profil pengguna dari tabel akun
     const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('xp, full_name')
+      .from('akun')
+      .select('nama')
       .eq('id', user.id)
       .single();
 
     if (profile) {
-      // Update tampilan XP
-      const xpEl = document.querySelector('.xp-value');
-      if (xpEl && profile.xp !== undefined) {
-        xpEl.textContent = profile.xp.toLocaleString('id-ID');
+      const profileNameEl = document.querySelector('.profile-name');
+      if (profileNameEl) {
+        profileNameEl.textContent = profile.nama;
       }
 
-      console.log('User loaded:', profile.full_name);
+      console.log('User loaded:', profile.nama);
+    }
+
+    // Ambil total bintang dari view v_status_level
+    const { data: statusLevels, error: levelError } = await supabaseClient
+      .from('v_status_level')
+      .select('bintang');
+
+    if (levelError) {
+      console.warn(levelError);
+    } else if (statusLevels) {
+      const totalBintang = statusLevels.reduce((sum, item) => sum + (item.bintang || 0), 0);
+      const xpEl = document.querySelector('.xp-value');
+      if (xpEl) {
+        xpEl.textContent = totalBintang;
+      }
     }
   } catch (err) {
     // Abaikan error saat offline / belum login
