@@ -2,6 +2,15 @@
    Home.js  –  Logika interaktif halaman Beranda IsyaraKu
    ================================================================= */
 
+(async () => {
+  const client = supabaseClient;
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 /* -----------------------------------------------------------------
    1. Sidebar — buka / tutup
    ----------------------------------------------------------------- */

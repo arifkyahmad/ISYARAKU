@@ -1,3 +1,12 @@
+(async () => {
+  const client = supabaseClient;
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 const settingsForm = document.getElementById('accountSettingsForm');
 const fullNameInput = document.getElementById('fullName');
 const emailInput = document.getElementById('email');

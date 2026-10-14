@@ -1,3 +1,12 @@
+(async () => {
+  const client = supabaseClient;
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 const profileSidebar = document.getElementById('sidebar');
 const profileOverlay = document.getElementById('sidebarOverlay');
 const profileMenuToggle = document.getElementById('menuToggle');
