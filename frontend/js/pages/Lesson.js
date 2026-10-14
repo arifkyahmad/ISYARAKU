@@ -1,4 +1,13 @@
 // ===== Konfigurasi =====
+(async () => {
+  const client = getSupabase();
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 let practiceBest = null; // stores best practice result for current question
 let pendingSimpan = Promise.resolve();
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
