@@ -11,6 +11,7 @@
 let practiceBest = null; // stores best practice result for current question
 let pendingSimpan = Promise.resolve();
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
+const BASE_VIDEO  = "https://ogozgbkfgdlzlfxbmrff.supabase.co/storage/v1/object/public/video/";
 let earnedStars   = 0;               // 0-3, bisa dihitung dari jawaban benar nanti
 let isFinishing   = false;
 
@@ -41,6 +42,7 @@ const backBtn         = document.getElementById("backBtn");
 const nextBtn         = document.getElementById("nextBtn");
 const skipBtn         = document.getElementById("skipBtn");
 const video           = document.getElementById("lessonVideo");
+let videoNotice       = document.getElementById("videoNotice");
 const feedback        = document.getElementById("feedback");
 // Accessibility: expose feedback changes to assistive technologies
 if (feedback) {
@@ -200,11 +202,34 @@ function renderSoalAktif() {
   // Update video jika url_path tersedia, jika kosong jangan putar video
   if (video) {
     pauseVideo();
+    video.querySelectorAll("source").forEach((s) => s.remove());
+
+    if (!videoNotice && video.parentElement) {
+      videoNotice = document.createElement("p");
+      videoNotice.id = "videoNotice";
+      videoNotice.textContent = "Video belum tersedia";
+      videoNotice.style.cssText = "margin: auto; padding: 2rem; text-align: center; color: var(--ink); font-size: 1rem;";
+      videoNotice.hidden = true;
+      video.parentElement.appendChild(videoNotice);
+    }
+
     if (soal.url_path) {
-      video.src = soal.url_path;
+      video.src = BASE_VIDEO + soal.url_path;
+      video.hidden = false;
+      video.style.display = "";
+      if (videoNotice) {
+        videoNotice.hidden = true;
+        videoNotice.style.display = "none";
+      }
       video.load();
     } else {
       video.removeAttribute("src");
+      video.hidden = true;
+      video.style.display = "none";
+      if (videoNotice) {
+        videoNotice.hidden = false;
+        videoNotice.style.display = "block";
+      }
       video.load();
     }
   }
