@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/DetailKamus.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../config.js"></script>
   <script src="../js/pages/DetailKamus.js" defer></script>
 </head>
 <body>
@@ -25,16 +27,15 @@
     <section class="stage" id="stage" aria-live="polite">
       <div class="step" data-step="video" hidden>
         <div class="card video-card">
-          <video class="video-card__player" id="lessonVideo" controls preload="metadata" playsinline>
-            <source src="../assets/video/Test.mp4" type="video/mp4">
-          </video>
+          <video class="video-card__player" id="lessonVideo" controls preload="metadata" playsinline></video>
+          <p class="empty-state" id="videoNotice" hidden style="margin: auto; padding: 2rem; text-align: center; color: var(--purple-dark); font-size: 1rem;">Video belum tersedia</p>
         </div>
         <p class="caption" id="videoCaption">Video Isyarat</p>
       </div>
 
       <div class="step" data-step="practice" hidden>
         <div class="card practice-card">
-          <h1 class="practice-card__title">Sekarang saatnya Kamu mencoba!</h1>
+          <h1 class="practice-card__title" id="practiceTitle">Sekarang saatnya Kamu mencoba!</h1>
           <div class="practice-card__camera">
             <video id="cameraFeed" autoplay playsinline muted></video>
             <canvas id="cameraOverlay"></canvas>
@@ -49,16 +50,7 @@
         <button class="skip-btn" id="skipBtn" type="button">Lewati praktik</button>
       </div>
 
-      <div class="step" data-step="quiz" hidden>
-        <div class="card quiz-video">
-          <video class="video-card__player" id="quizVideo" controls preload="metadata" playsinline>
-            <source src="../assets/video/Test.mp4" type="video/mp4">
-          </video>
-        </div>
-        <h1 class="quiz-question" id="quizQuestion">Isyarat apakah yang ditampilkan?</h1>
-        <div class="quiz-options" id="quizOptions"></div>
-        <p class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></p>
-      </div>
+      <div class="step" data-step="quiz" hidden style="display: none;"></div>
     </section>
 
     <nav class="nav" aria-label="Navigasi belajar">
