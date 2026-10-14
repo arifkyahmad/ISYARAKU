@@ -1,9 +1,9 @@
 // ===== Konfigurasi =====
 const HOME_URL    = "Home.html";     // sesuaikan path relatif ke halaman Home
 const LESSON_NAME = "Kata Sapaan";   // tampil di popup: "Kamu Lulus Belajar ..."
-let earnedStars   = 3;               // 0-3, bisa dihitung dari jawaban benar nanti
+let earnedStars   = 7;               // 0-3, bisa dihitung dari jawaban benar nanti
 
-const steps = ["video", "practice", "quiz"]; 
+const steps = ["video", "practice", "video", "practice", "video", "practice", "quiz"]; 
 const TOTAL_STEPS = steps.length;      
 
 // Hook opsional per sesi: dipanggil saat sesi tampil / ditinggalkan.

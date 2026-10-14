@@ -1,12 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* [BARU] Skala dasar untuk seluruh halaman.
-   1rem = 16px saat layar ≥ 1440px lebar (ukuran desain asli). Di viewport yang lebih kecil
-   (misal browser di-zoom 125% / 150%), 1rem ikut mengecil sebanding lebar & tinggi layar,
-   jadi komposisi tetap utuh, tidak terpotong, dan tidak ada horizontal scroll.
-   Dibatasi 9px–16px: tidak lebih besar dari desain asli, tidak terlalu kecil. */
 html{
-    font-size:clamp(9px, min(1.1111vw, 2.3188vh), 16px);
+    /* Scale rem-based dimensions to the viewport while keeping the desktop design capped. */
+    font-size:clamp(.5625rem, min(1.1111vw, 2.3188vh), 1rem);
     margin:0;
     min-height:100vh;
     min-height:100dvh;
@@ -38,8 +34,8 @@ body{
     inset:0;
     opacity:.18;
     background-image:
-    radial-gradient(#fff 0.6px, transparent 0.6px);
-    background-size:8px 8px;
+    radial-gradient(#fff .0375rem, transparent .0375rem);
+    background-size:.5rem .5rem;
     pointer-events:none;
 }
 
@@ -60,7 +56,7 @@ body{
     width:52%;
     background:linear-gradient(90deg, #A88FD2, #7A5FC3);
     color:white;
-    padding:2.8125rem;                                      /* [UBAH] 45px → rem */
+    padding:3.9375rem 2.8125rem 2.8125rem;
     border-bottom-right-radius:3.75rem 8.75rem;             /* [UBAH] 60px 140px → rem */
     position:relative;      /* tetap: jadi acuan posisi hero-text, tombol, dan link di bawah */
     justify-content: center;
@@ -70,21 +66,20 @@ body{
 .logo{
     font-size:1.75rem;          /* [UBAH] 28px → rem */
     font-weight:700;
-    margin-left:3.75rem;        /* [UBAH] 60px → rem */
+    margin-left:4.4375rem;
 }
 
-/* [UBAH] Hero, tombol, dan link tetap position:absolute (HTML tidak punya pembungkus),
-   tapi semua jarak dipindah ke rem supaya ikut skala. */
+/* Elemen desktop diposisikan relatif terhadap panel dan menggunakan skala dasar tetap. */
 .hero-text{
     position:absolute;
-    left:6.5625rem;                          /* 105px */
-    bottom:12.5rem;                          /* 200px */
+    left:7.25rem;
+    bottom:14.5625rem;
     width:26.25rem;                          /* 420px */
-    max-width:calc(100% - 6.5625rem);        /* [BARU] jangan pernah melebihi panel */
+    max-width:calc(100% - 7.25rem);
 }
 
 .hero-text h1{
-    font-size:3.5rem;           /* [UBAH] 56px → rem */
+    font-size:3.75rem;
     line-height:1.08;
     margin-bottom:1.125rem;     /* [UBAH] 18px → rem */
     font-weight:700;
@@ -98,20 +93,18 @@ body{
 
 .Login-btn {
     position:absolute;
-    /* [UBAH] sebelumnya width:50% + right:315px (campuran % dan px, jadi posisi kirinya
-       bergeser tiap ukuran layar / zoom berubah). Sekarang dikunci sejajar dengan .hero-text:
-       left & lebar sama (105px / 420px), yang memang cocok dengan posisi lama di layar ±1600px. */
-    left:6.5625rem;
-    width:26.25rem;
-    max-width:calc(100% - 6.5625rem);
-    padding:.875rem;                    /* [UBAH] 14px → rem */
+    /* Align the button with the hero and size it relative to the left panel. */
+    left:7.25rem;
+    width:50%;
+    max-width:calc(100% - 7.25rem);
+    padding:1rem;
     color:white;
     font-weight:600;
-    font-size:.8333rem;                 /* [BARU] 13.33px = default button, dikunci ke rem agar ikut skala */
+    font-size:.8333rem;                 /* 13.33px */
     cursor:pointer;
     transition:.25s;
     z-index: 1;
-    bottom:8.125rem;                    /* [UBAH] 130px → rem */
+    bottom:9.125rem;
     /* From https://css.glass */
     /* [UBAH] background/border/radius lama (#6d4cc7, border hitam, 12px) dihapus karena
        selalu tertimpa deklarasi glass di bawah; tampilan akhir tidak berubah. */
@@ -120,7 +113,7 @@ body{
     box-shadow:0 .25rem 1.875rem rgba(0, 0, 0, 0.1);    /* 0 4px 30px */
     backdrop-filter:blur(.96875rem);                    /* 15.5px */
     -webkit-backdrop-filter:blur(.96875rem);
-    border:1px solid rgba(109, 76, 199, 0.3);
+    border:.0625rem solid rgba(109, 76, 199, 0.3);
 }
 
 .Login-btn:hover{
@@ -129,17 +122,16 @@ body{
     box-shadow:0 .25rem 1.875rem rgba(0, 0, 0, 0.1);
     backdrop-filter:blur(.96875rem);
     -webkit-backdrop-filter:blur(.96875rem);
-    border:1px solid rgba(109, 76, 199, 0.3);
+    border:.0625rem solid rgba(109, 76, 199, 0.3);
     transform: scale(1.04);
 }
 
 .register-link{
-    /* [UBAH] posisi & lebar disamakan dengan .Login-btn (lihat alasan di atas) */
     position:absolute;
-    bottom:5.5rem;                      /* 88px */
-    left:6.5625rem;
-    width:26.25rem;
-    max-width:calc(100% - 6.5625rem);
+    bottom:6rem;
+    left:7.25rem;
+    width:50%;
+    max-width:calc(100% - 7.25rem);
     text-align:center;
     font-size:.875rem;                  /* [UBAH] 14px → rem */
     color:#2b2140;
@@ -167,17 +159,14 @@ body{
     background:#d9c8e8;
 }
 
-/* [BARU] Ilustrasi tangan. Di HTML gambar ini punya inline style (position:fixed, width:654.02px,
-   margin 30px/70px) yang tidak bisa diubah dari CSS biasa, jadi ditimpa pakai !important.
-   - position:fixed → absolute: gambar tetap terpotong rapi di batas container (bukan keluar
-     ke luar container saat layar lebih tinggi dari 690px).
-   - width & margin dari px → rem: ikut skala. rotate(-14.26deg) dan aspect-ratio di inline
-     style tidak berubah, jadi tidak perlu ditimpa. */
+/* Keep the illustration sized relative to the responsive root font size. */
 .right-panel > img{
-    position:absolute !important;
-    width:40.8763rem !important;        /* 654.02px */
-    margin-left:1.875rem !important;    /* 30px */
-    margin-top:4.375rem !important;     /* 70px */
+    position:fixed;
+    aspect-ratio:654.02/947.75;
+    width:40.8763rem;
+    margin-left:1.875rem;
+    margin-top:9.75rem;
+    transform: rotate(-14.26deg);
 }
 
 /* Sembunyikan elemen mobile secara default di desktop */
@@ -186,10 +175,10 @@ body{
 }
 
 /* ================= MEDIA QUERY MOBILE (Layar HP <= 768px) ================= */
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   /* 1. Kembalikan ukuran root font agar tidak mengecil drastis */
   html {
-    font-size: 16px !important;
+    font-size:clamp(.875rem, 4.1vw, 1rem) !important;
   }
 
   /* 2. Body mobile: layout mengalir normal dari atas */
@@ -206,8 +195,8 @@ body{
     position: fixed !important;
     inset: 0 !important;
     opacity: .18;
-    background-image: radial-gradient(#fff 0.6px, transparent 0.6px);
-    background-size: 8px 8px;
+    background-image: radial-gradient(#fff .0375rem, transparent .0375rem);
+    background-size: .5rem .5rem;
     pointer-events: none;
   }
 
@@ -241,14 +230,14 @@ body{
     display: flex !important;
     flex-direction: column !important;
     position: relative !important;
-    padding: 24px 24px 40px !important;
+    padding: 1.5rem 1.5rem 2.5rem !important;
     color: white !important;
     justify-content: flex-start !important;
     align-items: stretch !important;
   }
 
   .logo {
-    font-size: 20px !important;
+    font-size: 1.25rem !important;
     font-weight: 700 !important;
     margin: 0 !important;
     text-align: left !important;
@@ -258,9 +247,9 @@ body{
 
   /* 5. Ilustrasi tangan mobile */
   .hand-illustration {
-    width: calc(100% + 24px) !important;
+    width: calc(100% + 1.5rem) !important;
     max-width: none !important;
-    margin: 8px 0 0 -24px !important;
+    margin: .5rem 0 0 -1.5rem !important;
     display: block !important;
     pointer-events: none !important;
   }
@@ -272,10 +261,10 @@ body{
   }
 
   .mobile-heading h1 {
-    font-size: 32px !important;
+    font-size: 2rem !important;
     font-weight: 700 !important;
     line-height: 1.25 !important;
-    margin-bottom: 24px !important;
+    margin-bottom: 1.5rem !important;
     text-align: right !important;
     color: white !important;
   }
@@ -288,19 +277,19 @@ body{
     max-width: 100% !important;
     left: auto !important;
     bottom: auto !important;
-    padding: 15px !important;
-    border-radius: 16px !important;
+    padding: .9375rem !important;
+    border-radius: 1rem !important;
     background: linear-gradient(90deg, #a88fd2, #8267ca) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
-    backdrop-filter: blur(15.5px) !important;
-    -webkit-backdrop-filter: blur(15.5px) !important;
+    border: .0625rem solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 .25rem 1.875rem rgba(0, 0, 0, 0.1) !important;
+    backdrop-filter: blur(.96875rem) !important;
+    -webkit-backdrop-filter: blur(.96875rem) !important;
     color: white !important;
-    font-size: 15px !important;
+    font-size: .9375rem !important;
     font-weight: 600 !important;
     text-align: center !important;
     text-decoration: none !important;
-    margin-bottom: 14px !important;
+    margin-bottom: .875rem !important;
     transition: .25s !important;
     z-index: 1 !important;
   }
@@ -317,7 +306,7 @@ body{
     left: auto !important;
     bottom: auto !important;
     text-align: center !important;
-    font-size: 13px !important;
+    font-size: .8125rem !important;
     color: #e7defc !important;
     margin: 0 !important;
     z-index: 1 !important;

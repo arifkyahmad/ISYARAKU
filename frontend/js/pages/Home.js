@@ -150,6 +150,7 @@ const lessonNodes = document.querySelectorAll('.lesson-node');
 const lessonModal = document.getElementById('lessonModal');
 const lessonModalCancel = document.getElementById('lessonModalCancel');
 const lessonModalStart = document.getElementById('lessonModalStart');
+const lessonModalLevel = document.getElementById('lessonModalLevel');
 let selectedLessonNode = null;
 let previousBodyOverflow = '';
 
@@ -168,6 +169,7 @@ lessonNodes.forEach((node) => {
     // Ambil info section dan nomor node dari kelas
     const classes = [...node.classList];
     const nodeClass = classes.find((c) => c.startsWith('node-s'));
+    lessonModalLevel.textContent = node.querySelector('.node-text').textContent.trim();
     console.log('Membuka pelajaran:', nodeClass);
 
     selectedLessonNode = node;
@@ -268,22 +270,7 @@ if (completeParams.get('complete') === '1') {
 }
 
 /* -----------------------------------------------------------------
-   6. Section Cards — klik pada tombol buku untuk preview materi
-   ----------------------------------------------------------------- */
-const sectionBookBtns = document.querySelectorAll('.section-book-btn');
-
-sectionBookBtns.forEach((btn) => {
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const card = btn.closest('.section-card');
-    const title = card.querySelector('.section-title')?.textContent?.trim();
-    console.log('Preview materi section:', title);
-    // TODO: Tampilkan modal / navigasi ke halaman overview section
-  });
-});
-
-/* -----------------------------------------------------------------
-   7. Update data pengguna (XP, dll.) dari Supabase saat load
+   6. Update data pengguna (XP, dll.) dari Supabase saat load
    ----------------------------------------------------------------- */
 async function loadUserData() {
   try {
@@ -316,33 +303,3 @@ async function loadUserData() {
 document.addEventListener('DOMContentLoaded', loadUserData);
 // Atau langsung panggil jika script sudah di bawah body
 loadUserData();
-
-/* -----------------------------------------------------------------
-   8. Smooth scroll-reveal untuk section cards & nodes (opsional)
-   ----------------------------------------------------------------- */
-if ('IntersectionObserver' in window) {
-  const revealEls = document.querySelectorAll(
-    '.section-card, .lesson-node, .scene-img'
-  );
-
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = entry.target.style.transform.replace(
-            'translateY(24px)',
-            ''
-          );
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  revealEls.forEach((el) => {
-    el.style.opacity = '0';
-    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    revealObserver.observe(el);
-  });
-}

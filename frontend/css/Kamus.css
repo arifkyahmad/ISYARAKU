@@ -312,25 +312,6 @@ input {
   display: none;
 }
 
-.dictionary-words-active .dictionary-toolbar {
-  grid-template-columns: 54px minmax(0, 2.5fr) minmax(0, 1fr);
-  gap: 6px;
-}
-
-.dictionary-words-active .menu-toggle {
-  position: static;
-  grid-column: 1;
-  justify-self: start;
-}
-
-.dictionary-words-active .dictionary-tabs {
-  grid-column: 2;
-}
-
-.dictionary-words-active .dictionary-search {
-  grid-column: 3;
-}
-
 .words-panel {
   width: min(calc(100% - 120px), 800px);
   margin-left: auto;
@@ -588,6 +569,10 @@ input {
 }
 
 @media (max-width: 767px) {
+  :root {
+    scrollbar-gutter: stable;
+  }
+
   body {
     padding-bottom: calc(62px + env(safe-area-inset-bottom, 0px));
   }
@@ -629,10 +614,6 @@ input {
     gap: 7px;
     margin-bottom: 10px;
     margin-left: 0;
-  }
-
-  .dictionary-words-active .dictionary-toolbar {
-    grid-template-columns: minmax(0, 1fr);
   }
 
   .words-panel {

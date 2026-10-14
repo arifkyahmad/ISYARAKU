@@ -82,24 +82,24 @@ input {
 
 .settings-form {
   display: grid;
-  gap: 4px;
+  gap: 8px;
 }
 
 .settings-field {
   position: relative;
   display: flex;
-  min-height: 30px;
+  min-height: 56px;
   flex-direction: column;
   justify-content: center;
-  padding: 4px 11px;
+  padding: 8px 14px;
   border: 1px solid #c8c8c8;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .settings-field > span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.35;
 }
 
 .settings-field input {
@@ -110,7 +110,7 @@ input {
   background: transparent;
   border: 0;
   outline: 0;
-  font-size: 8px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -119,16 +119,16 @@ input {
 }
 
 .settings-field--password {
-  padding-right: 32px;
+  padding-right: 48px;
 }
 
 .password-toggle {
   position: absolute;
   top: 50%;
-  right: 9px;
+  right: 4px;
   display: grid;
-  width: 16px;
-  height: 20px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   padding: 0;
   background: transparent;
@@ -138,16 +138,16 @@ input {
 }
 
 .password-toggle img {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   object-fit: contain;
 }
 
 .settings-message {
-  min-height: 14px;
+  min-height: 18px;
   margin: 0;
   color: #b42318;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .settings-message:empty {
@@ -160,21 +160,21 @@ input {
 
 .settings-actions {
   display: grid;
-  grid-template-columns: minmax(100px, 0.28fr) 1fr;
+  grid-template-columns: minmax(120px, 0.28fr) 1fr;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 .settings-cancel,
 .settings-save {
   display: flex;
-  min-height: 24px;
+  min-height: 44px;
   align-items: center;
   justify-content: center;
   border: 0;
-  border-radius: 6px;
-  font-size: 9px;
-  font-weight: 500;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
 }
@@ -216,7 +216,7 @@ input {
   }
 
   .settings-header h1 {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .settings-back {
@@ -237,37 +237,37 @@ input {
   }
 
   .settings-form {
-    gap: 3px;
+    gap: 8px;
   }
 
   .settings-field {
-    min-height: 30px;
-    padding: 4px 11px;
-    border-radius: 6px;
+    min-height: 60px;
+    padding: 8px 12px;
+    border-radius: 8px;
   }
 
   .settings-field > span {
-    font-size: 8px;
+    font-size: 12px;
   }
 
   .settings-field input {
-    font-size: 7px;
+    font-size: 14px;
   }
 
   .settings-field--password {
-    padding-right: 30px;
+    padding-right: 48px;
   }
 
   .settings-actions {
-    grid-template-columns: minmax(38px, 0.28fr) 1fr;
-    gap: 4px;
-    margin-top: 17px;
+    grid-template-columns: minmax(84px, 0.28fr) 1fr;
+    gap: 8px;
+    margin-top: 16px;
   }
 
   .settings-cancel,
   .settings-save {
-    min-height: 23px;
-    font-size: 7px;
+    min-height: 44px;
+    font-size: 13px;
   }
 
   .mobile-bottom-nav {
