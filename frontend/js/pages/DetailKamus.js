@@ -158,15 +158,13 @@ function clearHandCanvas() {
 }
 
 function showFeedbackCustom(state, text) {
-  if (cameraStatus) {
-    cameraStatus.hidden = !text;
-    cameraStatus.textContent = text;
-  }
+  // cameraStatus hanya tampil sebelum kamera aktif (izin / not found)
+  // setelah kamera aktif, feedback pill yang menampilkan state
   if (feedback) {
-    feedback.dataset.state = state;
+    feedback.dataset.state = state || 'idle';
     feedback.className = '';
     if (state) feedback.classList.add(`feedback-${state}`);
-    feedback.textContent = text;
+    feedback.textContent = text || '';
   }
 }
 
@@ -294,6 +292,7 @@ async function startCamera() {
     });
 
     cvState.stream = stream;
+    if (cameraStatus) cameraStatus.style.display = 'none';
     if (cameraFeed) {
       cameraFeed.srcObject = stream;
       await cameraFeed.play().catch(() => {});
@@ -361,6 +360,7 @@ function stopCamera() {
   if (cameraFeed) {
     cameraFeed.srcObject = null;
   }
+  if (cameraStatus) cameraStatus.style.display = 'grid';
   cvState.cur = null;
   cvState.sending = false;
   clearHandCanvas();
