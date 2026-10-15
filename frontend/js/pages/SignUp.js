@@ -66,7 +66,7 @@ googleBtn.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-            redirectTo: new URL("../index.html", window.location.href).href
+            redirectTo: new URL("Home.html", window.location.href).href
         }
     });
 

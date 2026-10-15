@@ -2,6 +2,15 @@
    Home.js  –  Logika interaktif halaman Beranda IsyaraKu
    ================================================================= */
 
+(async () => {
+  const client = supabaseClient;
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 /* -----------------------------------------------------------------
    1. Sidebar — buka / tutup
    ----------------------------------------------------------------- */
@@ -107,11 +116,11 @@ document.getElementById('btnLogout')?.addEventListener('click', async () => {
       return;
     }
     // Redirect ke halaman login setelah logout
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   } catch (err) {
     console.error('Logout error:', err);
     // Fallback jika supabase tidak tersedia (misal mode dev offline)
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   }
 });
 
@@ -136,7 +145,7 @@ document.getElementById('btnDeleteAccount')?.addEventListener('click', async () 
     // Sementara ini, logout dulu
     await supabaseClient.auth.signOut();
     alert('Akun berhasil dihapus.');
-    window.location.href = '../frontend/pages/SignIn.html';
+    window.location.href = 'SignIn.html';
   } catch (err) {
     console.error('Delete account error:', err);
     alert('Gagal menghapus akun. Silakan hubungi support.');
@@ -146,13 +155,23 @@ document.getElementById('btnDeleteAccount')?.addEventListener('click', async () 
 /* -----------------------------------------------------------------
    5. Lesson Nodes — klik untuk masuk pelajaran
    ----------------------------------------------------------------- */
+const NODE_LEVEL_MAP = {
+  'node-s2-4': 1,
+  'node-s2-3': 2,
+  'node-s2-2': 3,
+  'node-s2-1': 4,
+};
+
 const lessonNodes = document.querySelectorAll('.lesson-node');
 const lessonModal = document.getElementById('lessonModal');
+const lessonModalTitle = document.getElementById('lessonModalTitle');
 const lessonModalCancel = document.getElementById('lessonModalCancel');
 const lessonModalStart = document.getElementById('lessonModalStart');
 const lessonModalLevel = document.getElementById('lessonModalLevel');
 let selectedLessonNode = null;
 let previousBodyOverflow = '';
+let currentLevelId = null;
+let allLevels = [];
 
 function closeLessonModal() {
   lessonModal.classList.remove('open');
@@ -173,14 +192,22 @@ lessonNodes.forEach((node) => {
     console.log('Membuka pelajaran:', nodeClass);
 
     selectedLessonNode = node;
+    const targetUrutan = nodeClass ? NODE_LEVEL_MAP[nodeClass] : undefined;
+    if (targetUrutan !== undefined && lessonModalTitle) {
+      const matchedLevel = allLevels.find((item) => item.urutan_level === targetUrutan);
+      if (matchedLevel && matchedLevel.nama_level) {
+        lessonModalTitle.textContent = matchedLevel.nama_level;
+      }
+    }
+    else if (lessonModalTitle) {
+  lessonModalTitle.textContent = 'Segera hadir';
+}
+
     previousBodyOverflow = document.body.style.overflow;
     lessonModal.classList.add('open');
     lessonModal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     lessonModalCancel.focus();
-
-    // TODO: Navigasi ke halaman pelajaran yang sesuai
-    // Contoh: window.location.href = `../frontend/pages/Lesson.html?node=${nodeClass}`;
 
     // Feedback visual singkat
     node.style.transform = 'scale(0.92)';
@@ -198,7 +225,26 @@ lessonNodes.forEach((node) => {
 });
 
 lessonModalCancel.addEventListener('click', closeLessonModal);
-lessonModalStart.addEventListener('click', closeLessonModal);
+lessonModalStart.addEventListener('click', () => {
+  const classes = selectedLessonNode ? [...selectedLessonNode.classList] : [];
+  const mapKey = classes.find((c) => c in NODE_LEVEL_MAP);
+  const targetUrutan = mapKey ? NODE_LEVEL_MAP[mapKey] : undefined;
+  const levelData = targetUrutan !== undefined
+    ? allLevels.find((item) => item.urutan_level === targetUrutan)
+    : null;
+
+  if (!levelData) {
+    alert('Level belum tersedia');
+    return;
+  }
+
+  if (levelData.status === 'terkunci') {
+    alert('Selesaikan level sebelumnya dulu');
+    return;
+  }
+
+  window.location.href = 'Lesson.html?level=' + levelData.level_id;
+});
 lessonModal.addEventListener('click', (event) => {
   if (event.target === lessonModal) closeLessonModal();
 });
@@ -293,14 +339,23 @@ async function loadUserData() {
       console.log('User loaded:', profile.nama);
     }
 
-    // Ambil total bintang dari view v_status_level
+    // Ambil status level dari view v_status_level
     const { data: statusLevels, error: levelError } = await supabaseClient
       .from('v_status_level')
-      .select('bintang');
+      .select('level_id, nama_level, status, bintang, urutan_section, urutan_level')
+      .order('urutan_section', { ascending: true })
+      .order('urutan_level', { ascending: true });
 
     if (levelError) {
       console.warn(levelError);
     } else if (statusLevels) {
+      allLevels = statusLevels;
+
+      const activeLevel = statusLevels.find((item) => item.status === 'berjalan');
+      if (activeLevel) {
+        currentLevelId = activeLevel.level_id;
+      }
+
       const totalBintang = statusLevels.reduce((sum, item) => sum + (item.bintang || 0), 0);
       const xpEl = document.querySelector('.xp-value');
       if (xpEl) {
