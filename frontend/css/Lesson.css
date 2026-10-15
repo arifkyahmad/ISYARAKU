@@ -58,56 +58,58 @@ body {
   border-radius: var(--radius-lg);
 }
 
-/* ---------- Sesi 1: Video ---------- */
-.video-card {
-  position: relative;
-  flex: 1;
-  min-height: 18rem;
+/* ---------- Sesi 1: Video (full, tanpa border) ---------- */
+.video-card,
+.card.video-card {
+  background: #190f2b;
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-}
-.video-card__camera,
-.video-card__preview {
-  position: absolute;
-  z-index: 2;
-  top: 0.65rem;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-}
-.video-card__camera {
-  left: 0.65rem;
-  width: 1.55rem;
-  height: 1.55rem;
-  padding: 0.35rem;
-  background: var(--purple-700);
-  border-radius: 50%;
-}
-.video-card__camera img {
-  display: block;
+  position: relative;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  aspect-ratio: 16 / 9;
+  max-height: 70vh;
+  padding: 0;
 }
-.video-card__preview {
-  right: 0.65rem;
-  min-height: 1.35rem;
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  background: var(--purple-700);
-  color: var(--white);
-  font-size: 0.6rem;
-}
-.video-card__player {
+.video-card__player,
+#lessonVideo {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;   /* video utuh, tidak terpotong */
-  background: var(--white);
+  background: #190f2b;
+  border: 0;
+  outline: none;
+  object-fit: cover;
 }
-.video-card__player:fullscreen {
-  object-fit: contain;
-  background: #000;
+
+/* Overlay judul video peragaan */
+.video-overlay-title,
+#videoCaption {
+  position: absolute;
+  bottom: auto;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  margin: 0;
+  padding: 0.55rem 1.35rem;
+  background: rgba(18, 9, 32, 0.55);
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  max-width: 90%;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .caption {
@@ -119,28 +121,26 @@ body {
   font-size: 1rem;
 }
 
-/* ---------- Sesi 2: Praktik (computer vision) ---------- */
+/* ---------- Sesi 2: Praktik (full camera, tanpa border) ---------- */
 .practice-card {
-  flex: 1;
-  min-height: 24rem;
-  padding: 1.5rem 1.5rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.practice-card__title {
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--ink);
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 70vh;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
 }
 .practice-card__camera {
   position: relative;
-  flex: 1;
-  min-height: 12rem;
-  border-radius: var(--radius-md);
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: #f6f1fc;
+  background: #190f2b;
 }
 .practice-card__camera video,
 .practice-card__camera canvas {
@@ -149,29 +149,103 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1);   /* mirror seperti cermin */
+  transform: scaleX(-1); /* mirror */
 }
 .camera-status {
   position: absolute;
-  z-index: 1;
+  z-index: 5;
   inset: 0;
   display: grid;
   place-items: center;
   margin: 0;
   padding: 1rem;
-  color: var(--ink);
+  color: var(--white);
   font-size: 0.9rem;
   text-align: center;
+  background: rgba(25, 15, 43, 0.6);
 }
-.practice-card__feedback {
-  min-height: 1.5rem;
-  text-align: center;
-  font-weight: 700;
+
+/* Judul overlay transparan di atas kamera */
+.practice-card__title {
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  margin: 0;
+  padding: 0.55rem 1.35rem;
+  background: rgba(18, 9, 32, 0.48);
+  color: #ffffff;
+  border-radius: 999px;
   font-size: 0.95rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+  max-width: 90%;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
-.practice-card__feedback[data-state="correct"] { color: #00a82d; }
-.practice-card__feedback[data-state="wrong"]   { color: #d62839; }
-.practice-card__feedback[data-state="idle"]    { color: transparent; }
+
+/* Indikasi feedback — tengah bawah kamera */
+#feedback,
+.practice-card__feedback {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  margin: 0;
+  padding: 0.7rem 2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+#feedback:empty,
+.practice-card__feedback:empty {
+  display: none !important;
+}
+#feedback[data-state="idle"],
+.practice-card__feedback[data-state="idle"],
+.practice-card__feedback.feedback-idle {
+  color: #ffffff;
+  background: rgba(25, 15, 43, 0.88);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+#feedback[data-state="correct"],
+.practice-card__feedback[data-state="correct"],
+.practice-card__feedback.feedback-correct {
+  color: #ffffff;
+  background: rgba(16, 185, 129, 0.95);
+  box-shadow: 0 0 35px rgba(16, 185, 129, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+#feedback[data-state="hampir"],
+.practice-card__feedback[data-state="hampir"],
+.practice-card__feedback.feedback-hampir {
+  color: #ffffff;
+  background: rgba(245, 158, 11, 0.95);
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+#feedback[data-state="wrong"],
+.practice-card__feedback[data-state="wrong"],
+.practice-card__feedback.feedback-wrong {
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.95);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
 
 .skip-btn {
   width: 100%;
@@ -188,65 +262,190 @@ body {
 }
 .skip-btn:hover { transform: translateY(-1px); }
 
-/* ---------- Sesi 3: Soal ---------- */
-.quiz-options {
-  flex: 1;
-  display: grid;
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 5.5vw, 2.25rem);
+/* ---------- Sesi 3: Kuis Mencocokkan ---------- */
+.quiz-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 10px 30px rgba(60, 30, 110, 0.15);
 }
-
-.quiz-option {
+.quiz-header {
+  text-align: center;
+}
+.quiz-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--purple-900);
+  margin-bottom: 0.35rem;
+}
+.quiz-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+.quiz-match-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+.quiz-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.quiz-match-btn {
   width: 100%;
-  min-height: 0;
-  padding: 0.4rem clamp(1rem, 7.6vw, 3.1rem) 0.4rem clamp(1rem, 8.6vw, 3.5rem);
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #239d99;
-  font: inherit;
-  font-weight: 600;
-  font-size: 1.5rem;
+  min-height: 4.8rem;
+  padding: 0.75rem 1rem;
+  border: 2.5px solid #e2d9f3;
+  border-radius: 1rem;
+  background: #fbf9ff;
+  color: var(--purple-900);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1.6rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   cursor: pointer;
-  transition: transform 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(91, 63, 158, 0.06);
 }
-
-.quiz-option__letter,
-.quiz-option__image {
-  width: clamp(4rem, 12.5vw, 5rem);
-  height: auto;
-  aspect-ratio: 0.9;
-  flex: 0 0 clamp(4rem, 12.5vw, 5rem);
-  display: grid;
-  place-items: center;
-  border-radius: 0.4rem;
-  background: var(--white);
+.quiz-match-btn:hover:not(.is-matched):not(.is-wrong) {
+  border-color: var(--purple-700);
+  background: #f4ecff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(91, 63, 158, 0.12);
 }
-
-.quiz-option__letter {
-  font-size: 1.8rem;
+.quiz-match-btn.is-selected {
+  border-color: #7b42f6;
+  background: #efe7ff;
+  box-shadow: 0 0 0 3px rgba(123, 66, 246, 0.3);
+  transform: scale(1.02);
 }
-
-.quiz-option__image {
-  padding: 0.35rem;
-  transition: outline-color 0.15s ease;
+.quiz-match-btn.is-matched {
+  border-color: #10b981;
+  background: #ecfdf5;
+  color: #065f46;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
 }
-
-.quiz-option__image img {
-  width: 100%;
-  height: 100%;
+.quiz-match-btn.is-wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #991b1b;
+  animation: matchShake 0.45s ease-in-out;
+}
+.quiz-match-img {
+  max-width: 3.5rem;
+  max-height: 3.5rem;
   object-fit: contain;
 }
+@keyframes matchShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
 
-.quiz-option:hover { transform: translateY(-1px); }
-.quiz-option:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
-.quiz-option.is-selected .quiz-option__image { outline: 3px solid #1688eb; }
-.quiz-option[data-state="correct"] .quiz-option__image { outline: 3px solid #00a82d; }
-.quiz-option[data-state="wrong"] .quiz-option__image { outline: 3px solid #d62839; }
-
+/* ---------- Modal Selamat ---------- */
+.lesson-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(35, 15, 65, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  animation: modalFadeIn 0.25s ease;
+}
+.lesson-modal[hidden] {
+  display: none;
+}
+.lesson-modal-card {
+  background: #ffffff;
+  border-radius: 1.75rem;
+  padding: 2.25rem 2rem;
+  max-width: 25rem;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  animation: modalPopUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal-icon-badge {
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-700), var(--purple-900));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(106, 74, 168, 0.35);
+  margin-bottom: 0.25rem;
+}
+.modal-theme-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  filter: brightness(0) invert(1);
+}
+.modal-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--purple-900);
+  margin: 0;
+}
+.modal-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+.modal-stars {
+  display: flex;
+  gap: 0.65rem;
+  margin: 0.2rem 0 0.65rem;
+}
+.modal-star-img {
+  width: 2.4rem;
+  height: 2.4rem;
+  filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.45));
+}
+.modal-btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(135deg, var(--purple-700), var(--purple-900));
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(106, 74, 168, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(106, 74, 168, 0.5);
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalPopUp {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
 
 /* ---------- Navigasi ---------- */
 .nav {
@@ -290,8 +489,119 @@ body {
   * { transition: none !important; }
 }
 
-@media (max-width: 480px) {
-  .lesson { padding: 1rem; gap: 1rem; }
-  .video-card { flex: 0 0 auto; aspect-ratio: 5 / 8; min-height: 0; }
-  .practice-card { min-height: 20rem; padding: 1.25rem 1rem 1rem; }
+@media (max-width: 640px) {
+  .lesson {
+    padding: 0.85rem 1rem 1.25rem;
+    gap: 1rem;
+    min-height: 100dvh;
+  }
+
+  /* Rasio 9:16 untuk video & kamera di mobile (Portrait ala Mobile Video) */
+  .video-card,
+  .card.video-card,
+  .practice-card {
+    width: 100%;
+    max-width: min(100%, calc(62vh * 9 / 16));
+    aspect-ratio: 9 / 16;
+    max-height: 62vh;
+    margin: 0 auto;
+  }
+
+  /* Penyesuaian overlay judul & caption di mobile */
+  .video-overlay-title,
+  #videoCaption,
+  .practice-card__title {
+    top: 0.75rem;
+    padding: 0.45rem 1rem;
+    font-size: 0.82rem;
+    max-width: 92%;
+  }
+
+  /* Penyesuaian teks indikasi feedback di mobile */
+  #feedback,
+  .practice-card__feedback {
+    bottom: 1.25rem;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.95rem;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Tombol skip praktek di mobile */
+  .skip-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  /* Penyesuaian UI Quiz di Mobile */
+  .quiz-card {
+    padding: 1.25rem 1rem;
+    gap: 1rem;
+    border-radius: 1.25rem;
+  }
+  .quiz-title {
+    font-size: 1.15rem;
+    margin-bottom: 0.25rem;
+  }
+  .quiz-subtitle {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  .quiz-match-board {
+    gap: 0.75rem;
+  }
+  .quiz-col {
+    gap: 0.65rem;
+  }
+  .quiz-match-btn {
+    min-height: 3.8rem;
+    padding: 0.5rem 0.65rem;
+    font-size: 1.35rem;
+    border-radius: 0.85rem;
+    border-width: 2px;
+  }
+  .quiz-match-img {
+    max-width: 2.75rem;
+    max-height: 2.75rem;
+  }
+
+  /* Navigasi di mobile */
+  .nav__btn {
+    width: 3.1rem;
+    height: 3.1rem;
+  }
+  .nav__btn svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+
+  /* Modal Selamat di Mobile */
+  .lesson-modal-card {
+    padding: 1.75rem 1.25rem;
+    gap: 0.75rem;
+    border-radius: 1.4rem;
+  }
+  .modal-icon-badge {
+    width: 4rem;
+    height: 4rem;
+  }
+  .modal-theme-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+  .modal-title {
+    font-size: 1.25rem;
+  }
+  .modal-desc {
+    font-size: 0.85rem;
+  }
+  .modal-star-img {
+    width: 2rem;
+    height: 2rem;
+  }
+  .modal-btn {
+    padding: 0.8rem 1.25rem;
+    font-size: 0.95rem;
+  }
 }

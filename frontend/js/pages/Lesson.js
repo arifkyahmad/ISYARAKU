@@ -15,7 +15,7 @@ const BASE_VIDEO  = "https://ogozgbkfgdlzlfxbmrff.supabase.co/storage/v1/object/
 let earnedStars   = 0;               // 0-3, bisa dihitung dari jawaban benar nanti
 let isFinishing   = false;
 
-const steps = ["video", "practice", "video", "practice", "video", "practice", "quiz"];
+let steps = ["video", "practice", "video", "practice", "video", "practice", "quiz"];
 const TOTAL_STEPS = steps.length;
 
 // State Soal & Level
@@ -32,7 +32,10 @@ const stepHooks = {
     onEnter() { practiceBest = null; startCamera(); },
     onLeave() { console.log("practiceBest", practiceBest); pendingSimpan = simpanProgresUser(); stopCamera(); },
   },
-  quiz: { onLeave() { const qv = document.getElementById("quizVideo"); if (qv) qv.pause(); } },
+  quiz: {
+    onEnter() { renderQuizMatching(); },
+    onLeave() { const qv = document.getElementById("quizVideo"); if (qv) qv.pause(); }
+  },
 };
 
 // ===== Elemen =====
@@ -58,23 +61,18 @@ let current = 0;
 // ===== Progres Level =====
 function perbaruiProgresLevel(selesaiSemua = false) {
   if (!progressFill || !progressEl) return;
-  const totalSoal = daftarSoal.length;
-  if (totalSoal === 0) {
+  const total = steps.length;
+  if (total === 0) {
     progressFill.style.width = "0%";
     progressEl.setAttribute("aria-valuenow", 0);
     return;
   }
 
-  const totalPoin = totalSoal * 3;
   let percent = 0;
-
   if (selesaiSemua) {
     percent = 100;
   } else {
-    // Tahap selesai di soal aktif: video=0, practice=1, quiz=2
-    const tahapSelesai = Math.max(0, Math.min(current, 2));
-    const poinTerisi = (soalAktif * 3) + tahapSelesai;
-    percent = Math.round((poinTerisi / totalPoin) * 100);
+    percent = Math.round(((current + 1) / total) * 100);
   }
 
   progressFill.style.width = percent + "%";
@@ -88,14 +86,20 @@ function showStep(index) {
 
   current = Math.max(0, Math.min(index, steps.length - 1));
 
+  // Tentukan soal mana yang aktif berdasarkan langkah saat ini
+  if (steps[current] !== "quiz") {
+    const targetSoal = Math.floor(current / 2);
+    if (daftarSoal.length > 0 && targetSoal < daftarSoal.length && targetSoal !== soalAktif) {
+      soalAktif = targetSoal;
+      renderSoalAktif();
+    }
+  }
+
   document.querySelectorAll(".step").forEach((el) => {
     el.hidden = el.dataset.step !== steps[current];
   });
 
-  // Di langkah video (current === 0), tombol kembali nonaktif (tidak bisa mundur ke soal sebelumnya jika soalAktif > 0)
-  // Back button disabled only on the very first step of the first question
-  backBtn.disabled = (soalAktif === 0 && current === 0);
-
+  backBtn.disabled = (current === 0);
   nextBtn.setAttribute("aria-label", current === steps.length - 1 ? "Selesai" : "Lanjut");
 
   perbaruiProgresLevel();
@@ -104,23 +108,10 @@ function showStep(index) {
   if (stepHooks[name]?.onEnter) stepHooks[name].onEnter();
 }
 
-
 function prevStep() {
   if (current > 0) {
-    // Move to previous stage within the same question
     showStep(current - 1);
-    return;
   }
-  // At the first stage of a question, move to the previous question's quiz stage if possible
-  if (soalAktif > 0) {
-    soalAktif--;
-    // Render the newly active question (loads template, resets camera and feedback)
-    renderSoalAktif();
-    // Show the last stage (quiz) of the previous question
-    showStep(steps.length - 1);
-    return;
-  }
-  // No previous step or question to go back to
 }
 
 function nextStep() {
@@ -131,19 +122,9 @@ function nextStep() {
   showStep(current + 1);
 }
 
-// Menangani selesainya sesi quiz: pindah ke soal berikutnya atau selesai level
+// Menangani selesainya sesi quiz: selesai level
 function selesaiQuiz() {
-  if (soalAktif < daftarSoal.length - 1) {
-    soalAktif++;
-    current = 0;
-    stopCamera();
-    perbaruiProgresLevel();
-    renderSoalAktif();
-    showStep(0);
-  } else {
-    // Soal terakhir selesai: tampilkan pesan level selesai tanpa navigasi baru dulu
-    tampilkanLevelSelesai();
-  }
+  tampilkanLevelSelesai();
 }
 
 // Tampilkan pesan level selesai saat semua soal selesai
@@ -234,9 +215,7 @@ function renderSoalAktif() {
     }
   }
 
-  // Reset kamera, feedback praktik, dan muat template untuk soal aktif
-  stopCamera();
-  showFeedbackCustom("idle", "");
+  // Muat template untuk soal aktif
   muatTemplateSoalAktif();
 }
 
@@ -391,10 +370,10 @@ function evaluateFrame() {
   // Update practiceBest hierarchy: tepat > hampir > belum
   if (tingkat === "tepat") {
     practiceBest = "tepat";
-    showFeedbackCustom("correct", "Tepat");
+    showFeedbackCustom("correct", "Tepat!");
   } else if (tingkat === "hampir") {
     if (practiceBest !== "tepat") practiceBest = "hampir";
-    showFeedbackCustom("wrong", "Hampir");
+    showFeedbackCustom("hampir", "Hampir!");
   } else {
     if (!practiceBest) practiceBest = "belum";
     showFeedbackCustom("wrong", "Belum");
@@ -458,6 +437,9 @@ async function startCamera() {
     });
 
     cvState.stream = stream;
+    const cameraStatusEl = document.getElementById("cameraStatus");
+    if (cameraStatusEl) cameraStatusEl.style.display = "none";
+
     if (cameraVideo) {
       cameraVideo.srcObject = stream;
       await cameraVideo.play().catch(() => {});
@@ -506,6 +488,11 @@ async function startCamera() {
     } else if (err && err.name === "NotReadableError") {
       pesan = "Kamera sedang digunakan oleh aplikasi lain.";
     }
+    const cameraStatusEl = document.getElementById("cameraStatus");
+    if (cameraStatusEl) {
+      cameraStatusEl.style.display = "grid";
+      cameraStatusEl.textContent = pesan;
+    }
     showFeedbackCustom("wrong", pesan);
   }
 }
@@ -523,6 +510,9 @@ function stopCamera() {
     cvState.stream.getTracks().forEach((track) => track.stop());
     cvState.stream = null;
   }
+  const cameraStatusEl = document.getElementById("cameraStatus");
+  if (cameraStatusEl) cameraStatusEl.style.display = "grid";
+
   if (cameraVideo) {
     cameraVideo.srcObject = null;
   }
@@ -598,22 +588,156 @@ function showFeedback(state) {
 
 function showFeedbackCustom(state, text) {
   if (!feedback) return;
-  // Update visual state via data attribute and CSS class for styling
+  // Update visual state via data attribute
   feedback.dataset.state = state;
-  // Ensure previous state class is removed
-  feedback.className = '';
+  // Preserve base class, only swap state class
+  feedback.className = 'practice-card__feedback';
   if (state) feedback.classList.add(`feedback-${state}`);
   // Update the visible text
   feedback.textContent = text;
 }
 
-const quizOptions = document.querySelectorAll(".quiz-option");
-quizOptions.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    quizOptions.forEach((b) => b.classList.remove("is-selected"));
-    btn.classList.add("is-selected");
+let matchSelectedLetter = null;
+let matchSelectedSymbol = null;
+let totalMatches = 0;
+
+function renderQuizMatching() {
+  const lettersCol = document.getElementById("quizLettersCol");
+  const symbolsCol = document.getElementById("quizSymbolsCol");
+  if (!lettersCol || !symbolsCol || !daftarSoal || daftarSoal.length === 0) return;
+
+  lettersCol.innerHTML = "";
+  symbolsCol.innerHTML = "";
+  matchSelectedLetter = null;
+  matchSelectedSymbol = null;
+  totalMatches = 0;
+
+  // Kolom kiri: huruf/angka sesuai daftarSoal
+  daftarSoal.forEach((soal) => {
+    const kata = (soal.kata || "").toUpperCase();
+    const btn = document.createElement("button");
+    btn.className = "quiz-match-btn";
+    btn.type = "button";
+    btn.dataset.kata = kata;
+    btn.setAttribute("aria-label", `Huruf ${kata}`);
+    btn.textContent = kata;
+
+    btn.addEventListener("click", () => handleLetterClick(btn));
+    lettersCol.appendChild(btn);
   });
-});
+
+  // Kolom kanan: simbol isyarat yang diacak (shuffled)
+  const shuffledSoal = [...daftarSoal].sort(() => Math.random() - 0.5);
+  if (shuffledSoal.length > 1 && shuffledSoal.every((s, i) => s.kata === daftarSoal[i].kata)) {
+    shuffledSoal.reverse();
+  }
+
+  shuffledSoal.forEach((soal) => {
+    const kata = (soal.kata || "").toUpperCase();
+    let imgSrc = `../assets/img/hand-illustration ${kata}.svg`;
+    if (kata === "Y") {
+      imgSrc = "../assets/img/lhand-illustration Y.svg";
+    } else if (soal.jenis === "angka" || /^[0-9]+$/.test(kata)) {
+      imgSrc = `../assets/img/Angka ${kata} - SIBI.svg`;
+    }
+
+    const btn = document.createElement("button");
+    btn.className = "quiz-match-btn";
+    btn.type = "button";
+    btn.dataset.kata = kata;
+    btn.setAttribute("aria-label", `Simbol isyarat ${kata}`);
+    btn.innerHTML = `<img src="${imgSrc}" class="quiz-match-img" alt="Isyarat ${kata}" onerror="this.alt='${kata}'">`;
+
+    btn.addEventListener("click", () => handleSymbolClick(btn));
+    symbolsCol.appendChild(btn);
+  });
+}
+
+function handleLetterClick(btn) {
+  if (btn.classList.contains("is-matched") || btn.classList.contains("is-wrong")) return;
+
+  const lettersCol = document.getElementById("quizLettersCol");
+  if (lettersCol) {
+    lettersCol.querySelectorAll(".quiz-match-btn").forEach((b) => b.classList.remove("is-selected"));
+  }
+
+  btn.classList.add("is-selected");
+  matchSelectedLetter = btn;
+
+  if (matchSelectedSymbol) {
+    checkMatch();
+  }
+}
+
+function handleSymbolClick(btn) {
+  if (btn.classList.contains("is-matched") || btn.classList.contains("is-wrong")) return;
+
+  const symbolsCol = document.getElementById("quizSymbolsCol");
+  if (symbolsCol) {
+    symbolsCol.querySelectorAll(".quiz-match-btn").forEach((b) => b.classList.remove("is-selected"));
+  }
+
+  btn.classList.add("is-selected");
+  matchSelectedSymbol = btn;
+
+  if (matchSelectedLetter) {
+    checkMatch();
+  }
+}
+
+function checkMatch() {
+  const letterBtn = matchSelectedLetter;
+  const symbolBtn = matchSelectedSymbol;
+  if (!letterBtn || !symbolBtn) return;
+
+  const letterVal = letterBtn.dataset.kata;
+  const symbolVal = symbolBtn.dataset.kata;
+
+  if (letterVal === symbolVal) {
+    // Cocok!
+    letterBtn.classList.remove("is-selected");
+    symbolBtn.classList.remove("is-selected");
+    letterBtn.classList.add("is-matched");
+    symbolBtn.classList.add("is-matched");
+
+    matchSelectedLetter = null;
+    matchSelectedSymbol = null;
+    totalMatches++;
+
+    // Jika semua pasangan cocok
+    if (totalMatches === daftarSoal.length) {
+      earnedStars = 3;
+      setTimeout(() => {
+        tampilkanModalSelamat();
+      }, 500);
+    }
+  } else {
+    // Tidak cocok
+    letterBtn.classList.add("is-wrong");
+    symbolBtn.classList.add("is-wrong");
+
+    setTimeout(() => {
+      letterBtn.classList.remove("is-wrong", "is-selected");
+      symbolBtn.classList.remove("is-wrong", "is-selected");
+      matchSelectedLetter = null;
+      matchSelectedSymbol = null;
+    }, 600);
+  }
+}
+
+function tampilkanModalSelamat() {
+  const modal = document.getElementById("quizSuccessModal");
+  if (modal) {
+    modal.hidden = false;
+    modal.removeAttribute("hidden");
+    const nextBtn = document.getElementById("quizModalNextBtn");
+    if (nextBtn) {
+      nextBtn.onclick = () => finishLesson();
+    }
+  } else {
+    tampilkanLevelSelesai();
+  }
+}
 
 // ===== Inisialisasi Level & Soal =====
 async function muatLevelDanSoal() {
@@ -670,8 +794,16 @@ async function muatLevelDanSoal() {
       };
     });
 
+    // Generate steps dinamis: [video, practice] untuk tiap soal, diakhiri [quiz]
+    steps = [];
+    daftarSoal.forEach(() => {
+      steps.push("video", "practice");
+    });
+    steps.push("quiz");
+
+    renderQuizMatching();
+
     soalAktif = 0;
-    perbaruiProgresLevel();
     renderSoalAktif();
     showStep(0);
   } catch (_) {
