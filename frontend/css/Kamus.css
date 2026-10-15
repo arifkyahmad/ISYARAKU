@@ -314,7 +314,7 @@ input {
 
 .words-panel {
   width: min(calc(100% - 120px), 800px);
-  margin-left: auto;
+  margin-inline: auto;
 }
 
 .letter-grid {
@@ -356,6 +356,23 @@ input {
   width: 100%;
   height: calc(100% - 34px);
   min-height: 0;
+  object-fit: contain;
+}
+
+.letter-card--complete-artwork {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.letter-card--complete-artwork span {
+  display: none;
+}
+
+.letter-card--complete-artwork img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -617,8 +634,7 @@ input {
   }
 
   .words-panel {
-    width: calc(100% - 60px);
-    margin-left: 60px;
+    width: 100%;
   }
 
   .menu-toggle,
@@ -674,6 +690,14 @@ input {
 
   .letter-card img {
     height: calc(100% - 23px);
+  }
+
+  .letter-card--complete-artwork {
+    padding: 0;
+  }
+
+  .letter-card--complete-artwork img {
+    height: 100%;
   }
 
   .words-panel {
