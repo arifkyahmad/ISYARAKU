@@ -107,3 +107,83 @@ document.addEventListener('keydown', (event) => {
 sidebar.querySelectorAll('.sidebar-item:not([href])').forEach((item) => {
   item.addEventListener('click', closeSidebar);
 });
+
+// Inisialisasi klien Supabase jika belum tersedia di window
+function getSupabase() {
+  if (window.supabaseClient) return window.supabaseClient;
+  if (typeof supabase !== "undefined" && typeof SUPABASE_URL !== "undefined" && typeof SUPABASE_PUBLISHABLE_KEY !== "undefined") {
+    window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    return window.supabaseClient;
+  }
+  return null;
+}
+
+// Hubungkan kartu kamus (alfabet/angka) ke halaman DetailKamus berdasarkan data Supabase
+async function inisialisasiKamusKlik() {
+  const client = getSupabase();
+  if (!client) return;
+
+  try {
+    const { data, error } = await client
+      .from('kamus')
+      .select('id, kata, jenis')
+      .in('jenis', ['alfabet', 'angka']);
+
+    if (error) {
+      console.warn('Gagal memuat data kamus:', error);
+      return;
+    }
+
+    if (!Array.isArray(data)) return;
+
+    const kamusMap = new Map();
+    data.forEach((item) => {
+      if (item && item.kata) {
+        const kataKey = String(item.kata).trim().toUpperCase();
+        const jenisKey = item.jenis ? String(item.jenis).trim().toLowerCase() : '';
+        kamusMap.set(`${jenisKey}:${kataKey}`, item.id);
+        kamusMap.set(kataKey, item.id);
+      }
+    });
+
+    const targetCards = document.querySelectorAll('.letter-card, [data-letter]');
+    targetCards.forEach((card) => {
+      const rawLetter = (card.dataset.letter || '').trim().toUpperCase();
+      if (!rawLetter) return;
+
+      const isAngka = /^\d+$/.test(rawLetter);
+      const expectedJenis = isAngka ? 'angka' : 'alfabet';
+      const id = kamusMap.get(`${expectedJenis}:${rawLetter}`) || kamusMap.get(rawLetter);
+
+      if (id) {
+        card.style.cursor = 'pointer';
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+
+        const bukaDetail = () => {
+          window.location.href = 'DetailKamus.html?id=' + encodeURIComponent(id);
+        };
+
+        card.addEventListener('click', bukaDetail);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+            event.preventDefault();
+            bukaDetail();
+          }
+        });
+      }
+    });
+  } catch (err) {
+    console.warn('Gagal memproses kartu kamus:', err);
+  }
+}
+
+// Cegah navigasi untuk kosakata yang belum tersedia di database
+document.querySelectorAll('.category-word__play, a[href*="DetailKamus.html?word="]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    alert('Isyarat ini belum tersedia');
+  });
+});
+
+inisialisasiKamusKlik();

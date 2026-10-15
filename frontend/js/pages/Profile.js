@@ -1,3 +1,12 @@
+(async () => {
+  const client = supabaseClient;
+  const { data } = await client.auth.getSession();
+  if (!data?.session) {
+    window.location.replace('SignIn.html');
+    return;
+  }
+})();
+
 const profileSidebar = document.getElementById('sidebar');
 const profileOverlay = document.getElementById('sidebarOverlay');
 const profileMenuToggle = document.getElementById('menuToggle');
@@ -73,8 +82,8 @@ async function loadProfile() {
   if (!user) return;
 
   const { data: profile, error: profileError } = await supabaseClient
-    .from('profiles')
-    .select('full_name')
+    .from('akun')
+    .select('nama')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -82,7 +91,7 @@ async function loadProfile() {
     console.error('Gagal memuat profil:', profileError.message);
   }
 
-  const name = profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name;
+  const name = profile?.nama || user.user_metadata?.full_name || user.user_metadata?.name;
   const email = user.email;
 
   if (name) {
