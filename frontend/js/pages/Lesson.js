@@ -522,7 +522,17 @@ function stopCamera() {
   showFeedbackCustom("idle", "");
 }
 
+// Prioritas status: tepat (3) > hampir (2) > belum (1)
+const STATUS_PRIORITY = { tepat: 3, hampir: 2, belum: 1 };
+
 // Save practice result to Supabase when leaving practice stage
+// Logika bintang:
+//   - 3 bintang: semua soal status 'tepat' (praktek berhasil)
+//   - 2 bintang: selesai quiz tapi ada yg skip/belum sempurna
+//   - 1 bintang: selesai tapi ada yg belum (tidak pernah terjadi normal)
+//   - 0 bintang: level belum selesai
+// Catatan: hasil LEBIH BAIK selalu menggantikan yang lebih buruk,
+//          tapi hasil LEBIH BURUK tidak akan menimpa yang sudah lebih baik.
 async function simpanProgresUser() {
   // Snapshot values before any await so they reflect the question being left
   const capturedPracticeBest = practiceBest;
@@ -553,29 +563,60 @@ async function simpanProgresUser() {
   }
   const akun_id = user.id;
 
-  // Determine payload based on practiceBest and camera state
-  let payload = null;
-  let hanyaJikaBelumAda = false;
+  // Tentukan status baru berdasarkan hasil praktek
+  let statusBaru;
+  let flagReview = false;
   if (capturedPracticeBest !== null && capturedCameraOn) {
-    payload = { akun_id, soal_level_id, status_3tingkat: capturedPracticeBest, flag_review: false };
+    // Ada hasil deteksi tangan yang valid
+    statusBaru = capturedPracticeBest; // 'tepat', 'hampir', atau 'belum'
+    flagReview = false;
   } else if (capturedPracticeBest === null && !capturedCameraOn) {
-    // Camera error or denied
-    payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
+    // Kamera error/ditolak – tandai untuk review
+    statusBaru = "belum";
+    flagReview = true;
   } else {
-    // practiceBest null but camera worked (no hand detected) – save as belum only if not exists
-    payload = { akun_id, soal_level_id, status_3tingkat: "belum", flag_review: true };
-    hanyaJikaBelumAda = true;
+    // Kamera jalan tapi tangan tidak terdeteksi – tandai untuk review, jangan overwrite
+    statusBaru = "belum";
+    flagReview = true;
   }
 
   try {
-    const upsertOptions = { onConflict: "akun_id,soal_level_id" };
-    if (hanyaJikaBelumAda) upsertOptions.ignoreDuplicates = true;
-    const { error } = await client.from("progres_user").upsert(payload, upsertOptions);
-    if (error) {
-      console.warn("Failed to upsert progress", error.message);
+    // Cek apakah sudah ada record untuk soal ini
+    const { data: existing } = await client
+      .from("progres_user")
+      .select("status_3tingkat, flag_review")
+      .eq("akun_id", akun_id)
+      .eq("soal_level_id", soal_level_id)
+      .maybeSingle();
+
+    if (existing) {
+      // Sudah ada record – hanya update jika status baru LEBIH BAIK
+      const prioritasBaru = STATUS_PRIORITY[statusBaru] || 1;
+      const prioritasLama = STATUS_PRIORITY[existing.status_3tingkat] || 1;
+
+      if (prioritasBaru > prioritasLama) {
+        // Status baru lebih baik, lakukan update
+        const { error } = await client
+          .from("progres_user")
+          .update({ status_3tingkat: statusBaru, flag_review: flagReview })
+          .eq("akun_id", akun_id)
+          .eq("soal_level_id", soal_level_id);
+        if (error) console.warn("Failed to update progress", error.message);
+        else console.log(`[simpan] Soal ${soal.kata}: ${existing.status_3tingkat} → ${statusBaru} ✓ (naik)`);
+      } else {
+        // Status lama sama atau lebih baik, jangan overwrite
+        console.log(`[simpan] Soal ${soal.kata}: tetap ${existing.status_3tingkat} (${statusBaru} tidak lebih baik)`);
+      }
+    } else {
+      // Belum ada record – insert baru
+      const { error } = await client.from("progres_user").insert({
+        akun_id, soal_level_id, status_3tingkat: statusBaru, flag_review: flagReview
+      });
+      if (error) console.warn("Failed to insert progress", error.message);
+      else console.log(`[simpan] Soal ${soal.kata}: insert baru → ${statusBaru}`);
     }
   } catch (e) {
-    console.warn("Exception during progress upsert", e);
+    console.warn("Exception during progress save", e);
   }
 }
 
@@ -601,6 +642,25 @@ let matchSelectedLetter = null;
 let matchSelectedSymbol = null;
 let totalMatches = 0;
 
+// Mendapatkan path aset gambar quiz yang sesuai untuk huruf maupun angka
+function getQuizAssetImg(soal) {
+  if (!soal) return "";
+  const kata = (soal.kata || "").toUpperCase().trim();
+
+  // Kasus angka: 1, 2, 3, 4, 5, 6, dst
+  if (soal.jenis === "angka" || /^[0-9]+$/.test(kata)) {
+    return `../assets/img/Angka ${kata} — SIBI.svg`;
+  }
+
+  // Kasus huruf Y dengan prefix l
+  if (kata === "Y") {
+    return "../assets/img/lhand-illustration Y.svg";
+  }
+
+  // Kasus huruf alfabet A-Z umum
+  return `../assets/img/hand-illustration ${kata}.svg`;
+}
+
 function renderQuizMatching() {
   const lettersCol = document.getElementById("quizLettersCol");
   const symbolsCol = document.getElementById("quizSymbolsCol");
@@ -614,12 +674,13 @@ function renderQuizMatching() {
 
   // Kolom kiri: huruf/angka sesuai daftarSoal
   daftarSoal.forEach((soal) => {
-    const kata = (soal.kata || "").toUpperCase();
+    const kata = (soal.kata || "").toUpperCase().trim();
     const btn = document.createElement("button");
     btn.className = "quiz-match-btn";
     btn.type = "button";
     btn.dataset.kata = kata;
-    btn.setAttribute("aria-label", `Huruf ${kata}`);
+    const labelType = (soal.jenis === "angka" || /^[0-9]+$/.test(kata)) ? "Angka" : "Huruf";
+    btn.setAttribute("aria-label", `${labelType} ${kata}`);
     btn.textContent = kata;
 
     btn.addEventListener("click", () => handleLetterClick(btn));
@@ -633,20 +694,15 @@ function renderQuizMatching() {
   }
 
   shuffledSoal.forEach((soal) => {
-    const kata = (soal.kata || "").toUpperCase();
-    let imgSrc = `../assets/img/hand-illustration ${kata}.svg`;
-    if (kata === "Y") {
-      imgSrc = "../assets/img/lhand-illustration Y.svg";
-    } else if (soal.jenis === "angka" || /^[0-9]+$/.test(kata)) {
-      imgSrc = `../assets/img/Angka ${kata} - SIBI.svg`;
-    }
+    const kata = (soal.kata || "").toUpperCase().trim();
+    const imgSrc = getQuizAssetImg(soal);
 
     const btn = document.createElement("button");
     btn.className = "quiz-match-btn";
     btn.type = "button";
     btn.dataset.kata = kata;
     btn.setAttribute("aria-label", `Simbol isyarat ${kata}`);
-    btn.innerHTML = `<img src="${imgSrc}" class="quiz-match-img" alt="Isyarat ${kata}" onerror="this.alt='${kata}'">`;
+    btn.innerHTML = `<img src="${imgSrc}" class="quiz-match-img" alt="Isyarat ${kata}" onerror="if(!this.dataset.fallback && this.src.includes('—')){this.dataset.fallback=true;this.src=this.src.replace('—','-');}else{this.alt='${kata}';}">`;
 
     btn.addEventListener("click", () => handleSymbolClick(btn));
     symbolsCol.appendChild(btn);
@@ -706,7 +762,10 @@ function checkMatch() {
 
     // Jika semua pasangan cocok
     if (totalMatches === daftarSoal.length) {
-      earnedStars = 3;
+      // Bintang dihitung dari database (v_status_level) saat finishLesson()
+      // berdasarkan hasil praktek yang disimpan di progres_user:
+      // - semua tepat → 3 bintang
+      // - ada yang skip/belum sempurna → 2 bintang
       setTimeout(() => {
         tampilkanModalSelamat();
       }, 500);

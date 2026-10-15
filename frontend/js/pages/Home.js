@@ -155,12 +155,65 @@ document.getElementById('btnDeleteAccount')?.addEventListener('click', async () 
 /* -----------------------------------------------------------------
    5. Lesson Nodes — klik untuk masuk pelajaran
    ----------------------------------------------------------------- */
+const STAR_FILLED = '../assets/img/BintangFilled.svg';
+const STAR_EMPTY  = '../assets/img/Bintang unfilled.svg';
+
 const NODE_LEVEL_MAP = {
   'node-s2-4': 1,
   'node-s2-3': 2,
   'node-s2-2': 3,
   'node-s2-1': 4,
 };
+
+// Mengubah nama level menjadi teks materi yang ramah (contoh: 'Huruf A B C', 'Angka 1 2 3')
+function formatLevelMateri(namaLevel, urutanLevel) {
+  if (!namaLevel) {
+    const fallbackMateri = {
+      1: "Huruf A B C",
+      2: "Angka 1 2 3",
+      3: "Huruf D E F",
+      4: "Angka 4 5 6",
+    };
+    return fallbackMateri[urutanLevel] || `Level ${urutanLevel || ''}`;
+  }
+  const nama = namaLevel.trim();
+  if (/huruf a-c/i.test(nama)) return "Huruf A B C";
+  if (/angka 1-3/i.test(nama)) return "Angka 1 2 3";
+  if (/huruf d-f/i.test(nama)) return "Huruf D E F";
+  if (/angka 4-6/i.test(nama)) return "Angka 4 5 6";
+  return nama.replace('-', ' - ');
+}
+
+// Update bintang di bawah icon level dan status node (completed/active)
+function updateAllLevelStarsAndStatus(statusLevels) {
+  if (!statusLevels || !Array.isArray(statusLevels)) return;
+
+  Object.entries(NODE_LEVEL_MAP).forEach(([nodeClass, urutan]) => {
+    const levelData = statusLevels.find((item) => item.urutan_level === urutan);
+    const nodeElement = document.querySelector(`.${nodeClass}`);
+    const starsSuffix = nodeClass.replace(/^node-/, '');
+    const starsContainer = document.querySelector(`.node-stars-${starsSuffix}`);
+
+    // Update 3 bintang di bawah icon level
+    if (starsContainer) {
+      const starImgs = starsContainer.querySelectorAll('img');
+      const bintangCount = levelData ? (levelData.bintang || 0) : 0;
+      starImgs.forEach((img, idx) => {
+        img.src = idx < bintangCount ? STAR_FILLED : STAR_EMPTY;
+      });
+    }
+
+    // Update status visual node
+    if (nodeElement && levelData) {
+      nodeElement.classList.remove('completed', 'active');
+      if (levelData.status === 'selesai') {
+        nodeElement.classList.add('completed');
+      } else if (levelData.status === 'berjalan') {
+        nodeElement.classList.add('active');
+      }
+    }
+  });
+}
 
 const lessonNodes = document.querySelectorAll('.lesson-node');
 const lessonModal = document.getElementById('lessonModal');
@@ -188,20 +241,30 @@ lessonNodes.forEach((node) => {
     // Ambil info section dan nomor node dari kelas
     const classes = [...node.classList];
     const nodeClass = classes.find((c) => c.startsWith('node-s'));
-    lessonModalLevel.textContent = node.querySelector('.node-text').textContent.trim();
+    const levelNumber = node.querySelector('.node-text').textContent.trim();
+    lessonModalLevel.textContent = levelNumber;
     console.log('Membuka pelajaran:', nodeClass);
 
     selectedLessonNode = node;
     const targetUrutan = nodeClass ? NODE_LEVEL_MAP[nodeClass] : undefined;
-    if (targetUrutan !== undefined && lessonModalTitle) {
+    const lessonModalLetters = document.getElementById('lessonModalLetters') || document.querySelector('.lesson-modal-letters');
+
+    if (targetUrutan !== undefined) {
       const matchedLevel = allLevels.find((item) => item.urutan_level === targetUrutan);
-      if (matchedLevel && matchedLevel.nama_level) {
-        lessonModalTitle.textContent = matchedLevel.nama_level;
+      if (lessonModalTitle) {
+        lessonModalTitle.textContent = 'Level';
+      }
+      if (lessonModalLetters) {
+        lessonModalLetters.textContent = formatLevelMateri(matchedLevel ? matchedLevel.nama_level : null, targetUrutan);
+      }
+    } else {
+      if (lessonModalTitle) {
+        lessonModalTitle.textContent = 'Level';
+      }
+      if (lessonModalLetters) {
+        lessonModalLetters.textContent = 'Segera Hadir';
       }
     }
-    else if (lessonModalTitle) {
-  lessonModalTitle.textContent = 'Segera hadir';
-}
 
     previousBodyOverflow = document.body.style.overflow;
     lessonModal.classList.add('open');
@@ -267,8 +330,6 @@ const completeCancel = document.getElementById('completeModalCancel');
 const completeDesc   = document.getElementById('completeModalDesc');
 const completeStars  = document.querySelectorAll('#completeModalStars img');
 
-const STAR_FILLED = '../assets/img/BintangFilled.svg';
-const STAR_EMPTY  = '../assets/img/Bintang unfilled.svg';
 let completeBodyOverflow = '';
 
 function openCompleteModal({ lessonName = 'Kata Sapaan', stars = 3 } = {}) {
@@ -319,6 +380,10 @@ if (completeParams.get('complete') === '1') {
    6. Update data pengguna (XP, dll.) dari Supabase saat load
    ----------------------------------------------------------------- */
 async function loadUserData() {
+  // Pastikan xp badge awal = 0 sebelum data dimuat
+  const xpEl = document.getElementById('xpValue') || document.querySelector('.xp-value');
+  if (xpEl) xpEl.textContent = '0';
+
   try {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     if (error || !user) return;
@@ -340,6 +405,7 @@ async function loadUserData() {
     }
 
     // Ambil status level dari view v_status_level
+    // View ini sudah security_invoker=true, jadi otomatis filter per user login
     const { data: statusLevels, error: levelError } = await supabaseClient
       .from('v_status_level')
       .select('level_id, nama_level, status, bintang, urutan_section, urutan_level')
@@ -356,11 +422,15 @@ async function loadUserData() {
         currentLevelId = activeLevel.level_id;
       }
 
+      // Hitung total bintang dari semua level yang sudah SELESAI
+      // bintang = 0 untuk level belum selesai, 1-3 untuk yang sudah selesai
       const totalBintang = statusLevels.reduce((sum, item) => sum + (item.bintang || 0), 0);
-      const xpEl = document.querySelector('.xp-value');
       if (xpEl) {
         xpEl.textContent = totalBintang;
       }
+
+      // Update tampilan bintang di bawah icon level dan status node
+      updateAllLevelStarsAndStatus(statusLevels);
     }
   } catch (err) {
     // Abaikan error saat offline / belum login
