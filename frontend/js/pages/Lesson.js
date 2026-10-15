@@ -15,7 +15,7 @@ const BASE_VIDEO  = "https://ogozgbkfgdlzlfxbmrff.supabase.co/storage/v1/object/
 let earnedStars   = 0;               // 0-3, bisa dihitung dari jawaban benar nanti
 let isFinishing   = false;
 
-const steps = ["video", "practice", "quiz"];
+const steps = ["video", "practice", "video", "practice", "video", "practice", "quiz"];
 const TOTAL_STEPS = steps.length;
 
 // State Soal & Level

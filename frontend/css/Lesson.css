@@ -193,13 +193,13 @@ body {
   flex: 1;
   display: grid;
   grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  gap: clamp(1rem, 5.5vw, 2.25rem);
 }
 
 .quiz-option {
   width: 100%;
   min-height: 0;
-  padding: 0.4rem 0.5rem;
+  padding: 0.4rem clamp(1rem, 7.6vw, 3.1rem) 0.4rem clamp(1rem, 8.6vw, 3.5rem);
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -216,9 +216,10 @@ body {
 
 .quiz-option__letter,
 .quiz-option__image {
-  width: 3.7rem;
-  height: 3.7rem;
-  flex: 0 0 3.7rem;
+  width: clamp(4rem, 12.5vw, 5rem);
+  height: auto;
+  aspect-ratio: 0.9;
+  flex: 0 0 clamp(4rem, 12.5vw, 5rem);
   display: grid;
   place-items: center;
   border-radius: 0.4rem;
@@ -293,7 +294,4 @@ body {
   .lesson { padding: 1rem; gap: 1rem; }
   .video-card { flex: 0 0 auto; aspect-ratio: 5 / 8; min-height: 0; }
   .practice-card { min-height: 20rem; padding: 1.25rem 1rem 1rem; }
-  .quiz-options { gap: 0.8rem; }
-  .quiz-option__letter,
-  .quiz-option__image { width: 3.4rem; height: 3.4rem; flex-basis: 3.4rem; }
 }

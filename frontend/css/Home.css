@@ -362,45 +362,54 @@ body {
 }
 
 .lesson-modal-card {
-  width: min(305px, calc(100vw - 56px));
-  padding: 6px;
+  width: min(220px, calc(100vw - 40px));
+  padding: 8px 12px 10px;
   overflow: hidden;
   text-align: center;
   background: #fff;
-  border-radius: 11px;
+  border-radius: 10px;
   box-shadow: 0 12px 36px rgba(30, 16, 43, 0.2);
 }
 
 .lesson-modal-hero {
   display: flex;
-  min-height: 110px;
+  min-height: 116px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 2px;
   color: #755584;
   background: linear-gradient(155deg, #b69bd9 0%, #d5baff 100%);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .lesson-modal-title {
-  font-size: 13px;
-  font-weight: 600;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1.2;
 }
 
-.lesson-modal-icon {
-  display: block;
-  width: 62px;
-  height: 62px;
-  object-fit: contain;
+.lesson-modal-level {
+  color: #fff;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lesson-modal-letters {
+  margin: 7px 0 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.1;
 }
 
 .lesson-modal-description {
-  max-width: auto;
+  max-width: none;
   margin: 7px auto 6px;
   color: #755584;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 500;
   line-height: 1.15;
 }
@@ -665,136 +674,23 @@ body {
 }
 
 /* ================================================================
-   SECTION CARDS
-   ================================================================ */
-.section-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 12px;
-  padding: 14px 18px;
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  position: relative;
-  z-index: 3;
-}
-
-/* Kartu section menutupi sedikit ujung jalur sebelumnya agar alur terasa
-   tersambung; ruang yang sama dikembalikan setelah kartu supaya ritme layout
-   dan posisi jalur berikutnya tidak berubah. */
-.path-wrapper + .section-card {
-  margin-top: -32px;
-  margin-bottom: 0;
-}
-
-.section-card--purple {
-  background: #d0b8e8;
-}
-
-.section-card--dark-purple {
-  background: linear-gradient(135deg, #4B3B8C, #7A5FC3);
-  color: #fff;
-}
-
-.section-card--teal {
-  background: linear-gradient(135deg, #106B67, #239A94);
-  color: #fff;
-}
-
-.section-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.section-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  opacity: 0.75;
-  text-transform: uppercase;
-}
-
-.section-card--purple .section-label {
-  color: #5b3f8a;
-}
-
-.section-card--dark-purple .section-label,
-.section-card--teal .section-label {
-  color: rgba(255,255,255,0.75);
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.section-card--purple .section-title {
-  color: #2d1a5e;
-}
-
-.section-card--dark-purple .section-title,
-.section-card--teal .section-title {
-  color: #fff;
-}
-
-/* Tombol buku di kanan section card */
-.section-book-btn {
-  background: rgba(255,255,255,0.2);
-  border: none;
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.section-book-btn:hover {
-  background: rgba(255,255,255,0.35);
-}
-
-.section-book-btn img {
-  width: 22px;
-  height: 22px;
-}
-
-/* ================================================================
    PATH WRAPPER — jalur berkelok + lesson nodes
    ================================================================ */
 .path-wrapper {
   position: relative;
   z-index: 1;
   width: 100%;
-  /* [UBAH-2] max-width:380px (sama dengan section-card) itu yang bikin gambar jalur
-     ikut melebar sampai 380px padahal aslinya cuma 220px — karena height mengikuti
-     aspect-ratio, lebar yang kebablasan bikin tinggi section ikut melar jauh
-     (Kantin jadi ~967px, seharusnya ~560px). Dikembalikan ke lebar sempit sesuai
-     proporsi desain asli (220px), supaya jalur tetap seperti pita ramping di
-     tengah, bukan selebar section-card. */
+  /* Keep the route narrow while providing enough height for all lesson nodes. */
   max-width: 220px;
   margin: 0 auto;
-  /* [UBAH] overflow:hidden ditambah supaya tinggi wrapper benar-benar membatasi
-     area yang terlihat dari .jalur-img (dulu nggak ada, jadi gambar yang lebih
-     tinggi dari wrapper malah ikut melebarkan wrapper-nya alih-alih dipotong) */
-  overflow: hidden;
+  aspect-ratio: 1 / 4.18;
 }
 
-.section-card + .path-wrapper {
-  margin-top: 0;
-}
-
-/* Gambar jalur berkelok.
-   [UBAH] width:220px (tanpa height) diganti width:100% + height:auto, supaya
-   gambar selalu mengisi penuh lebar .path-wrapper dan tingginya tetap mengikuti
-   rasio asli SVG (335:997) di ukuran berapa pun — bagian yang melebihi tinggi
-   wrapper otomatis terpotong rapi oleh overflow:hidden di atas. */
 .jalur-img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: fill;
   opacity: 0.9;
   pointer-events: none;
   user-select: none;
@@ -842,8 +738,8 @@ body {
 
 /* Node frame image */
 .node-frame {
-  width: 68px;
-  height: 68px;
+  width: 100px;
+  height: 100px;
   position: absolute;
   top: 0;
   left: 0;
@@ -859,17 +755,6 @@ body {
   margin-top: -6px; /* koreksi posisi agar di tengah circle */
 }
 
-/* Icon kecil untuk tangan/buku */
-.node-icon-sm {
-  width: 22px;
-  height: 22px;
-  object-fit: contain;
-  position: relative;
-  z-index: 2;
-  filter: brightness(0) invert(1);
-  margin-top: -6px;
-}
-
 /* Teks di dalam node (123, ABC) */
 .node-text {
   font-size: 13px;
@@ -882,23 +767,54 @@ body {
 }
 
 /* ================================================================
-   POSISI NODES — Section 3 (Taman Bermain)
-   [UBAH-3] Angka % sebelumnya cuma hasil konversi dari px lama, dan px lama
-   itu sendiri ternyata nggak pernah divalidasi ke bentuk kurva aslinya (jadi
-   node-nya "mengambang" di samping jalur, bukan di atasnya - ini yang bikin
-   kamu lihat masih miring/geser dari jalur).
-   Sekarang dihitung ULANG dengan membaca path asli Jalur.svg (3 cubic bezier)
-   dan mencari titik x di jalur pada tiap tinggi (top%) node - jadi left% di
-   bawah ini adalah TITIK TENGAH JALUR itu sendiri di tinggi tersebut.
-   transform:translate(-50%,-50%) dipakai supaya PUSAT lingkaran node (bukan
-   sudut kiri-atasnya) yang diletakkan tepat di titik itu - bekerja sama
-   akuratnya baik di ukuran node 68px (mobile) maupun 80px (desktop).
+   POSISI NODES — mengikuti jalur gabungan dari atas ke bawah
    ================================================================ */
+.node-level-9, .node-level-8, .node-level-7 {
+  width: 68px;
+  height: 68px;
+}
+
+.node-level-9 {
+  top: 3%;
+  left: 67.7%;
+}
+
+.node-stars-level-9 {
+  position: absolute;
+  top: calc(3% + 45px);
+  left: 67.7%;
+  margin: -7px 0 0 -24px;
+}
+
+.node-level-8 {
+  top: 14%;
+  left: 60.9%;
+}
+
+.node-stars-level-8 {
+  position: absolute;
+  top: calc(14% + 45px);
+  left: 60.9%;
+  margin: -7px 0 0 -24px;
+}
+
+.node-level-7 {
+  top: 25%;
+  left: 36.1%;
+}
+
+.node-stars-level-7 {
+  position: absolute;
+  top: calc(25% + 45px);
+  left: 36.1%;
+  margin: -7px 0 0 -24px;
+}
+
 .node-s3-1 {
   width: 68px;
   height: 68px;
-  top: 15.3%;
-  left: 66.8%;
+  top: 36%;
+  left: 14.6%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -906,16 +822,16 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(15.3% + 45px);
-  left: 66.8%;
+  top: calc(36% + 45px);
+  left: 14.6%;
   margin: -7px 0 0 -24px;
 }
 
 .node-s3-2 {
   width: 68px;
   height: 68px;
-  top: 52.8%;
-  left: 24.1%;
+  top: 47%;
+  left: 23.5%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -923,21 +839,16 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(52.8% + 45px);
-  left: 24.1%;
+  top: calc(47% + 45px);
+  left: 23.5%;
   margin: -7px 0 0 -24px;
 }
 
-/* ================================================================
-   POSISI NODES — Section 2 (Kantin)
-   [UBAH-3] sama seperti Section 3: left% dihitung dari titik jalur asli
-   (lihat penjelasan di atas Section 3), bukan konversi px lama.
-   ================================================================ */
 .node-s2-1 {
   width: 68px;
   height: 68px;
-  top: 5.4%;
-  left: 67.6%;
+  top: 58%;
+  left: 53.8%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -945,16 +856,16 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(5.4% + 45px);
-  left: 67.6%;
+  top: calc(58% + 45px);
+  left: 53.8%;
   margin: -7px 0 0 -24px;
 }
 
 .node-s2-2 {
   width: 68px;
   height: 68px;
-  top: 26.8%;
-  left: 41.4%;
+  top: 69%;
+  left: 81.9%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -962,16 +873,16 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(26.8% + 45px);
-  left: 41.4%;
+  top: calc(69% + 45px);
+  left: 81.9%;
   margin: -7px 0 0 -24px;
 }
 
 .node-s2-3 {
   width: 68px;
   height: 68px;
-  top: 50%;
-  left: 16%;
+  top: 80%;
+  left: 85.7%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -979,16 +890,16 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(50% + 45px);
-  left: 16%;
+  top: calc(80% + 45px);
+  left: 85.7%;
   margin: -7px 0 0 -24px;
 }
 
 .node-s2-4 {
   width: 68px;
   height: 68px;
-  top: 71.4%;
-  left: 64.9%;
+  top: 91%;
+  left: 66.2%;
   margin: -34px 0 0 -34px; /* [UBAH-4] ganti dari transform ke margin, karena transform dipakai juga oleh :hover dan Home.js (scale saat diklik) — kalau posisi pakai transform juga, dua-duanya akan saling timpa dan node sempat "lompat" ke pojok kiri-atas saat diklik/hover */
 }
 
@@ -996,8 +907,8 @@ body {
   position: absolute;
   display: flex;
   gap: 3px;
-  top: calc(71.4% + 45px);
-  left: 64.9%;
+  top: calc(91% + 45px);
+  left: 66.2%;
   margin: -7px 0 0 -24px;
 }
 
@@ -1023,11 +934,8 @@ body {
   z-index: 1;
 }
 
-/* [UBAH] top px -> % (relatif tinggi .path-wrapper, section 3), biar tetap
-   sejajar dengan tikungan jalur di ukuran layar manapun. right tetap px
-   karena cuma offset kecil dari tepi, tidak krusial terhadap jalur. */
 .scene-toko {
-  top: 27.8%;
+  top: 30%;
   right: -10px;
 }
 
@@ -1035,10 +943,9 @@ body {
   width: 120px;
 }
 
-/* [UBAH] top px -> % (relatif tinggi .path-wrapper, section 2) */
 .scene-papan {
-  top: 39.3%;
-  left: 102px;
+  top: 62%;
+  left: 0;
   width: 158px;
   height: 110px;
   z-index: 4;
@@ -1060,33 +967,12 @@ body {
 }
 
 /* ================================================================
-   PATH WRAPPER HEIGHT — untuk section 3 vs section 2
-   [UBAH] min-height (px tetap) diganti aspect-ratio. Dengan .jalur-img
-   sekarang width:100%/height:auto, aspect-ratio ini menentukan seberapa
-   banyak bagian atas gambar jalur yang "ditampilkan" sebelum dipotong -
-   dan karena berupa RASIO (bukan px), proporsinya tetap sama persis di
-   breakpoint manapun (mobile/desktop), jadi node yang posisinya dalam %
-   di bawah akan selalu pas nempel di jalurnya.
-   Angka rasio diturunkan dari ukuran lama (360px & 560px tinggi saat
-   .jalur-img lebar 220px) supaya tampilannya sama seperti sebelumnya,
-   hanya saja sekarang benar-benar konsisten di semua ukuran layar.
-   ================================================================ */
-.path-wrapper {
-  aspect-ratio: 1 / 1.636;
-}
-
-/* Section 2 butuh lebih tinggi karena 4 nodes */
-.section-card--dark-purple + .path-wrapper {
-  aspect-ratio: 1 / 2.543;
-}
-
-/* ================================================================
    [BARU] RESPONSIVE — HP sempit (<= 600px)
    Di lebar sempit, .deco-slide (right:0, width 180px) dan .deco-swing
    (right:150px, width 160px) saling tumpang tindih DAN menutupi bagian
    atas .learning-path-container yang di layar ini juga hampir selebar
    viewport. Diperkecil & didorong lebih ke pojok supaya tidak menutupi
-   unit-banner/section-card, tanpa menghilangkan elemennya.
+   unit-banner, tanpa menghilangkan elemennya.
    ================================================================ */
 @media (max-width: 600px) {
   .deco-slide {
@@ -1219,30 +1105,16 @@ body {
 
   .lesson-modal-card {
     width: min(220px, calc(100vw - 40px));
-    min-height: 220px;
-    padding: 5px;
-    border-radius: 9px;
   }
 
   .lesson-modal-hero {
-    min-height: 110px;
-    gap: 2px;
-    border-radius: 6px;
-  }
-
-  .lesson-modal-title {
-    font-size: 11px;
-  }
-
-  .lesson-modal-icon {
-    width: 44px;
-    height: 44px;
+    min-height: 116px;
+    max-height: 116px;
   }
 
   .lesson-modal-description {
-    max-width: none;
     margin: 3px auto 4px;
-    font-size: 8px;
+    font-size: 10px;
     line-height: 1.2;
   }
 
@@ -1251,10 +1123,10 @@ body {
   }
 
   .lesson-modal-actions button {
-    min-height: 23px;
-    padding: 3px 10px;
-    border-radius: 6px;
-    font-size: 10px;
+    min-height: 31px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
   }
 }
 
@@ -1274,15 +1146,6 @@ body {
   .learning-path-container {
     max-width: 640px;
     padding: 60px 32px 100px;
-  }
-
-  .section-card {
-    max-width: 480px;
-    padding: 18px 24px;
-  }
-
-  .section-title {
-    font-size: 20px;
   }
 
   .unit-badge {
@@ -1334,11 +1197,6 @@ body {
     height: 42px;
   }
 
-  .node-icon-sm {
-    width: 26px;
-    height: 26px;
-  }
-
   .node-text {
     font-size: 15px;
   }
@@ -1350,35 +1208,49 @@ body {
 
   /* [UBAH-4] node 80px (bukan 68px) di desktop, jadi margin offset buat
      centering-nya juga perlu disesuaikan (setengah dari ukuran baru) */
+  .node-level-9, .node-level-8, .node-level-7,
   .node-s3-1, .node-s3-2,
   .node-s2-1, .node-s2-2, .node-s2-3, .node-s2-4 {
     margin: -40px 0 0 -40px;
   }
 
+  .node-stars-level-9 {
+    top: calc(3% + 52px);
+  }
+
+  .node-stars-level-8 {
+    top: calc(14% + 52px);
+  }
+
+  .node-stars-level-7 {
+    top: calc(25% + 52px);
+  }
+
   .node-stars-s3-1 {
-    top: calc(15.3% + 52px);
+    top: calc(36% + 52px);
   }
 
   .node-stars-s3-2 {
-    top: calc(52.8% + 52px);
+    top: calc(47% + 52px);
   }
 
   .node-stars-s2-1 {
-    top: calc(5.4% + 52px);
+    top: calc(58% + 52px);
   }
 
   .node-stars-s2-2 {
-    top: calc(26.8% + 52px);
+    top: calc(69% + 52px);
   }
 
   .node-stars-s2-3 {
-    top: calc(50% + 52px);
+    top: calc(80% + 52px);
   }
 
   .node-stars-s2-4 {
-    top: calc(71.4% + 52px);
+    top: calc(91% + 52px);
   }
 
+  .node-stars-level-9, .node-stars-level-8, .node-stars-level-7,
   .node-stars-s3-1, .node-stars-s3-2,
   .node-stars-s2-1, .node-stars-s2-2, .node-stars-s2-3, .node-stars-s2-4 {
     margin: -8px 0 0 -27px;
@@ -1408,10 +1280,6 @@ body {
 @media (min-width: 1200px) {
   .learning-path-container {
     max-width: 720px;
-  }
-
-  .section-card {
-    max-width: 560px;
   }
 
   .deco-slide {
@@ -1494,4 +1362,313 @@ body {
   .complete-modal-stars img { width: 36px; height: 36px; }
   .complete-modal-stars img:nth-child(2) { width: 44px; height: 44px; margin-bottom: 10px; }
   .complete-modal-desc { margin-bottom: 10px; font-size: 10px; }
+}
+
+:root {
+  --home-header-height: 56px;
+  --home-mobile-nav-height: 0px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.main-content {
+  position: fixed;
+  inset: var(--home-header-height) 0 0;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+.top-header {
+  height: var(--home-header-height);
+  padding: 0 14px;
+}
+
+.hamburger-btn {
+  top: calc(var(--home-header-height) + 8px);
+  left: 10px;
+}
+
+.learning-path-container {
+  position: absolute;
+  inset: 0;
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.unit-banner {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+.unit-badge {
+  padding: 6px 12px;
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.path-wrapper {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(76vw, calc((100dvh - var(--home-header-height) - var(--home-mobile-nav-height)) * 0.41), 280px);
+  height: min(calc(100% - var(--home-mobile-nav-height)), calc(100vw / 0.336));
+  max-width: none;
+  margin: 0;
+  transform: translateX(-50%);
+  --lesson-node-size: clamp(40px, 19%, 54px);
+  --lesson-stars-offset: calc(var(--lesson-node-size) / 2 + 14px);
+}
+
+.jalur-img {
+  object-fit: fill;
+}
+
+.lesson-node,
+.node-level-9,
+.node-level-8,
+.node-level-7,
+.node-s3-1,
+.node-s3-2,
+.node-s2-1,
+.node-s2-2,
+.node-s2-3,
+.node-s2-4 {
+  width: var(--lesson-node-size) !important;
+  height: var(--lesson-node-size) !important;
+  margin: calc(var(--lesson-node-size) / -2) 0 0 calc(var(--lesson-node-size) / -2);
+}
+
+.node-frame {
+  width: 100%;
+  height: 141.176%;
+}
+
+.lesson-node .node-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.node-level-9 { top: 11%; left: 65%; }
+.node-stars-level-9 { top: calc(11% + var(--lesson-stars-offset)); left: 65%; }
+.node-level-8 { top: 21.3%; left: 46.3%; }
+.node-stars-level-8 { top: calc(21.3% + var(--lesson-stars-offset)); left: 46.3%; }
+.node-level-7 { top: 30.83%; left: 20.72%; }
+.node-stars-level-7 { top: calc(30.83% + var(--lesson-stars-offset)); left: 20.72%; }
+.node-s3-1 { top: 42.39%; left: 16.57%; }
+.node-stars-s3-1 { top: calc(42.39% + var(--lesson-stars-offset)); left: 16.57%; }
+.node-s3-2 { top: 51.87%; left: 34.69%; }
+.node-stars-s3-2 { top: calc(51.87% + var(--lesson-stars-offset)); left: 34.69%; }
+.node-s2-1 { top: 59%; left: 57.7%; }
+.node-stars-s2-1 { top: calc(59% + var(--lesson-stars-offset)); left: 57.7%; }
+.node-s2-2 { top: 68.6%; left: 81.4%; }
+.node-stars-s2-2 { top: calc(68.6% + var(--lesson-stars-offset)); left: 81.4%; }
+.node-s2-3 { top: 81.06%; left: 83.48%; }
+.node-stars-s2-3 { top: calc(81.06% + var(--lesson-stars-offset)); left: 83.48%; }
+.node-s2-4 { top: 90.13%; left: 65.54%; }
+.node-stars-s2-4 { top: calc(90.13% + var(--lesson-stars-offset)); left: 65.54%; }
+
+.node-stars-level-9,
+.node-stars-level-8,
+.node-stars-level-7,
+.node-stars-s3-1,
+.node-stars-s3-2,
+.node-stars-s2-1,
+.node-stars-s2-2,
+.node-stars-s2-3,
+.node-stars-s2-4 {
+  margin: 0 0 0 -24px;
+}
+
+.node-stars img {
+  width: 14px;
+  height: 14px;
+}
+
+.deco-slide {
+  top: 8%;
+  right: 15%;
+  transform: none;
+}
+
+.deco-slide img {
+  width: clamp(90px, 12vw, 120px);
+}
+
+.deco-swing {
+  top: -2%;
+  right: 2%;
+}
+
+.deco-swing img {
+  width: clamp(80px, 11vw, 105px);
+}
+
+.deco-garland-top {
+  top: 4%;
+  right: auto;
+  left: 24%;
+}
+
+.deco-garland-top img {
+  width: clamp(130px, 16vw, 170px);
+}
+
+.deco-garland-mid1 {
+  top: 70%;
+  left: 9%;
+}
+
+.deco-garland-mid1 img,
+.deco-garland-mid2 img {
+  width: clamp(120px, 14vw, 150px);
+}
+
+.deco-garland-mid2 {
+  top: 35%;
+  right: 10%;
+}
+
+.deco-balloon {
+  top: 54%;
+  right: 2.5%;
+}
+
+.deco-balloon img {
+  width: clamp(34px, 4vw, 46px);
+}
+
+.deco-teal-balloon {
+  top: 4%;
+  bottom: auto;
+  left: 2.5%;
+}
+
+.deco-teal-balloon img {
+  width: clamp(34px, 4vw, 46px);
+}
+
+.scene-toko {
+  top: 27%;
+  right: -14px;
+}
+
+.scene-toko img {
+  width: clamp(72px, 10vw, 100px);
+}
+
+.scene-papan {
+  top: 66%;
+  left: 25%;
+  width: 120px;
+  height: 85px;
+}
+
+.scene-papan-board {
+  width: 86px;
+}
+
+.scene-papan-bag {
+  left: 68px;
+  top: 45px;
+  width: 36px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --home-mobile-nav-height: 52px;
+  }
+
+  .path-wrapper {
+    width: min(76vw, calc((100dvh - var(--home-header-height) - var(--home-mobile-nav-height)) * 0.41), 280px);
+    height: min(calc(100% - var(--home-mobile-nav-height)), calc(100vw / 0.336));
+  }
+
+  .node-text {
+    font-size: 15px;
+  }
+
+  .node-stars-level-9 { top: calc(11% + var(--lesson-stars-offset)); }
+  .node-stars-level-8 { top: calc(21% + var(--lesson-stars-offset)); }
+  .node-stars-level-7 { top: calc(30.83% + var(--lesson-stars-offset)); }
+  .node-stars-s3-1 { top: calc(42.39% + var(--lesson-stars-offset)); }
+  .node-stars-s3-2 { top: calc(51.87% + var(--lesson-stars-offset)); }
+  .node-stars-s2-1 { top: calc(60% + var(--lesson-stars-offset)); }
+  .node-stars-s2-2 { top: calc(70% + var(--lesson-stars-offset)); }
+  .node-stars-s2-3 { top: calc(81.06% + var(--lesson-stars-offset)); }
+  .node-stars-s2-4 { top: calc(90.13% + var(--lesson-stars-offset)); }
+
+  .node-stars-level-9,
+  .node-stars-level-8,
+  .node-stars-level-7,
+  .node-stars-s3-1,
+  .node-stars-s3-2,
+  .node-stars-s2-1,
+  .node-stars-s2-2,
+  .node-stars-s2-3,
+  .node-stars-s2-4 {
+    margin-left: -18px;
+  }
+
+  .node-stars img {
+    width: 11px;
+    height: 11px;
+  }
+
+  .deco-slide img {
+    width: clamp(54px, 12vw, 80px);
+  }
+
+  .deco-swing img {
+    width: clamp(52px, 11vw, 74px);
+  }
+
+  .deco-garland-top {
+    left: 24%;
+  }
+
+  .deco-garland-top img {
+    width: clamp(90px, 30vw, 140px);
+  }
+
+  .deco-garland-mid1 img,
+  .deco-garland-mid2 img {
+    width: clamp(82px, 22vw, 120px);
+  }
+
+  .deco-balloon img,
+  .deco-teal-balloon img {
+    width: clamp(28px, 8vw, 36px);
+  }
+
+  .scene-toko img {
+    width: clamp(46px, 16vw, 72px);
+  }
+
+  .scene-papan {
+    width: 90px;
+    height: 64px;
+  }
+
+  .scene-papan-board {
+    width: 64px;
+  }
+
+  .scene-papan-bag {
+    left: 51px;
+    top: 34px;
+    width: 27px;
+  }
 }
