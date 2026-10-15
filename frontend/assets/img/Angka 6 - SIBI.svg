@@ -1,0 +1,39 @@
+<svg width="182" height="232" viewBox="0 0 182 232" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0.5" y="0.5" width="181" height="231" rx="15.5" fill="white"/>
+  <rect x="0.5" y="0.5" width="181" height="231" rx="15.5" stroke="#262E33"/>
+  
+  <!-- Angka 6 Teal Header -->
+  <path d="M100.8 45.2C99.2 43.6 96.8 42.4 93.9 42.4C87.8 42.4 83.5 47.6 83.2 56.1H83.4C85.2 53.6 88.3 52.1 92.1 52.1C97.9 52.1 102.5 56.4 102.5 62.7C102.5 69.1 97.8 73.5 91.5 73.5C84.3 73.5 79.2 67.8 79.2 56.8C79.2 44.5 85.5 36.5 95.8 36.5C100.2 36.5 103.5 38.3 105.8 41.2L100.8 45.2ZM91.8 57.5C88.2 57.5 85.6 60.1 85.6 63.3C85.6 66.5 88.2 68.8 91.6 68.8C95.1 68.8 97.6 66.4 97.6 63.2C97.6 59.9 95.1 57.5 91.8 57.5Z" fill="#1F9C96"/>
+  
+  <!-- Ilustrasi Tangan SIBI Angka 6 (Ibu jari menyentuh kelingking, 3 jari tegak) -->
+  <g transform="translate(41, 88)">
+    <!-- Lengan / Pergelangan -->
+    <path d="M26 100 L26 122 C26 125 74 125 74 122 L74 100 Z" fill="#FAD0B1" stroke="#262E33" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Telapak Tangan Dasar -->
+    <path d="M22 62 C20 78 22 98 26 106 L74 106 C78 98 80 78 78 62 Z" fill="#FAD0B1"/>
+    
+    <!-- Jari Manis (Tegak) -->
+    <rect x="53" y="10" width="13" height="58" rx="6.5" fill="#FAD0B1" stroke="#262E33" stroke-width="3"/>
+    
+    <!-- Jari Tengah (Tegak lebih tinggi) -->
+    <rect x="40" y="2" width="14" height="66" rx="7" fill="#FAD0B1" stroke="#262E33" stroke-width="3"/>
+    
+    <!-- Jari Telunjuk (Tegak) -->
+    <rect x="27" y="12" width="13" height="56" rx="6.5" fill="#FAD0B1" stroke="#262E33" stroke-width="3"/>
+    
+    <!-- Garis buku jari telunjuk & tengah -->
+    <path d="M30 30 Q33.5 32 37 30" stroke="#E0A785" stroke-width="2" stroke-linecap="round"/>
+    <path d="M43 22 Q47 24 51 22" stroke="#E0A785" stroke-width="2" stroke-linecap="round"/>
+    <path d="M56 30 Q59.5 32 63 30" stroke="#E0A785" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Jari Kelingking (Menekuk ke arah dalam/tengah) -->
+    <path d="M68 52 C72 52 75 58 73 66 C71 74 65 77 56 75 C51 74 48 70 51 66 C53 62 60 63 64 63 C65 63 68 59 68 52 Z" fill="#FAD0B1" stroke="#262E33" stroke-width="3" stroke-linejoin="round"/>
+    
+    <!-- Ibu Jari (Menekuk menyentuh kelingking) -->
+    <path d="M19 65 C17 55 24 50 32 54 C40 58 48 64 54 67 C57 69 57 73 54 75 C50 78 44 74 38 72 C31 70 23 80 20 72 Z" fill="#FAD0B1" stroke="#262E33" stroke-width="3" stroke-linejoin="round"/>
+    
+    <!-- Outline tepi telapak kiri & kanan -->
+    <path d="M26 106 C23 96 21 80 20 72" stroke="#262E33" stroke-width="3" stroke-linecap="round"/>
+    <path d="M74 106 C78 96 80 80 77 65" stroke="#262E33" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
